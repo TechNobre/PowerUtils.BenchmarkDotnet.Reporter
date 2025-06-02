@@ -1,0 +1,102 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ProjectGuid>38e8dca3-2e2f-4bc7-a90a-b5cbca282627</ProjectGuid>
+
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+
+    <AssemblyName>PBReporter</AssemblyName>
+    <RootNamespace>PowerUtils.BenchmarkDotnet.Reporter</RootNamespace>
+
+    <Version>1.0.0</Version>
+
+    <PackageOutputPath>bin\</PackageOutputPath>
+
+    <Nullable>enable</Nullable>
+    <UserSecretsId>94a48ccf-feff-42b4-9dd8-595ea3b49567</UserSecretsId>
+  </PropertyGroup>
+
+
+  <PropertyGroup>
+    <PackAsTool>True</PackAsTool>
+    <ToolCommandName>pbreporter</ToolCommandName>
+  </PropertyGroup>
+
+
+  <!-- Package details -->
+  <PropertyGroup>
+    <CurrentYear>$([System.DateTime]::UtcNow.ToString(yyyy))</CurrentYear>
+
+    <PackageId>PowerUtils.BenchmarkDotnet.Reporter</PackageId>
+    <title>PowerUtils.BenchmarkDotnet.Reporter</title>
+    <Product>PowerUtils.BenchmarkDotnet.Reporter</Product>
+
+    <Authors>Nelson Nobre</Authors>
+    <Company>TechNobre</Company>
+
+    <License>MIT</License>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <Copyright>Copyright © $(CurrentYear) by TechNobre</Copyright>
+
+    <Description>Tool to analyze and compare .NET benchmark reports</Description>
+    <Summary>Tool to analyze and compare .NET benchmark reports</Summary>
+    <PackageTags>PowerUtils;Utils;Helpers;Results;Reports;BenchmarkDotnet;Benchmark;Tools</PackageTags>
+    <PackageProjectUrl>https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter</PackageProjectUrl>
+    <NeutralLanguage>en-GB</NeutralLanguage>
+
+    <PackageIcon>logo_128x128.png</PackageIcon>
+    <PackageReadmeFile>README.nuget.org.md</PackageReadmeFile>
+
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter</RepositoryUrl>
+  </PropertyGroup>
+
+
+  <!-- Source link -->
+  <PropertyGroup>
+    <Deterministic>true</Deterministic>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols Condition=" '$(DebugType)' != 'embedded' ">true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+
+  <!-- DOCUMENTATION -->
+  <PropertyGroup>
+    <DocumentationFile>bin\PowerUtils.BenchmarkDotnet.Reporter.xml</DocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn> <!-- Prevent XML documentation warnings -->
+  </PropertyGroup>
+
+  <!-- Tests -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="$(AssemblyName).Tests" />
+  </ItemGroup>
+
+
+  <ItemGroup Condition="'$(Configuration)'=='Release'">
+    <None Include="..\assets\logo\logo_128x128.png" Pack="true" PackagePath="" />
+    <None Include="..\LICENSE" Pack="true" PackagePath="" />
+    <None Include="..\README.nuget.org.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="MarkdownLog" Version="0.9.64" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+  </ItemGroup>
+
+
+</Project>

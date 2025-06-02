@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": ".NET",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/bin/Debug/net9.0/PBReporter.dll",
+      "args": [
+        //"--version"
+        //"compare", "-h"
+        "compare", "-f", "console", "-b", "../tests/test-data/report-02/Benchmark-report-full.json", "-t", "../tests/test-data/report-01/Benchmark-report-full.json", "-tm", "4%", "-ta", "5%"
+        //"compare", "-f", "markdown", "-b", "../tests/test-data/report-01/Benchmark-report-full.json", "-t", "../tests/test-data/report-02/Benchmark-report-full.json", "-tm", "12ns", "-ta", "5%"
+      ],
+      "cwd": "${workspaceFolder}/src",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    }
+  ]
+}
