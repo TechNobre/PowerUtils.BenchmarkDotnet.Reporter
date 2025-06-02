@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/PowerUtils.BenchmarkDotnet.Reporter.csproj" />
+  <Project Path="tests/PowerUtils.BenchmarkDotnet.Reporter.Tests/PowerUtils.BenchmarkDotnet.Reporter.Tests.csproj" />
+</Solution>
