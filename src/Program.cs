@@ -29,4 +29,4 @@ serviceCollection
     .AddTransient<IComparerCommand, ComparerCommand>();
 
 var tool = new ToolCommands(serviceCollection.BuildServiceProvider());
-tool.Invoke(args);
+await tool.InvokeAsync(args);
