@@ -103,6 +103,7 @@ public sealed class ConsoleExporterTests
         var report = new ComparerReport();
         report.Comparisons.Add(new()
         {
+            Type = "Bmk",
             Name = "Name",
             FullName = "Full",
 
@@ -127,13 +128,13 @@ public sealed class ConsoleExporterTests
         _output[8].ShouldBe("📊 RESULTS:");
         _output[9].ShouldBe(Environment.NewLine);
         _output[10].ShouldBe(Environment.NewLine);
-        _output[11].ShouldBe("Report       Method     Mean      Allocated");
+        _output[11].ShouldBe("Report       Type     Method     Mean      Allocated");
         _output[12].ShouldBe(Environment.NewLine);
-        _output[13].ShouldBe("───────────────────────────────────────────");
+        _output[13].ShouldBe("────────────────────────────────────────────────────");
         _output[14].ShouldBe(Environment.NewLine);
-        _output[15].ShouldBe("Baseline     Name       12 ns     20 B");
+        _output[15].ShouldBe("Baseline     Bmk      Name       12 ns     20 B");
         _output[16].ShouldBe(Environment.NewLine);
-        _output[17].ShouldBe("Target                  12 ns     20 B");
+        _output[17].ShouldBe("Target                           12 ns     20 B");
         _output[18].ShouldBe(Environment.NewLine);
         _output[19].ShouldBe(Environment.NewLine);
         _output[20].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
@@ -147,6 +148,7 @@ public sealed class ConsoleExporterTests
         var report = new ComparerReport();
         report.Comparisons.Add(new()
         {
+            Type = "Bmk7",
             Name = "Method1",
             FullName = "FullMethod1",
 
@@ -155,6 +157,7 @@ public sealed class ConsoleExporterTests
         });
         report.Comparisons.Add(new()
         {
+            Type = "Bmk8",
             Name = "Method2",
             FullName = "FullMethod2",
 
@@ -179,24 +182,22 @@ public sealed class ConsoleExporterTests
         _output[8].ShouldBe("📊 RESULTS:");
         _output[9].ShouldBe(Environment.NewLine);
         _output[10].ShouldBe(Environment.NewLine);
-        _output[11].ShouldBe("Report       Method      Mean      Allocated");
+        _output[11].ShouldBe("Report       Type     Method      Mean      Allocated");
         _output[12].ShouldBe(Environment.NewLine);
-        _output[13].ShouldBe("────────────────────────────────────────────");
+        _output[13].ShouldBe("─────────────────────────────────────────────────────");
         _output[14].ShouldBe(Environment.NewLine);
-        _output[15].ShouldBe("Baseline     Method1     43 ns     122 B");
+        _output[15].ShouldBe("Baseline     Bmk7     Method1     43 ns     122 B");
         _output[16].ShouldBe(Environment.NewLine);
-        _output[17].ShouldBe("Target                   43 ns     122 B");
+        _output[17].ShouldBe("Target                            43 ns     122 B");
         _output[18].ShouldBe(Environment.NewLine);
-        _output[19].ShouldBe("Baseline     Method2     52 ns     21 B");
+        _output[19].ShouldBe("Baseline     Bmk8     Method2     52 ns     21 B");
         _output[20].ShouldBe(Environment.NewLine);
-        _output[21].ShouldBe("Target                   52 ns     21 B");
+        _output[21].ShouldBe("Target                            52 ns     21 B");
         _output[22].ShouldBe(Environment.NewLine);
         _output[23].ShouldBe(Environment.NewLine);
         _output[24].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
         _output[25].ShouldBe(Environment.NewLine);
     }
-
-
 
     [Fact]
     public void When_Benchmarks_Have_Different_Values_Should_Print_Differences_In_ResultRows()
@@ -205,6 +206,7 @@ public sealed class ConsoleExporterTests
         var report = new ComparerReport();
         report.Comparisons.Add(new()
         {
+            Type = "Bmk3",
             Name = "Method1",
             FullName = "FullMethod1",
 
@@ -229,13 +231,13 @@ public sealed class ConsoleExporterTests
         _output[8].ShouldBe("📊 RESULTS:");
         _output[9].ShouldBe(Environment.NewLine);
         _output[10].ShouldBe(Environment.NewLine);
-        _output[11].ShouldBe("Report       Method      Mean             Allocated");
+        _output[11].ShouldBe("Report       Type     Method      Mean             Allocated");
         _output[12].ShouldBe(Environment.NewLine);
-        _output[13].ShouldBe("─────────────────────────────────────────────────────");
+        _output[13].ShouldBe("──────────────────────────────────────────────────────────────");
         _output[14].ShouldBe(Environment.NewLine);
-        _output[15].ShouldBe("Baseline     Method1     50 ns            100 B");
+        _output[15].ShouldBe("Baseline     Bmk3     Method1     50 ns            100 B");
         _output[16].ShouldBe(Environment.NewLine);
-        _output[17].ShouldBe("Target                   25 ns (-50%)     75 B (-25%)");
+        _output[17].ShouldBe("Target                            25 ns (-50%)     75 B (-25%)");
         _output[18].ShouldBe(Environment.NewLine);
         _output[19].ShouldBe(Environment.NewLine);
         _output[20].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
@@ -249,6 +251,7 @@ public sealed class ConsoleExporterTests
         var report = new ComparerReport();
         report.Comparisons.Add(new()
         {
+            Type = "Bmk1",
             Name = "xpto",
             FullName = "Full",
 
@@ -273,13 +276,13 @@ public sealed class ConsoleExporterTests
         _output[8].ShouldBe("📊 RESULTS:");
         _output[9].ShouldBe(Environment.NewLine);
         _output[10].ShouldBe(Environment.NewLine);
-        _output[11].ShouldBe("Report       Method     Mean      Allocated");
+        _output[11].ShouldBe("Report       Type     Method     Mean      Allocated");
         _output[12].ShouldBe(Environment.NewLine);
-        _output[13].ShouldBe("───────────────────────────────────────────");
+        _output[13].ShouldBe("────────────────────────────────────────────────────");
         _output[14].ShouldBe(Environment.NewLine);
-        _output[15].ShouldBe("Baseline     xpto                 ");
+        _output[15].ShouldBe("Baseline     Bmk1     xpto                 ");
         _output[16].ShouldBe(Environment.NewLine);
-        _output[17].ShouldBe("Target       [NEW]      12 ns     37 B");
+        _output[17].ShouldBe("Target                [NEW]      12 ns     37 B");
         _output[18].ShouldBe(Environment.NewLine);
         _output[19].ShouldBe(Environment.NewLine);
         _output[20].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
@@ -293,6 +296,7 @@ public sealed class ConsoleExporterTests
         var report = new ComparerReport();
         report.Comparisons.Add(new()
         {
+            Type = "Bmk9",
             Name = "wdcs",
             FullName = "Full",
 
@@ -317,13 +321,13 @@ public sealed class ConsoleExporterTests
         _output[8].ShouldBe("📊 RESULTS:");
         _output[9].ShouldBe(Environment.NewLine);
         _output[10].ShouldBe(Environment.NewLine);
-        _output[11].ShouldBe("Report       Method        Mean      Allocated");
+        _output[11].ShouldBe("Report       Type     Method        Mean      Allocated");
         _output[12].ShouldBe(Environment.NewLine);
-        _output[13].ShouldBe("──────────────────────────────────────────────");
+        _output[13].ShouldBe("───────────────────────────────────────────────────────");
         _output[14].ShouldBe(Environment.NewLine);
-        _output[15].ShouldBe("Baseline     wdcs          12 ns     20 B");
+        _output[15].ShouldBe("Baseline     Bmk9     wdcs          12 ns     20 B");
         _output[16].ShouldBe(Environment.NewLine);
-        _output[17].ShouldBe("Target       [REMOVED]               ");
+        _output[17].ShouldBe("Target                [REMOVED]               ");
         _output[18].ShouldBe(Environment.NewLine);
         _output[19].ShouldBe(Environment.NewLine);
         _output[20].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
@@ -339,6 +343,7 @@ public sealed class ConsoleExporterTests
         var report = new ComparerReport();
         report.Comparisons.Add(new()
         {
+            Type = "Bmk",
             Name = "Name",
             FullName = "Full",
 

@@ -54,6 +54,10 @@ public sealed class MarkdownExporter(FileWriter writer) : IExporter
                     },
                     new()
                     {
+                        HeaderCell = new TableCell { Text = "Type" }
+                    },
+                    new()
+                    {
                         HeaderCell = new TableCell { Text = "Method" }
                     },
                     new()
@@ -78,6 +82,7 @@ public sealed class MarkdownExporter(FileWriter writer) : IExporter
                     Cells =
                     [
                         new TableCell { Text = "Baseline" },
+                        new TableCell { Text = comparison.Type },
                         new TableCell { Text = comparison.Name },
                         new TableCell { Text = comparison.Mean?.Baseline.BeautifyTime() },
                         new TableCell { Text = comparison.Allocated?.Baseline.BeautifyMemory() },
@@ -102,6 +107,7 @@ public sealed class MarkdownExporter(FileWriter writer) : IExporter
                     Cells =
                     [
                         new TableCell { Text = "Target" },
+                        new TableCell { Text = "" },
                         new TableCell { Text = comparison.Mean?.Status is ComparisonStatus.Removed or ComparisonStatus.New
                             ? $"[{comparison.Mean?.Status.ToString().ToUpper()}]"
                             : "" },

@@ -6,14 +6,26 @@ namespace PowerUtils.BenchmarkDotnet.Reporter.Validations;
 
 public interface IReportValidation
 {
-    List<string> HostEnvironmentValidate(BenchmarkFullJsonResport baseline, BenchmarkFullJsonResport target);
+    List<string> HostEnvironmentValidate(BenchmarkFullJsonResport? baseline, BenchmarkFullJsonResport? target);
 }
 
 public sealed class ReportValidation : IReportValidation
 {
-    public List<string> HostEnvironmentValidate(BenchmarkFullJsonResport baseline, BenchmarkFullJsonResport target)
+    public List<string> HostEnvironmentValidate(BenchmarkFullJsonResport? baseline, BenchmarkFullJsonResport? target)
     {
         var messages = new List<string>();
+
+        if(baseline is null)
+        {
+            messages.Add("The baseline report isn't defined");
+            return messages;
+        }
+
+        if(target is null)
+        {
+            messages.Add("The target report isn't defined");
+            return messages;
+        }
 
         if(baseline.HostEnvironmentInfo?.OsVersion.Equivalente(target.HostEnvironmentInfo?.OsVersion) == false)
         {

@@ -15,11 +15,11 @@ public interface IComparerCommand
 }
 
 public sealed class ComparerCommand(
-    Func<string?, BenchmarkFullJsonResport> readFullJsonReport,
+    Func<string?, BenchmarkFullJsonResport[]> readFullJsonReport,
     IReportValidation validation,
     IServiceProvider provider) : IComparerCommand
 {
-    private readonly Func<string?, BenchmarkFullJsonResport> _readFullJsonReport = readFullJsonReport;
+    private readonly Func<string?, BenchmarkFullJsonResport[]> _readFullJsonReports = readFullJsonReport;
     private readonly IReportValidation _validation = validation;
     private readonly IServiceProvider _provider = provider;
 
@@ -32,23 +32,42 @@ public sealed class ComparerCommand(
         string[] formats,
         string output)
     {
-        var baselineReport = _readFullJsonReport(baseline);
-        var targetReport = _readFullJsonReport(target);
+        var baselineReports = _readFullJsonReports(baseline);
+        var targetReports = _readFullJsonReports(target);
 
-        var comparerReport = new ComparerReport
+        var comparerReport = new ComparerReport();
+
+        foreach(var baselineReport in baselineReports)
         {
-            Warnings = _validation.HostEnvironmentValidate(baselineReport, targetReport)
-        };
+            var targetReport = targetReports
+                .SingleOrDefault(s => s.FileName.Equivalente(baselineReport.FileName));
+
+            var validationMessages = _validation
+                .HostEnvironmentValidate(baselineReport, targetReport);
+
+            if(validationMessages?.Count > 0)
+            {
+                comparerReport.Warnings.AddRange(validationMessages);
+            }
+        }
 
 
+        var baselineBenchmarks = baselineReports
+            .SelectMany(s => s.Benchmarks ?? [])
+            .ToList();
 
-        foreach(var baselineBenchmark in baselineReport.Benchmarks ?? [])
+        var targetBenchmarks = targetReports
+            .SelectMany(s => s.Benchmarks ?? [])
+            .ToList();
+
+        foreach(var baselineBenchmark in baselineBenchmarks)
         {
-            var targetBenchmark = targetReport.Benchmarks?
+            var targetBenchmark = targetBenchmarks
                 .SingleOrDefault(s => s.FullName.Equivalente(baselineBenchmark.FullName));
 
             var current = new Comparison
             {
+                Type = baselineBenchmark.Type,
                 Name = baselineBenchmark.Method,
                 FullName = baselineBenchmark.FullName,
 
@@ -65,17 +84,18 @@ public sealed class ComparerCommand(
             {
                 // Remove a target benchmark because matched with baseline.
                 //   The purpose is to keep only the unmatched benchmarks in the target report for next loop only have unmatched benchmarks.
-                targetReport.Benchmarks?.Remove(targetBenchmark);
+                targetBenchmarks.Remove(targetBenchmark);
             }
 
             comparerReport.Add(current);
         }
 
         // Add the unmatched benchmarks from the target report.
-        foreach(var targetBenchmark in targetReport.Benchmarks ?? [])
+        foreach(var targetBenchmark in targetBenchmarks)
         {
             comparerReport.Add(new()
             {
+                Type = targetBenchmark.Type,
                 Name = targetBenchmark.Method,
                 FullName = targetBenchmark.FullName,
 
@@ -137,6 +157,7 @@ public sealed class ComparerCommand(
                 }
             }
         }
+
 
         foreach(var format in formats)
         {

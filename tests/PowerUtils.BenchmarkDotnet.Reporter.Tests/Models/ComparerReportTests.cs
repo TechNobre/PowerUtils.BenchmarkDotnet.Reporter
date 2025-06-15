@@ -15,6 +15,10 @@ public sealed class ComparerReportTests
         // Act
         report.Add(new Comparison
         {
+            Type = null,
+            Name = null,
+            FullName = null,
+
             Mean = null,
             Allocated = null
         });
@@ -34,8 +38,11 @@ public sealed class ComparerReportTests
         // Act
         report.Add(new Comparison
         {
-            Mean = MetricComparison.CalculateExecutionTime(1, 1
-            ),
+            Type = null,
+            Name = null,
+            FullName = null,
+
+            Mean = MetricComparison.CalculateExecutionTime(1, 1),
             Allocated = null
         });
 
@@ -54,6 +61,10 @@ public sealed class ComparerReportTests
         // Act
         report.Add(new Comparison
         {
+            Type = null,
+            Name = null,
+            FullName = null,
+
             Mean = null,
             Allocated = MetricComparison.CalculateMemoryUsage(1, 1)
         });

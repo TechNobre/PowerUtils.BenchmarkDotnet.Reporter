@@ -52,19 +52,21 @@ public sealed class ConsoleExporter(IOHelpers.Printer printer) : IExporter
             const int SPACE_BETWEEN_COLUMNS = 5;
             var rows = new List<string[]>
             {
-                new[] { "Report", "Method", "Mean", "Allocated" }
+                new[] { "Report", "Type", "Method", "Mean", "Allocated" }
             };
 
             var reportWidth = rows[0][0].Length + SPACE_BETWEEN_COLUMNS;
-            var methodWidth = rows[0][1].Length + SPACE_BETWEEN_COLUMNS;
-            var meanWidth = rows[0][2].Length + SPACE_BETWEEN_COLUMNS;
-            var allocatedWidth = rows[0][3].Length;
+            var typeWidth = rows[0][1].Length + SPACE_BETWEEN_COLUMNS;
+            var methodWidth = rows[0][2].Length + SPACE_BETWEEN_COLUMNS;
+            var meanWidth = rows[0][3].Length + SPACE_BETWEEN_COLUMNS;
+            var allocatedWidth = rows[0][4].Length;
 
 
             foreach(var comparison in report.Comparisons)
             {
                 var row = new string[] {
                     "Baseline",
+                    comparison.Type ?? "",
                     comparison.Name ?? "",
                     comparison.Mean?.Baseline.BeautifyTime() ?? "",
                     comparison.Allocated?.Baseline.BeautifyMemory() ?? ""
@@ -72,9 +74,10 @@ public sealed class ConsoleExporter(IOHelpers.Printer printer) : IExporter
                 rows.Add(row);
 
                 reportWidth = Math.Max(reportWidth, row[0].Length + SPACE_BETWEEN_COLUMNS);
-                methodWidth = Math.Max(methodWidth, row[1].Length + SPACE_BETWEEN_COLUMNS);
-                meanWidth = Math.Max(meanWidth, row[2].Length + SPACE_BETWEEN_COLUMNS);
-                allocatedWidth = Math.Max(allocatedWidth, row[3].Length);
+                typeWidth = Math.Max(typeWidth, row[1].Length + SPACE_BETWEEN_COLUMNS);
+                methodWidth = Math.Max(methodWidth, row[2].Length + SPACE_BETWEEN_COLUMNS);
+                meanWidth = Math.Max(meanWidth, row[3].Length + SPACE_BETWEEN_COLUMNS);
+                allocatedWidth = Math.Max(allocatedWidth, row[4].Length);
 
 
                 var mean = comparison.Mean?.Target.BeautifyTime();
@@ -92,6 +95,7 @@ public sealed class ConsoleExporter(IOHelpers.Printer printer) : IExporter
 
                 row = [
                     "Target",
+                    "",
                     comparison.Mean?.Status is ComparisonStatus.Removed or ComparisonStatus.New
                                             ? $"[{comparison.Mean?.Status.ToString().ToUpper()}]"
                                             : "",
@@ -102,21 +106,22 @@ public sealed class ConsoleExporter(IOHelpers.Printer printer) : IExporter
                 rows.Add(row);
 
                 reportWidth = Math.Max(reportWidth, row[0].Length + SPACE_BETWEEN_COLUMNS);
-                methodWidth = Math.Max(methodWidth, row[1].Length + SPACE_BETWEEN_COLUMNS);
-                meanWidth = Math.Max(meanWidth, row[2].Length + SPACE_BETWEEN_COLUMNS);
-                allocatedWidth = Math.Max(allocatedWidth, row[3].Length);
+                typeWidth = Math.Max(typeWidth, row[1].Length + SPACE_BETWEEN_COLUMNS);
+                methodWidth = Math.Max(methodWidth, row[2].Length + SPACE_BETWEEN_COLUMNS);
+                meanWidth = Math.Max(meanWidth, row[3].Length + SPACE_BETWEEN_COLUMNS);
+                allocatedWidth = Math.Max(allocatedWidth, row[4].Length);
             }
 
             // Header
-            _printer($"{rows[0][0].PadRight(reportWidth)}{rows[0][1].PadRight(methodWidth)}{rows[0][2].PadRight(meanWidth)}{rows[0][3]}");
+            _printer($"{rows[0][0].PadRight(reportWidth)}{rows[0][1].PadRight(typeWidth)}{rows[0][2].PadRight(methodWidth)}{rows[0][3].PadRight(meanWidth)}{rows[0][4]}");
             _printer(Environment.NewLine);
-            _printer(new string('─', reportWidth + methodWidth + meanWidth + allocatedWidth));
+            _printer(new string('─', reportWidth + typeWidth + methodWidth + meanWidth + allocatedWidth));
             _printer(Environment.NewLine);
 
             for(var i = 1; i < rows.Count; i++)
             {
                 var row = rows[i];
-                _printer($"{row[0].PadRight(reportWidth)}{row[1].PadRight(methodWidth)}{row[2].PadRight(meanWidth)}{row[3]}");
+                _printer($"{row[0].PadRight(reportWidth)}{row[1].PadRight(typeWidth)}{row[2].PadRight(methodWidth)}{row[3].PadRight(meanWidth)}{row[4]}");
                 _printer(Environment.NewLine);
             }
         }
