@@ -83,6 +83,40 @@ Each test data folder typically contains the following files:
 
 **Best for**: Testing large performance regressions, threshold violations, different environments
 
+---
+
+### 📊 `report-10` - ...
+
+- **File**:
+  - `Demo.Benchmarks.ArrayProcessorBenchmarks-report-full.json`
+  - `Demo.Benchmarks.StringProcessorBenchmarks-report-full.json`
+- **Environment**: Windows 11 (10.0.26100.3323)
+- **Purpose**: ...
+
+| Method         | Mean      | Allocated |
+|----------------|-----------|-----------|
+| GenerateArray  | 17.952 μs | 21.547 KB |
+| GenerateString | 1.457 ms  | 33.313 MB |
+
+**Best for**: ...
+
+---
+
+### 📊 `report-11` - ...
+
+- **File**:
+  - `Demo.Benchmarks.ArrayProcessorBenchmarks-report-full.json`
+  - `Demo.Benchmarks.StringProcessorBenchmarks-report-full.json`
+- **Environment**: Windows 11 (10.0.26100.3323)
+- **Purpose**: ...
+
+| Method         | Mean      | Allocated |
+|----------------|-----------|-----------|
+| GenerateArray  | 17.946 μs | 21.563 KB |
+| GenerateString | 1.45 ms   | 36.606 MB |
+
+**Best for**: ...
+
 
 
 ## Sample Comparisons
@@ -126,3 +160,17 @@ Each test data folder typically contains the following files:
 - **Environment**: Different OS (Windows 11 → Windows 10)
 
 **Use Case**: Test threshold violations, major performance regressions
+
+---
+
+### 🔄 `report-10` vs `report-11` - ...
+- **Baseline**: `report-10`
+- **Target**: `report-11`
+
+**Expected Results**:
+- **GenerateArray**:
+  - Mean: `-0.03%`
+  - Allocated: `0.08%`
+- **GenerateString**:
+  - Mean: `-0.48%`
+  - Allocated: `9.89%`
