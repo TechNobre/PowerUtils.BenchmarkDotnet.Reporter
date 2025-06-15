@@ -15,7 +15,7 @@ public sealed class ComparerReportTests
         // Act
         report.Add(new Comparison
         {
-            Type = null,
+            Type = "SampleType",
             Name = null,
             FullName = null,
 
