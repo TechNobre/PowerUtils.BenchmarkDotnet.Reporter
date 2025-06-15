@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.1.0...v1.2.0) (2025-06-15)
+
+
+### Features
+
+* Add support for folders with multiple file reports ([7c32d0d](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/commit/7c32d0d43f2b9fbb2e413f1e19b170f0785464d8))
+
 # [1.1.0](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.0.0...v1.1.0) (2025-06-12)
 
 
