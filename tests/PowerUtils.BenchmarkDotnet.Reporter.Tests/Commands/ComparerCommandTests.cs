@@ -248,7 +248,7 @@ public sealed class ComparerCommandTests
                     new()
                     {
                         FullName = "test hit",
-                        Method = "tetest hitst",
+                        Method = "test hit",
                         Statistics = new()
                         {
                             Mean = 1200
