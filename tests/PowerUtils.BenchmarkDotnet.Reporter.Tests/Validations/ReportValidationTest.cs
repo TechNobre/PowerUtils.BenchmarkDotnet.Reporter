@@ -23,6 +23,42 @@ public class ReportValidationTest
     }
 
     [Fact]
+    public void When_BaselineReport_Is_Null_Returns_Message()
+    {
+        // Arrange
+        BenchmarkFullJsonResport? baseline = null;
+        var target = _createBenchmarkReport();
+        var validation = new ReportValidation();
+
+
+        // Act
+        var result = validation.HostEnvironmentValidate(baseline, target);
+
+
+        // Assert
+        result.Count.ShouldBe(1);
+        result[0].ShouldContain("The baseline report isn't defined");
+    }
+
+    [Fact]
+    public void When_TargetReport_Is_Null_Returns_Message()
+    {
+        // Arrange
+        var baseline = _createBenchmarkReport();
+        BenchmarkFullJsonResport? target = null;
+        var validation = new ReportValidation();
+
+
+        // Act
+        var result = validation.HostEnvironmentValidate(baseline, target);
+
+
+        // Assert
+        result.Count.ShouldBe(1);
+        result[0].ShouldContain("The target report isn't defined");
+    }
+
+    [Fact]
     public void When_OsVersion_Is_Different_Returns_Message()
     {
         // Arrange

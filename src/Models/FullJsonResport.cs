@@ -7,7 +7,11 @@ using System.Collections.Generic;
 namespace PowerUtils.BenchmarkDotnet.Reporter.Models;
 public sealed class BenchmarkFullJsonResport
 { // Generated with https://json2csharp.com/
+    public string? FilePath { get; set; }
+    public string? FileName { get; set; }
+
     public string? Title { get; set; }
+
     public HostEnvironmentInfoRecord? HostEnvironmentInfo { get; set; }
     public List<BenchmarkRecord>? Benchmarks { get; set; }
 

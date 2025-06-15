@@ -23,12 +23,11 @@ public sealed class GetFullJsonReportTest : IDisposable
         }
     }
 
-
     [Fact]
-    public void When_File_Exits_Should_Return_True()
+    public void When_File_Exits_Should_Return_Array_With_One_Full_Path()
     {
         // Arrange
-        var path = Path.Combine(_tempDirectory, $"report.{IOHelpers.REPORT_FILE_ENDS}");
+        var path = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{IOHelpers.REPORT_FILE_ENDS}");
         File.WriteAllText(path, "{}");
 
 
@@ -37,7 +36,7 @@ public sealed class GetFullJsonReportTest : IDisposable
 
 
         // Assert
-        act.ShouldBe(path);
+        act.ShouldBe([path]);
     }
 
     [Theory]
@@ -47,7 +46,7 @@ public sealed class GetFullJsonReportTest : IDisposable
     public void When_Path_Isnt_Deffined_Should_Throw_NotFoundException(string? path)
     {
         // Arrange & Act
-        string act() => IOHelpers.GetFullJsonReport(path);
+        string[] act() => IOHelpers.GetFullJsonReport(path);
 
 
         // Assert
@@ -58,8 +57,24 @@ public sealed class GetFullJsonReportTest : IDisposable
     [Fact]
     public void When_File_Doesnt_Exist_Should_Throw_FileNotFoundException()
     {
+        // Arrange
+        var filePath = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{IOHelpers.REPORT_FILE_ENDS}");
+
+
+        // Act
+        string[] act() => IOHelpers.GetFullJsonReport(filePath);
+
+
+        // Assert
+        Should.Throw<FileNotFoundException>(act)
+            .Message.ShouldContain($"The provided path '{filePath}' doesn't exist or is not a {IOHelpers.REPORT_FILE_ENDS} file");
+    }
+
+    [Fact]
+    public void When_Directory_Doesnt_Exist_Should_Throw_FileNotFoundException()
+    {
         // Arrange & Act
-        string act() => IOHelpers.GetFullJsonReport(_tempDirectory);
+        string[] act() => IOHelpers.GetFullJsonReport(_tempDirectory);
 
 
         // Assert
@@ -75,7 +90,7 @@ public sealed class GetFullJsonReportTest : IDisposable
 
 
         // Act
-        string act() => IOHelpers.GetFullJsonReport(path);
+        string[] act() => IOHelpers.GetFullJsonReport(path);
 
 
         // Assert
@@ -84,19 +99,22 @@ public sealed class GetFullJsonReportTest : IDisposable
     }
 
     [Fact]
-    public void When_There_Are_Multiple_Files_Whith_Same_Name_Should_Throw_FileNotFoundException()
+    public void When_There_Are_Multiple_FullJsonReport_Files_Should_Return_All_Of_FullPaths_For_Them()
     {
         // Arrange
-        File.WriteAllText(Path.Combine(_tempDirectory, $"report1.{IOHelpers.REPORT_FILE_ENDS}"), "{}");
-        File.WriteAllText(Path.Combine(_tempDirectory, $"report2.{IOHelpers.REPORT_FILE_ENDS}"), "{}");
+        var filePath1 = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{IOHelpers.REPORT_FILE_ENDS}");
+        var filePath2 = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{IOHelpers.REPORT_FILE_ENDS}");
+        File.WriteAllText(filePath1, "{}");
+        File.WriteAllText(filePath2, "{}");
 
 
         // Act
-        string act() => IOHelpers.GetFullJsonReport(_tempDirectory);
+        var act = IOHelpers.GetFullJsonReport(_tempDirectory);
 
 
         // Assert
-        Should.Throw<FileNotFoundException>(act)
-            .Message.ShouldContain($"Multiple {IOHelpers.REPORT_FILE_ENDS} files found in the provided directory");
+        string[] expected = [filePath1, filePath2];
+        Array.Sort(expected);
+        act.ShouldBe(expected);
     }
 }

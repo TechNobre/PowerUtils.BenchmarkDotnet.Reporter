@@ -77,6 +77,7 @@ public sealed class MarkdownExporterTests
         var report = new ComparerReport();
         report.Comparisons.Add(new()
         {
+            Type = "Bmk",
             Name = "Name",
             FullName = "Full",
 
@@ -94,10 +95,10 @@ public sealed class MarkdownExporterTests
         _output[1].ShouldBe("");
         _output[2].ShouldBe("## 📊 RESULTS:");
         _output[3].ShouldBe("");
-        _output[4].ShouldBe("     Report   | Method |  Mean | Allocated");
-        _output[5].ShouldBe("     -------- | ------ | -----:| ---------:");
-        _output[6].ShouldBe("     Baseline | Name   | 12 ns |      20 B");
-        _output[7].ShouldBe("     Target   |        | 12 ns |      20 B");
+        _output[4].ShouldBe("     Report   | Type | Method |  Mean | Allocated");
+        _output[5].ShouldBe("     -------- | ---- | ------ | -----:| ---------:");
+        _output[6].ShouldBe("     Baseline | Bmk  | Name   | 12 ns |      20 B");
+        _output[7].ShouldBe("     Target   |      |        | 12 ns |      20 B");
         _output[8].ShouldBe("");
     }
 
@@ -108,6 +109,7 @@ public sealed class MarkdownExporterTests
         var report = new ComparerReport();
         report.Comparisons.Add(new()
         {
+            Type = "Bmk",
             Name = "Method1",
             FullName = "FullMethod1",
 
@@ -116,6 +118,7 @@ public sealed class MarkdownExporterTests
         });
         report.Comparisons.Add(new()
         {
+            Type = "Bmk2",
             Name = "Method2",
             FullName = "FullMethod2",
 
@@ -133,12 +136,12 @@ public sealed class MarkdownExporterTests
         _output[1].ShouldBe("");
         _output[2].ShouldBe("## 📊 RESULTS:");
         _output[3].ShouldBe("");
-        _output[4].ShouldBe("     Report   | Method  |  Mean | Allocated");
-        _output[5].ShouldBe("     -------- | ------- | -----:| ---------:");
-        _output[6].ShouldBe("     Baseline | Method1 | 43 ns |     122 B");
-        _output[7].ShouldBe("     Target   |         | 43 ns |     122 B");
-        _output[8].ShouldBe("     Baseline | Method2 | 52 ns |      21 B");
-        _output[9].ShouldBe("     Target   |         | 52 ns |      21 B");
+        _output[4].ShouldBe("     Report   | Type | Method  |  Mean | Allocated");
+        _output[5].ShouldBe("     -------- | ---- | ------- | -----:| ---------:");
+        _output[6].ShouldBe("     Baseline | Bmk  | Method1 | 43 ns |     122 B");
+        _output[7].ShouldBe("     Target   |      |         | 43 ns |     122 B");
+        _output[8].ShouldBe("     Baseline | Bmk2 | Method2 | 52 ns |      21 B");
+        _output[9].ShouldBe("     Target   |      |         | 52 ns |      21 B");
         _output[10].ShouldBe("");
     }
 
@@ -149,6 +152,7 @@ public sealed class MarkdownExporterTests
         var report = new ComparerReport();
         report.Comparisons.Add(new()
         {
+            Type = "Bmk3",
             Name = "xpto",
             FullName = "Full",
 
@@ -166,10 +170,10 @@ public sealed class MarkdownExporterTests
         _output[1].ShouldBe("");
         _output[2].ShouldBe("## 📊 RESULTS:");
         _output[3].ShouldBe("");
-        _output[4].ShouldBe("     Report   | Method |  Mean | Allocated");
-        _output[5].ShouldBe("     -------- | ------ | -----:| ---------:");
-        _output[6].ShouldBe("     Baseline | xpto   |       |          ");
-        _output[7].ShouldBe("     Target   | [NEW]  | 12 ns |      37 B");
+        _output[4].ShouldBe("     Report   | Type | Method |  Mean | Allocated");
+        _output[5].ShouldBe("     -------- | ---- | ------ | -----:| ---------:");
+        _output[6].ShouldBe("     Baseline | Bmk3 | xpto   |       |          ");
+        _output[7].ShouldBe("     Target   |      | [NEW]  | 12 ns |      37 B");
         _output[8].ShouldBe("");
     }
 
@@ -180,6 +184,7 @@ public sealed class MarkdownExporterTests
         var report = new ComparerReport();
         report.Comparisons.Add(new()
         {
+            Type = "Bmk5",
             Name = "wdcs",
             FullName = "Full",
 
@@ -197,10 +202,10 @@ public sealed class MarkdownExporterTests
         _output[1].ShouldBe("");
         _output[2].ShouldBe("## 📊 RESULTS:");
         _output[3].ShouldBe("");
-        _output[4].ShouldBe("     Report   | Method    |  Mean | Allocated");
-        _output[5].ShouldBe("     -------- | --------- | -----:| ---------:");
-        _output[6].ShouldBe("     Baseline | wdcs      | 12 ns |      20 B");
-        _output[7].ShouldBe("     Target   | [REMOVED] |       |          ");
+        _output[4].ShouldBe("     Report   | Type | Method    |  Mean | Allocated");
+        _output[5].ShouldBe("     -------- | ---- | --------- | -----:| ---------:");
+        _output[6].ShouldBe("     Baseline | Bmk5 | wdcs      | 12 ns |      20 B");
+        _output[7].ShouldBe("     Target   |      | [REMOVED] |       |          ");
         _output[8].ShouldBe("");
     }
 
@@ -213,6 +218,7 @@ public sealed class MarkdownExporterTests
         var report = new ComparerReport();
         report.Comparisons.Add(new()
         {
+            Type = "Bmk",
             Name = "Name",
             FullName = "Full",
 
@@ -229,7 +235,7 @@ public sealed class MarkdownExporterTests
         // Assert
         var targetLine = _output?[^2];
         var methodColumn = targetLine?
-            .Split('|')[1]
+            .Split('|')[2]
             .Trim(' ', '[', ']');
 
         methodColumn.ShouldBe(expected);

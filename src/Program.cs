@@ -19,7 +19,7 @@ serviceCollection
         (message) => IOHelpers.Print(message))
     .AddTransient<IOHelpers.FileWriter>(sp =>
         (path, content) => IOHelpers.WriteFile(path, content))
-    .AddTransient<Func<string?, BenchmarkFullJsonResport>>(sp =>
+    .AddTransient<Func<string?, BenchmarkFullJsonResport[]>>(sp =>
         (path) => IOHelpers.ReadFullJsonReport(path))
     .AddTransient<IReportValidation, ReportValidation>()
     .AddKeyedTransient<IExporter, MarkdownExporter>("markdown")
@@ -29,4 +29,4 @@ serviceCollection
     .AddTransient<IComparerCommand, ComparerCommand>();
 
 var tool = new ToolCommands(serviceCollection.BuildServiceProvider());
-await tool.InvokeAsync(args);
+tool.Invoke(args);

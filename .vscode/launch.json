@@ -11,8 +11,9 @@
         //"--version"
         //"compare", "-h"
         //"compare", "-f", "console", "-b", "../tests/test-data/report-02/Benchmark-report-full.json", "-t", "../tests/test-data/report-01/Benchmark-report-full.json", "-tm", "4%", "-ta", "5%"
-        "compare", "-f", "console", "-b", "../tests/test-data/report-01/Benchmark-report-full.json", "-t", "../tests/test-data/report-04/Benchmark-report-full.json"
+        //"compare", "-f", "console", "-b", "../tests/test-data/report-01/Benchmark-report-full.json", "-t", "../tests/test-data/report-04/Benchmark-report-full.json"
         //"compare", "-f", "markdown", "-b", "../tests/test-data/report-01/Benchmark-report-full.json", "-t", "../tests/test-data/report-02/Benchmark-report-full.json", "-tm", "12ns", "-ta", "5%"
+        "compare", "-f", "console", "-f", "markdown", "-b", "../tests/test-data/report-10", "-t", "../tests/test-data/report-11"
       ],
       "cwd": "${workspaceFolder}/src",
       "console": "internalConsole",

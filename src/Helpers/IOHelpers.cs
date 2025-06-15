@@ -7,7 +7,7 @@ namespace PowerUtils.BenchmarkDotnet.Reporter.Helpers;
 
 public static class IOHelpers
 {
-    public const string REPORT_FILE_ENDS = "full.json";
+    public const string REPORT_FILE_ENDS = "-report-full.json";
 
 
     public delegate void Printer(string message);
@@ -29,16 +29,26 @@ public static class IOHelpers
         Print($"{Environment.NewLine}File exported to: '{path}'");
     }
 
-    public static BenchmarkFullJsonResport ReadFullJsonReport(string? path)
+    public static BenchmarkFullJsonResport[] ReadFullJsonReport(string? path)
     {
-        path = GetFullJsonReport(path);
-        var content = File.ReadAllText(path);
+        var paths = GetFullJsonReport(path);
 
-        return JsonSerializer.Deserialize<BenchmarkFullJsonResport>(content)
-            ?? throw new InvalidOperationException($"Failed to deserialize the {path} file.");
+        var reports = new BenchmarkFullJsonResport[paths.Length];
+        for(var i = 0; i < paths.Length; i++)
+        {
+            var content = File.ReadAllText(paths[i]);
+
+            reports[i] = JsonSerializer.Deserialize<BenchmarkFullJsonResport>(content)
+                ?? throw new InvalidOperationException($"Failed to deserialize the {paths[i]} file.");
+
+            reports[i].FilePath = Path.GetFullPath(paths[i]);
+            reports[i].FileName = Path.GetFileName(paths[i]);
+        }
+
+        return reports;
     }
 
-    public static string GetFullJsonReport(string? path)
+    public static string[] GetFullJsonReport(string? path)
     {
         if(string.IsNullOrWhiteSpace(path))
         {
@@ -57,17 +67,12 @@ public static class IOHelpers
                 throw new FileNotFoundException($"No {REPORT_FILE_ENDS} files found in the provided directory", path);
             }
 
-            if(files.Length > 1)
-            {
-                throw new FileNotFoundException($"Multiple {REPORT_FILE_ENDS} files found in the provided directory", path);
-            }
-
-            return files[0];
+            return files;
         }
 
         if(File.Exists(path) && path.EndsWith(REPORT_FILE_ENDS, StringComparison.InvariantCultureIgnoreCase))
         {
-            return path;
+            return [path];
         }
 
         throw new FileNotFoundException($"The provided path '{path}' doesn't exist or is not a {REPORT_FILE_ENDS} file", path);
