@@ -21,7 +21,7 @@ public sealed class MarkdownExporterTests
 
 
     [Fact]
-    public void When_Doest_Have_Warnings_And_Results_Should_Print_Only_Message_NoComparisonsFound()
+    public void When_Doesnt_Have_Warnings_And_Results_Should_Print_Only_Message_NoComparisonsFound()
     {
         // Arrange
         var report = new ComparerReport();

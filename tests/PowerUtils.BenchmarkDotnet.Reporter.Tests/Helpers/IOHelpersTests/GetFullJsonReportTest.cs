@@ -43,7 +43,7 @@ public sealed class GetFullJsonReportTest : IDisposable
     [InlineData(null)]
     [InlineData("")]
     [InlineData(" ")]
-    public void When_Path_Isnt_Deffined_Should_Throw_NotFoundException(string? path)
+    public void When_Path_Isnt_Defined_Should_Throw_NotFoundException(string? path)
     {
         // Arrange & Act
         string[] act() => IOHelpers.GetFullJsonReport(path);
