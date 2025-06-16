@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.2.0...v1.2.1) (2025-06-16)
+
+
+### Bug Fixes
+
+* property type for '$.Benchmarks[].Measurements[].Nanoseconds' ([2030596](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/commit/20305962d224c056e78092ea4a0edd3f6d23a6b6))
+
 # [1.2.0](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.1.0...v1.2.0) (2025-06-15)
 
 
