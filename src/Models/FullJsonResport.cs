@@ -127,7 +127,7 @@ public sealed class BenchmarkFullJsonResport
             public int LaunchIndex { get; set; }
             public int IterationIndex { get; set; }
             public int Operations { get; set; }
-            public int Nanoseconds { get; set; }
+            public decimal Nanoseconds { get; set; }
         }
 
         public sealed class MetricRecord

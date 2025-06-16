@@ -115,6 +115,21 @@ Each test data folder typically contains the following files:
 
 **Best for**: Testing complex comparisons, multi-file scenarios, memory allocation changes
 
+---
+
+### 📊 `report-12` - Multi-Benchmark Classes (Comparison)
+- **Files**:
+  - `Demo.Benchmarks.ArrayProcessorBenchmarks-report-full.json`
+  - `Demo.Benchmarks.StringProcessorBenchmarks-report-full.json`
+- **Environment**: Linux Ubuntu 24.04.2 LTS (Noble Numbat)
+
+| Method         | Mean      | Allocated |
+|----------------|-----------|-----------|
+| GenerateArray  | 11.266 μs | 21.516 KB |
+| GenerateString | 1.915 ms  | 35.19 MB  |
+
+**Best for**: Testing decimal precision for $.Benchmarks[].Measurements[].Nanoseconds
+
 
 
 ## Sample Comparisons
