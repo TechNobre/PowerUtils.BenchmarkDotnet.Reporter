@@ -38,8 +38,17 @@ public static class IOHelpers
         {
             var content = File.ReadAllText(paths[i]);
 
-            reports[i] = JsonSerializer.Deserialize<BenchmarkFullJsonResport>(content)
-                ?? throw new InvalidOperationException($"Failed to deserialize the {paths[i]} file.");
+            try
+            {
+                reports[i] = JsonSerializer.Deserialize<BenchmarkFullJsonResport>(content)
+                    ?? throw new InvalidOperationException($"Failed to deserialize the {paths[i]} file.");
+            }
+            catch (JsonException jsonException)
+            {
+                throw new InvalidOperationException(
+                    $"Failed to deserialize the file '{paths[i]}'. {jsonException.Message}",
+                    jsonException);
+            }
 
             reports[i].FilePath = Path.GetFullPath(paths[i]);
             reports[i].FileName = Path.GetFileName(paths[i]);
