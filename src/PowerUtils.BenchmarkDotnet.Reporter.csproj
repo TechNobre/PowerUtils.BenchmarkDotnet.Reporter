@@ -9,7 +9,7 @@
     <AssemblyName>PBReporter</AssemblyName>
     <RootNamespace>PowerUtils.BenchmarkDotnet.Reporter</RootNamespace>
 
-    <Version>1.2.1</Version>
+    <Version>1.2.2</Version>
 
     <PackageOutputPath>bin\</PackageOutputPath>
 
