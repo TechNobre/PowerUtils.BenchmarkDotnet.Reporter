@@ -1,5 +1,4 @@
 using System;
-using System.CommandLine;
 using System.Globalization;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,4 +28,4 @@ serviceCollection
     .AddTransient<IComparerCommand, ComparerCommand>();
 
 var tool = new ToolCommands(serviceCollection.BuildServiceProvider());
-tool.Invoke(args);
+return tool.Parse(args).Invoke();

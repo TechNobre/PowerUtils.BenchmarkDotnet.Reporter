@@ -1,5 +1,6 @@
 using System;
 using System.CommandLine;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands;
 
@@ -30,60 +31,77 @@ public sealed class ToolCommands : RootCommand
             output
         };
 
-        compareCommand
-            .SetHandler(
-                provider.GetRequiredService<IComparerCommand>().Execute,
-                baseline,
-                target,
-                meanThreshold,
-                allocationThreshold,
-                formats,
-                output);
+        compareCommand.SetAction(parser => provider
+            .GetRequiredService<IComparerCommand>()
+            .Execute(
+                parser.GetValue(baseline)!,
+                parser.GetValue(target)!,
+                parser.GetValue(meanThreshold),
+                parser.GetValue(allocationThreshold),
+                parser.GetValue(formats)!,
+                parser.GetValue(output)!));
 
-        Add(compareCommand);
+        Subcommands.Add(compareCommand);
     }
 
 
     private static Option<string> _createBaselineOption()
-        => new(
-            ["-b", "--baseline"],
-            "Path to the folder or file with Baseline report.")
+        => new("--baseline", "-b")
         {
-            IsRequired = true
+            Description = "Path to the folder or file with Baseline report.",
+            Required = true
         };
 
     private static Option<string> _createTargetOption()
-        => new(
-            ["-t", "--target"],
-            "Path to the folder or file with target reports.")
+        => new("--target", "-t")
         {
-            IsRequired = true
+            Description = "Path to the folder or file with target reports.",
+            Required = true
         };
 
     private static Option<string> _createMeanThresholdOption()
-        => new(
-            ["-tm", "--threshold-mean"],
-            "Throw an error when the mean threshold is met. Examples: 5%, 10ms, 10μs, 100ns, 1s.");
+        => new("--threshold-mean", "-tm")
+        {
+            Description = "Throw an error when the mean threshold is met. Examples: 5%, 10ms, 10μs, 100ns, 1s."
+        };
 
     private static Option<string> _createAllocationThresholdOption()
-        => new(
-            ["-ta", "--threshold-allocation"],
-            "Throw an error when the allocation threshold is met. Examples: 5%, 10b, 10kb, 100mb, 1gb.");
+        => new("--threshold-allocation", "-ta")
+        {
+            Description = "Throw an error when the allocation threshold is met. Examples: 5%, 10b, 10kb, 100mb, 1gb."
+        };
 
     private static Option<string[]> _createFormatsOption()
-        => new Option<string[]>(
-            ["-f", "--format"],
-            () => ["console"],
-            "Output format for the report.")
-        .FromAmong(
-            "console",
-            "markdown",
-            "json",
-            "hit-txt");
+    {
+        var option = new Option<string[]>("--format", "-f")
+        {
+            Description = "Output format for the report.",
+            DefaultValueFactory = _ => ["console"]
+        };
+
+        option.Validators.Add(result =>
+        {
+            var allowedValues = new[] { "console", "markdown", "json", "hit-txt" };
+            var values = result.GetValue(option);
+            if(values != null)
+            {
+                foreach(var value in values)
+                {
+                    if(!allowedValues.Contains(value))
+                    {
+                        result.AddError($"Invalid format '{value}'. Allowed values: {string.Join(", ", allowedValues)}");
+                    }
+                }
+            }
+        });
+
+        return option;
+    }
 
     private static Option<string> _createOutputOption()
-        => new(
-            ["-o", "--output"],
-            () => "./BenchmarkReporter",
-            "Output directory to export the diff report. Default is current directory.");
+        => new("--output", "-o")
+        {
+            Description = "Output directory to export the diff report. Default is current directory.",
+            DefaultValueFactory = _ => "./BenchmarkReporter"
+        };
 }

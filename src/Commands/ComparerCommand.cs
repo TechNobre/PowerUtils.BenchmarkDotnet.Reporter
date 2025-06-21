@@ -11,7 +11,7 @@ namespace PowerUtils.BenchmarkDotnet.Reporter.Commands;
 
 public interface IComparerCommand
 {
-    void Execute(string? baseline, string? target, string? meanThreshold, string? allocationThreshold, string[] formats, string output);
+    int Execute(string? baseline, string? target, string? meanThreshold, string? allocationThreshold, string[] formats, string output);
 }
 
 public sealed class ComparerCommand(
@@ -24,7 +24,7 @@ public sealed class ComparerCommand(
     private readonly IServiceProvider _provider = provider;
 
 
-    public void Execute(
+    public int Execute(
         string? baseline,
         string? target,
         string? meanThreshold,
@@ -166,5 +166,8 @@ public sealed class ComparerCommand(
                 .GetRequiredKeyedService<IExporter>(format.ToLower())
                 .Generate(comparerReport, output);
         }
+
+
+        return 0; // Success exit code
     }
 }
