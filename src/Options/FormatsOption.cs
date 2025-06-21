@@ -21,14 +21,11 @@ public sealed class FormatsOption : Option<string[]>
                 .Select(token => token.Value)
                 .Where(value => !string.IsNullOrWhiteSpace(value))
                 .ToArray();
-            if(values != null)
+            foreach(var value in values)
             {
-                foreach(var value in values)
+                if(!_allowedValues.Contains(value))
                 {
-                    if(!_allowedValues.Contains(value))
-                    {
-                        result.AddError($"Invalid format '{value}'. Allowed values: {string.Join(", ", _allowedValues)}");
-                    }
+                    result.AddError($"Invalid format '{value}'. Allowed values: {string.Join(", ", _allowedValues)}");
                 }
             }
         });
