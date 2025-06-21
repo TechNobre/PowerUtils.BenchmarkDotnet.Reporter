@@ -14,6 +14,7 @@ Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
 var serviceCollection = new ServiceCollection();
 serviceCollection
+    .AddTransient<ToolCommands>()
     .AddTransient<IOHelpers.Printer>(sp =>
         (message) => IOHelpers.Print(message))
     .AddTransient<IOHelpers.FileWriter>(sp =>
@@ -27,5 +28,7 @@ serviceCollection
     .AddKeyedTransient<IExporter, ConsoleExporter>("console")
     .AddTransient<IComparerCommand, ComparerCommand>();
 
-var tool = new ToolCommands(serviceCollection.BuildServiceProvider());
-return tool.Parse(args).Invoke();
+return serviceCollection.BuildServiceProvider()
+    .GetRequiredService<ToolCommands>()
+    .Parse(args)
+    .Invoke();
