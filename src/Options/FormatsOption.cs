@@ -18,9 +18,7 @@ public sealed class FormatsOption : Option<string[]>
         Validators.Add(static result =>
         {
             var values = result.Tokens
-                .Select(token => token.Value)
-                .Where(value => !string.IsNullOrWhiteSpace(value))
-                .ToArray();
+                .Select(token => token.Value);
             foreach(var value in values)
             {
                 if(!_allowedValues.Contains(value))
