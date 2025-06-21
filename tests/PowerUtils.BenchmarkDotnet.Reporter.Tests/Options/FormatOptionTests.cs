@@ -33,15 +33,15 @@ public sealed class FormatOptionTests
         formatsOption.Aliases.Count.ShouldBe(1);
         formatsOption.Aliases.ShouldContain("-f");
         formatsOption.Description.ShouldBe("Output format for the report.");
+        (formatsOption.GetDefaultValue() as string[]).ShouldBe(["console"]);
     }
 
     [Theory]
-    [InlineData("markdown", true)]
-    [InlineData("jSOn", true)]
-    [InlineData("HIT-TXT", true)]
-    [InlineData("console", true)]
-    [InlineData("invalid-format", false)]
-    public void Test_Validation_Format_Option(string format, bool isValid)
+    [InlineData("markdown")]
+    [InlineData("jSOn")]
+    [InlineData("HIT-TXT")]
+    [InlineData("console")]
+    public void When_Format_Is_Valid_Shouldnt_Have_Validation_Error(string format)
     {
         // Arrange
         var command = "compare";
@@ -58,6 +58,31 @@ public sealed class FormatOptionTests
         var firstOptionResult = parseResult.GetResult(formatsOption);
 
         // Assert
-        firstOptionResult?.Errors.Count().ShouldBe(isValid ? 0 : 1);
+        firstOptionResult?.Errors.Count().ShouldBe(0);
+    }
+
+    [Theory]
+    [InlineData("invalid-format")]
+    [InlineData("csv")]
+    [InlineData("html")]
+    public void When_Format_Is_Invalid_Should_Have_Validation_Error(string? format)
+    {
+        // Arrange
+        var command = "compare";
+        var option = "--format";
+
+        var toolCommands = new ToolCommands(_provider);
+        var compareCommand = toolCommands.Subcommands.Single(c => c.Name == command);
+        var formatsOption = compareCommand.Options.Single(o => o.Name == option);
+        var validation = formatsOption.Validators.Single();
+
+
+        // Act
+        var parseResult = toolCommands.Parse($"{command} {option} {format}");
+        var firstOptionResult = parseResult.GetResult(formatsOption);
+
+        // Assert
+        firstOptionResult?.Errors.Count().ShouldBe(1);
+        firstOptionResult?.Errors.ShouldContain(e => e.Message == $"Invalid format '{format}'. Allowed values: console, markdown, json, hit-txt");
     }
 }

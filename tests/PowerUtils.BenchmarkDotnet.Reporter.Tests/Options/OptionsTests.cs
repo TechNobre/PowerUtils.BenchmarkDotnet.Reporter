@@ -103,5 +103,6 @@ public sealed class OptionsTests
         outputOption.Aliases.Count.ShouldBe(1);
         outputOption.Aliases.ShouldContain("-o");
         outputOption.Description.ShouldBe("Output directory to export the diff report. Default is current directory.");
+        (outputOption.GetDefaultValue() as string).ShouldBe("./BenchmarkReporter");
     }
 }
