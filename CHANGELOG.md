@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.3.0...v1.4.0) (2025-06-22)
+
+
+### Features
+
+* add failOnWarnings and failOnThresholdHit options ([bf75bd8](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/commit/bf75bd8f5788834546dc4457906bdce7cb9ca415))
+
 # [1.3.0](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.2.2...v1.3.0) (2025-06-22)
 
 
