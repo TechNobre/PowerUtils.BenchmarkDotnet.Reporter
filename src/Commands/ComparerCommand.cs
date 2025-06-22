@@ -75,6 +75,24 @@ public sealed class ComparerCommand(
                     baselineBenchmark.Statistics?.Mean,
                     targetBenchmark?.Statistics?.Mean),
 
+                Gen0Collections = MetricComparison.CalculateGarbageCollectionOperations(
+                    baselineBenchmark.Memory?.Gen0Collections,
+                    baselineBenchmark.Memory?.TotalOperations,
+                    targetBenchmark?.Memory?.Gen0Collections,
+                    targetBenchmark?.Memory?.TotalOperations),
+
+                Gen1Collections = MetricComparison.CalculateGarbageCollectionOperations(
+                    baselineBenchmark.Memory?.Gen1Collections,
+                    baselineBenchmark.Memory?.TotalOperations,
+                    targetBenchmark?.Memory?.Gen1Collections,
+                    targetBenchmark?.Memory?.TotalOperations),
+
+                Gen2Collections = MetricComparison.CalculateGarbageCollectionOperations(
+                    baselineBenchmark.Memory?.Gen2Collections,
+                    baselineBenchmark.Memory?.TotalOperations,
+                    targetBenchmark?.Memory?.Gen2Collections,
+                    targetBenchmark?.Memory?.TotalOperations),
+
                 Allocated = MetricComparison.CalculateMemoryUsage(
                     baselineBenchmark.Memory?.BytesAllocatedPerOperation,
                     targetBenchmark?.Memory?.BytesAllocatedPerOperation)
@@ -102,6 +120,24 @@ public sealed class ComparerCommand(
                 Mean = MetricComparison.CalculateExecutionTime(
                     null,
                     targetBenchmark?.Statistics?.Mean),
+
+                Gen0Collections = MetricComparison.CalculateGarbageCollectionOperations(
+                    null,
+                    null,
+                    targetBenchmark?.Memory?.Gen0Collections,
+                    targetBenchmark?.Memory?.TotalOperations),
+
+                Gen1Collections = MetricComparison.CalculateGarbageCollectionOperations(
+                    null,
+                    null,
+                    targetBenchmark?.Memory?.Gen1Collections,
+                    targetBenchmark?.Memory?.TotalOperations),
+
+                Gen2Collections = MetricComparison.CalculateGarbageCollectionOperations(
+                    null,
+                    null,
+                    targetBenchmark?.Memory?.Gen2Collections,
+                    targetBenchmark?.Memory?.TotalOperations),
 
                 Allocated = MetricComparison.CalculateMemoryUsage(
                     null,

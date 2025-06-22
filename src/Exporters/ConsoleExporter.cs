@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using PowerUtils.BenchmarkDotnet.Reporter.Helpers;
 using PowerUtils.BenchmarkDotnet.Reporter.Models;
 
@@ -49,41 +50,106 @@ public sealed class ConsoleExporter(IOHelpers.Printer printer) : IExporter
         }
         else
         {
-            const int SPACE_BETWEEN_COLUMNS = 5;
-            var rows = new List<string[]>
+            var hasGen0CollectionsValues = report.Comparisons
+                .Any(c => c.Gen0Collections is not null);
+            var hasGen1CollectionsValues = report.Comparisons
+                .Any(c => c.Gen1Collections is not null);
+            var hasGen2CollectionsValues = report.Comparisons
+                .Any(c => c.Gen2Collections is not null);
+
+
+            var tableBuilder = TableBuilder.Create();
+
+            var header = new List<string>();
+            header.Add("Report");
+            header.Add("Type");
+            header.Add("Method");
+            header.Add("Mean");
+            if(hasGen0CollectionsValues)
             {
-                new[] { "Report", "Type", "Method", "Mean", "Allocated" }
-            };
+                header.Add("Gen0");
+            }
+            if(hasGen1CollectionsValues)
+            {
+                header.Add("Gen1");
+            }
+            if(hasGen2CollectionsValues)
+            {
+                header.Add("Gen2");
+            }
+            header.Add("Allocated");
 
-            var reportWidth = rows[0][0].Length + SPACE_BETWEEN_COLUMNS;
-            var typeWidth = rows[0][1].Length + SPACE_BETWEEN_COLUMNS;
-            var methodWidth = rows[0][2].Length + SPACE_BETWEEN_COLUMNS;
-            var meanWidth = rows[0][3].Length + SPACE_BETWEEN_COLUMNS;
-            var allocatedWidth = rows[0][4].Length;
-
+            tableBuilder.AddHeader(header);
 
             foreach(var comparison in report.Comparisons)
             {
-                var row = new string[] {
-                    "Baseline",
-                    comparison.Type ?? "",
-                    comparison.Name ?? "",
-                    comparison.Mean?.Baseline.BeautifyTime() ?? "",
-                    comparison.Allocated?.Baseline.BeautifyMemory() ?? ""
-                };
-                rows.Add(row);
+                // Add baseline row
+                var row = new List<string>();
+                row.Add("Baseline");
+                row.Add(comparison.Type ?? "");
+                row.Add(comparison.Name ?? "");
+                row.Add(comparison.Mean?.Baseline.BeautifyTime() ?? "");
+                if(hasGen0CollectionsValues)
+                {
+                    row.Add(comparison.Gen0Collections?.Baseline?.ToString() ?? "");
+                }
+                if(hasGen1CollectionsValues)
+                {
+                    row.Add(comparison.Gen1Collections?.Baseline?.ToString() ?? "");
+                }
+                if(hasGen2CollectionsValues)
+                {
+                    row.Add(comparison.Gen2Collections?.Baseline?.ToString() ?? "");
+                }
+                row.Add(comparison.Allocated?.Baseline.BeautifyMemory() ?? "");
+                tableBuilder.AddRow(row);
 
-                reportWidth = Math.Max(reportWidth, row[0].Length + SPACE_BETWEEN_COLUMNS);
-                typeWidth = Math.Max(typeWidth, row[1].Length + SPACE_BETWEEN_COLUMNS);
-                methodWidth = Math.Max(methodWidth, row[2].Length + SPACE_BETWEEN_COLUMNS);
-                meanWidth = Math.Max(meanWidth, row[3].Length + SPACE_BETWEEN_COLUMNS);
-                allocatedWidth = Math.Max(allocatedWidth, row[4].Length);
 
+                // Add target row
+                row =
+                [
+                    "Target",
+                    "",
+                    comparison.Mean?.Status is ComparisonStatus.Removed or ComparisonStatus.New
+                                ? $"[{comparison.Mean?.Status.ToString().ToUpper()}]"
+                                : "",
+                ];
 
                 var mean = comparison.Mean?.Target.BeautifyTime();
                 if(comparison.Mean?.Status is ComparisonStatus.Better or ComparisonStatus.Worse)
                 {
                     mean = $"{mean} ({comparison.Mean?.DiffPercentage.BeautifyPercentage()})";
+                }
+                row.Add(mean ?? "");
+
+                if(hasGen0CollectionsValues)
+                {
+                    var gen0 = comparison.Gen0Collections?.Target.ToString();
+                    if(comparison.Gen0Collections?.Status is ComparisonStatus.Better or ComparisonStatus.Worse)
+                    {
+                        gen0 = $"{gen0} ({comparison.Gen0Collections?.DiffPercentage.BeautifyPercentage()})";
+                    }
+                    row.Add(gen0 ?? "");
+                }
+
+                if(hasGen1CollectionsValues)
+                {
+                    var gen1 = comparison.Gen1Collections?.Target.ToString();
+                    if(comparison.Gen1Collections?.Status is ComparisonStatus.Better or ComparisonStatus.Worse)
+                    {
+                        gen1 = $"{gen1} ({comparison.Gen1Collections?.DiffPercentage.BeautifyPercentage()})";
+                    }
+                    row.Add(gen1 ?? "");
+                }
+
+                if(hasGen2CollectionsValues)
+                {
+                    var gen2 = comparison.Gen2Collections?.Target.ToString();
+                    if(comparison.Gen2Collections?.Status is ComparisonStatus.Better or ComparisonStatus.Worse)
+                    {
+                        gen2 = $"{gen2} ({comparison.Gen2Collections?.DiffPercentage.BeautifyPercentage()})";
+                    }
+                    row.Add(gen2 ?? "");
                 }
 
                 var allocated = comparison.Allocated?.Target.BeautifyMemory();
@@ -91,37 +157,17 @@ public sealed class ConsoleExporter(IOHelpers.Printer printer) : IExporter
                 {
                     allocated = $"{allocated} ({comparison.Allocated?.DiffPercentage.BeautifyPercentage()})";
                 }
+                row.Add(allocated ?? "");
 
 
-                row = [
-                    "Target",
-                    "",
-                    comparison.Mean?.Status is ComparisonStatus.Removed or ComparisonStatus.New
-                                            ? $"[{comparison.Mean?.Status.ToString().ToUpper()}]"
-                                            : "",
-                    mean ?? "",
-                    allocated ?? ""
-                ];
-
-                rows.Add(row);
-
-                reportWidth = Math.Max(reportWidth, row[0].Length + SPACE_BETWEEN_COLUMNS);
-                typeWidth = Math.Max(typeWidth, row[1].Length + SPACE_BETWEEN_COLUMNS);
-                methodWidth = Math.Max(methodWidth, row[2].Length + SPACE_BETWEEN_COLUMNS);
-                meanWidth = Math.Max(meanWidth, row[3].Length + SPACE_BETWEEN_COLUMNS);
-                allocatedWidth = Math.Max(allocatedWidth, row[4].Length);
+                tableBuilder.AddRow(row);
             }
 
-            // Header
-            _printer($"{rows[0][0].PadRight(reportWidth)}{rows[0][1].PadRight(typeWidth)}{rows[0][2].PadRight(methodWidth)}{rows[0][3].PadRight(meanWidth)}{rows[0][4]}");
-            _printer(Environment.NewLine);
-            _printer(new string('─', reportWidth + typeWidth + methodWidth + meanWidth + allocatedWidth));
-            _printer(Environment.NewLine);
+            var table = tableBuilder.Build();
 
-            for(var i = 1; i < rows.Count; i++)
+            foreach(var row in table)
             {
-                var row = rows[i];
-                _printer($"{row[0].PadRight(reportWidth)}{row[1].PadRight(typeWidth)}{row[2].PadRight(methodWidth)}{row[3].PadRight(meanWidth)}{row[4]}");
+                _printer(string.Join("", row));
                 _printer(Environment.NewLine);
             }
         }

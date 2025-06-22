@@ -132,9 +132,9 @@ public sealed class ConsoleExporterTests
         _output[12].ShouldBe(Environment.NewLine);
         _output[13].ShouldBe("────────────────────────────────────────────────────");
         _output[14].ShouldBe(Environment.NewLine);
-        _output[15].ShouldBe("Baseline     Bmk      Name       12 ns     20 B");
+        _output[15].ShouldBe("Baseline     Bmk      Name       12 ns     20 B     ");
         _output[16].ShouldBe(Environment.NewLine);
-        _output[17].ShouldBe("Target                           12 ns     20 B");
+        _output[17].ShouldBe("Target                           12 ns     20 B     ");
         _output[18].ShouldBe(Environment.NewLine);
         _output[19].ShouldBe(Environment.NewLine);
         _output[20].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
@@ -186,13 +186,13 @@ public sealed class ConsoleExporterTests
         _output[12].ShouldBe(Environment.NewLine);
         _output[13].ShouldBe("─────────────────────────────────────────────────────");
         _output[14].ShouldBe(Environment.NewLine);
-        _output[15].ShouldBe("Baseline     Bmk7     Method1     43 ns     122 B");
+        _output[15].ShouldBe("Baseline     Bmk7     Method1     43 ns     122 B    ");
         _output[16].ShouldBe(Environment.NewLine);
-        _output[17].ShouldBe("Target                            43 ns     122 B");
+        _output[17].ShouldBe("Target                            43 ns     122 B    ");
         _output[18].ShouldBe(Environment.NewLine);
-        _output[19].ShouldBe("Baseline     Bmk8     Method2     52 ns     21 B");
+        _output[19].ShouldBe("Baseline     Bmk8     Method2     52 ns     21 B     ");
         _output[20].ShouldBe(Environment.NewLine);
-        _output[21].ShouldBe("Target                            52 ns     21 B");
+        _output[21].ShouldBe("Target                            52 ns     21 B     ");
         _output[22].ShouldBe(Environment.NewLine);
         _output[23].ShouldBe(Environment.NewLine);
         _output[24].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
@@ -231,11 +231,11 @@ public sealed class ConsoleExporterTests
         _output[8].ShouldBe("📊 RESULTS:");
         _output[9].ShouldBe(Environment.NewLine);
         _output[10].ShouldBe(Environment.NewLine);
-        _output[11].ShouldBe("Report       Type     Method      Mean             Allocated");
+        _output[11].ShouldBe("Report       Type     Method      Mean             Allocated  ");
         _output[12].ShouldBe(Environment.NewLine);
         _output[13].ShouldBe("──────────────────────────────────────────────────────────────");
         _output[14].ShouldBe(Environment.NewLine);
-        _output[15].ShouldBe("Baseline     Bmk3     Method1     50 ns            100 B");
+        _output[15].ShouldBe("Baseline     Bmk3     Method1     50 ns            100 B      ");
         _output[16].ShouldBe(Environment.NewLine);
         _output[17].ShouldBe("Target                            25 ns (-50%)     75 B (-25%)");
         _output[18].ShouldBe(Environment.NewLine);
@@ -280,9 +280,9 @@ public sealed class ConsoleExporterTests
         _output[12].ShouldBe(Environment.NewLine);
         _output[13].ShouldBe("────────────────────────────────────────────────────");
         _output[14].ShouldBe(Environment.NewLine);
-        _output[15].ShouldBe("Baseline     Bmk1     xpto                 ");
+        _output[15].ShouldBe("Baseline     Bmk1     xpto                          ");
         _output[16].ShouldBe(Environment.NewLine);
-        _output[17].ShouldBe("Target                [NEW]      12 ns     37 B");
+        _output[17].ShouldBe("Target                [NEW]      12 ns     37 B     ");
         _output[18].ShouldBe(Environment.NewLine);
         _output[19].ShouldBe(Environment.NewLine);
         _output[20].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
@@ -325,9 +325,9 @@ public sealed class ConsoleExporterTests
         _output[12].ShouldBe(Environment.NewLine);
         _output[13].ShouldBe("───────────────────────────────────────────────────────");
         _output[14].ShouldBe(Environment.NewLine);
-        _output[15].ShouldBe("Baseline     Bmk9     wdcs          12 ns     20 B");
+        _output[15].ShouldBe("Baseline     Bmk9     wdcs          12 ns     20 B     ");
         _output[16].ShouldBe(Environment.NewLine);
-        _output[17].ShouldBe("Target                [REMOVED]               ");
+        _output[17].ShouldBe("Target                [REMOVED]                        ");
         _output[18].ShouldBe(Environment.NewLine);
         _output[19].ShouldBe(Environment.NewLine);
         _output[20].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
@@ -407,5 +407,230 @@ public sealed class ConsoleExporterTests
         _output[24].ShouldBe(Environment.NewLine);
         _output[25].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
         _output[26].ShouldBe(Environment.NewLine);
+    }
+
+    [Fact]
+    public void When_Report_Has_Gen0Collections_Should_Print_Gen0Collections_Column()
+    {
+        // Arrange
+        var report = new ComparerReport();
+        report.Comparisons.Add(new()
+        {
+            Type = "Bmk1",
+            Name = "Method1",
+            FullName = "FullMethod1",
+
+            Mean = MetricComparison.CalculateExecutionTime(43, 43),
+            Allocated = MetricComparison.CalculateMemoryUsage(122, 122)
+        });
+        report.Comparisons.Add(new()
+        {
+            Type = "Bmk2",
+            Name = "Method2",
+            FullName = "FullMethod2",
+
+            Mean = MetricComparison.CalculateExecutionTime(52, 52),
+            Gen0Collections = MetricComparison.CalculateMemoryUsage(2000, 2),
+            Allocated = MetricComparison.CalculateMemoryUsage(21, 21)
+        });
+
+
+        // Act
+        _exporter.Generate(report, "");
+
+
+        // Assert
+        _output[0].ShouldBe(Environment.NewLine);
+        _output[1].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
+        _output[2].ShouldBe(Environment.NewLine);
+        _output[3].ShouldBe("                        BENCHMARK COMPARISON REPORT");
+        _output[4].ShouldBe(Environment.NewLine);
+        _output[5].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
+        _output[6].ShouldBe(Environment.NewLine);
+        _output[7].ShouldBe(Environment.NewLine);
+        _output[8].ShouldBe("📊 RESULTS:");
+        _output[9].ShouldBe(Environment.NewLine);
+        _output[10].ShouldBe(Environment.NewLine);
+        _output[11].ShouldBe("Report       Type     Method      Mean      Gen0           Allocated");
+        _output[12].ShouldBe(Environment.NewLine);
+        _output[13].ShouldBe("────────────────────────────────────────────────────────────────────");
+        _output[14].ShouldBe(Environment.NewLine);
+        _output[15].ShouldBe("Baseline     Bmk1     Method1     43 ns                    122 B    ");
+        _output[16].ShouldBe(Environment.NewLine);
+        _output[17].ShouldBe("Target                            43 ns                    122 B    ");
+        _output[18].ShouldBe(Environment.NewLine);
+        _output[19].ShouldBe("Baseline     Bmk2     Method2     52 ns     2000           21 B     ");
+        _output[20].ShouldBe(Environment.NewLine);
+        _output[21].ShouldBe("Target                            52 ns     2 (-99.9%)     21 B     ");
+        _output[22].ShouldBe(Environment.NewLine);
+        _output[23].ShouldBe(Environment.NewLine);
+        _output[24].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
+        _output[25].ShouldBe(Environment.NewLine);
+    }
+
+    [Fact]
+    public void When_Report_Has_Gen1Collections_Should_Print_Gen1Collections_Column()
+    {
+        // Arrange
+        var report = new ComparerReport();
+        report.Comparisons.Add(new()
+        {
+            Type = "Bmk1",
+            Name = "Method1",
+            FullName = "FullMethod1",
+
+            Mean = MetricComparison.CalculateExecutionTime(43, 43),
+            Allocated = MetricComparison.CalculateMemoryUsage(122, 122)
+        });
+        report.Comparisons.Add(new()
+        {
+            Type = "Bmk2",
+            Name = "Method2",
+            FullName = "FullMethod2",
+
+            Mean = MetricComparison.CalculateExecutionTime(52, 52),
+            Gen1Collections = MetricComparison.CalculateMemoryUsage(100, 109),
+            Allocated = MetricComparison.CalculateMemoryUsage(21, 21)
+        });
+
+
+        // Act
+        _exporter.Generate(report, "");
+
+
+        // Assert
+        _output[0].ShouldBe(Environment.NewLine);
+        _output[1].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
+        _output[2].ShouldBe(Environment.NewLine);
+        _output[3].ShouldBe("                        BENCHMARK COMPARISON REPORT");
+        _output[4].ShouldBe(Environment.NewLine);
+        _output[5].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
+        _output[6].ShouldBe(Environment.NewLine);
+        _output[7].ShouldBe(Environment.NewLine);
+        _output[8].ShouldBe("📊 RESULTS:");
+        _output[9].ShouldBe(Environment.NewLine);
+        _output[10].ShouldBe(Environment.NewLine);
+        _output[11].ShouldBe("Report       Type     Method      Mean      Gen1         Allocated");
+        _output[12].ShouldBe(Environment.NewLine);
+        _output[13].ShouldBe("──────────────────────────────────────────────────────────────────");
+        _output[14].ShouldBe(Environment.NewLine);
+        _output[15].ShouldBe("Baseline     Bmk1     Method1     43 ns                  122 B    ");
+        _output[16].ShouldBe(Environment.NewLine);
+        _output[17].ShouldBe("Target                            43 ns                  122 B    ");
+        _output[18].ShouldBe(Environment.NewLine);
+        _output[19].ShouldBe("Baseline     Bmk2     Method2     52 ns     100          21 B     ");
+        _output[20].ShouldBe(Environment.NewLine);
+        _output[21].ShouldBe("Target                            52 ns     109 (9%)     21 B     ");
+        _output[22].ShouldBe(Environment.NewLine);
+        _output[23].ShouldBe(Environment.NewLine);
+        _output[24].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
+        _output[25].ShouldBe(Environment.NewLine);
+    }
+
+    [Fact]
+    public void When_Report_Has_Gen2Collections_Should_Print_Gen2Collections_Column()
+    {
+        // Arrange
+        var report = new ComparerReport();
+        report.Comparisons.Add(new()
+        {
+            Type = "Bmk1",
+            Name = "Method1",
+            FullName = "FullMethod1",
+
+            Mean = MetricComparison.CalculateExecutionTime(43, 43),
+            Gen2Collections = MetricComparison.CalculateMemoryUsage(352, 352),
+            Allocated = MetricComparison.CalculateMemoryUsage(122, 122)
+        });
+        report.Comparisons.Add(new()
+        {
+            Type = "Bmk2",
+            Name = "Method2",
+            FullName = "FullMethod2",
+
+            Mean = MetricComparison.CalculateExecutionTime(52, 52),
+            Allocated = MetricComparison.CalculateMemoryUsage(21, 21)
+        });
+
+
+        // Act
+        _exporter.Generate(report, "");
+
+
+        // Assert
+        _output[0].ShouldBe(Environment.NewLine);
+        _output[1].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
+        _output[2].ShouldBe(Environment.NewLine);
+        _output[3].ShouldBe("                        BENCHMARK COMPARISON REPORT");
+        _output[4].ShouldBe(Environment.NewLine);
+        _output[5].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
+        _output[6].ShouldBe(Environment.NewLine);
+        _output[7].ShouldBe(Environment.NewLine);
+        _output[8].ShouldBe("📊 RESULTS:");
+        _output[9].ShouldBe(Environment.NewLine);
+        _output[10].ShouldBe(Environment.NewLine);
+        _output[11].ShouldBe("Report       Type     Method      Mean      Gen2     Allocated");
+        _output[12].ShouldBe(Environment.NewLine);
+        _output[13].ShouldBe("──────────────────────────────────────────────────────────────");
+        _output[14].ShouldBe(Environment.NewLine);
+        _output[15].ShouldBe("Baseline     Bmk1     Method1     43 ns     352      122 B    ");
+        _output[16].ShouldBe(Environment.NewLine);
+        _output[17].ShouldBe("Target                            43 ns     352      122 B    ");
+        _output[18].ShouldBe(Environment.NewLine);
+        _output[19].ShouldBe("Baseline     Bmk2     Method2     52 ns              21 B     ");
+        _output[20].ShouldBe(Environment.NewLine);
+        _output[21].ShouldBe("Target                            52 ns              21 B     ");
+        _output[22].ShouldBe(Environment.NewLine);
+        _output[23].ShouldBe(Environment.NewLine);
+        _output[24].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
+        _output[25].ShouldBe(Environment.NewLine);
+    }
+
+    [Fact]
+    public void When_Report_Has_Gen0Collections_Gen1Collections_Gen2Collections_Should_Print_Gen0Collections_Gen1Collections_Gen2Collections_Column()
+    {
+        // Arrange
+        var report = new ComparerReport();
+        report.Comparisons.Add(new()
+        {
+            Type = "Bmk1",
+            Name = "Method1",
+            FullName = "FullMethod1",
+
+            Mean = MetricComparison.CalculateExecutionTime(43, 43),
+            Gen0Collections = MetricComparison.CalculateMemoryUsage(122, 132),
+            Gen1Collections = MetricComparison.CalculateMemoryUsage(2000, 2000),
+            Gen2Collections = MetricComparison.CalculateMemoryUsage(352, 332),
+            Allocated = MetricComparison.CalculateMemoryUsage(122, 122)
+        });
+
+
+        // Act
+        _exporter.Generate(report, "");
+
+
+        // Assert
+        _output[0].ShouldBe(Environment.NewLine);
+        _output[1].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
+        _output[2].ShouldBe(Environment.NewLine);
+        _output[3].ShouldBe("                        BENCHMARK COMPARISON REPORT");
+        _output[4].ShouldBe(Environment.NewLine);
+        _output[5].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
+        _output[6].ShouldBe(Environment.NewLine);
+        _output[7].ShouldBe(Environment.NewLine);
+        _output[8].ShouldBe("📊 RESULTS:");
+        _output[9].ShouldBe(Environment.NewLine);
+        _output[10].ShouldBe(Environment.NewLine);
+        _output[11].ShouldBe("Report       Type     Method      Mean      Gen0           Gen1     Gen2             Allocated");
+        _output[12].ShouldBe(Environment.NewLine);
+        _output[13].ShouldBe("──────────────────────────────────────────────────────────────────────────────────────────────");
+        _output[14].ShouldBe(Environment.NewLine);
+        _output[15].ShouldBe("Baseline     Bmk1     Method1     43 ns     122            2000     352              122 B    ");
+        _output[16].ShouldBe(Environment.NewLine);
+        _output[17].ShouldBe("Target                            43 ns     132 (8.2%)     2000     332 (-5.68%)     122 B    ");
+        _output[18].ShouldBe(Environment.NewLine);
+        _output[19].ShouldBe(Environment.NewLine);
+        _output[20].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
+        _output[21].ShouldBe(Environment.NewLine);
     }
 }

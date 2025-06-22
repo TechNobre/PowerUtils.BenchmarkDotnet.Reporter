@@ -169,4 +169,199 @@ public sealed class MetricComparisonTests
         result.ShouldNotBeNull();
         result.Unit.ShouldBe("B");
     }
+
+
+    [Fact]
+    public void When_Calculate_GCOperations_With_Valid_Values_Should_Return_Baseline_And_Target()
+    {
+        // Arrange
+        decimal? baselineIteration = 1000;
+        decimal? baselineOperations = 10;
+        decimal? targetIteration = 2000;
+        decimal? targetOperations = 2;
+
+
+        // Act
+        var result = MetricComparison.CalculateGarbageCollectionOperations(
+            baselineIteration,
+            baselineOperations,
+            targetIteration,
+            targetOperations);
+
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.Unit.ShouldBeNull();
+        result.Status.ShouldBe(ComparisonStatus.Worse);
+        result.Baseline.ShouldBe(100_000);
+        result.Target.ShouldBe(1_000_000);
+        result.Diff.ShouldBe(900_000);
+        result.DiffPercentage.ShouldBe(900);
+    }
+
+    [Fact]
+    public void When_Calculate_GCOperations_With_BaselineIteration_Null_Should_Return_Baseline_Null()
+    {
+        // Arrange
+        decimal? baselineIteration = null;
+        decimal? baselineOperations = 12;
+        decimal? targetIteration = 1000;
+        decimal? targetOperations = 2000;
+
+
+        // Act
+        var result = MetricComparison.CalculateGarbageCollectionOperations(
+            baselineIteration,
+            baselineOperations,
+            targetIteration,
+            targetOperations);
+
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.Status.ShouldBe(ComparisonStatus.New);
+        result.Baseline.ShouldBeNull();
+        result.Target.ShouldBe(500);
+        result.Diff.ShouldBeNull();
+        result.DiffPercentage.ShouldBeNull();
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(null)]
+    public void When_Calculate_GCOperations_With_BaselineOperations_Invalid_Should_Return_Baseline_Null(int? baselineOperations)
+    {
+        // Arrange
+        decimal? baselineIteration = 12;
+        decimal? targetIteration = 1654;
+        decimal? targetOperations = 20;
+
+
+        // Act
+        var result = MetricComparison.CalculateGarbageCollectionOperations(
+            baselineIteration,
+            baselineOperations,
+            targetIteration,
+            targetOperations);
+
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.Status.ShouldBe(ComparisonStatus.New);
+        result.Baseline.ShouldBeNull();
+        result.Target.ShouldBe(82_700);
+        result.Diff.ShouldBeNull();
+        result.DiffPercentage.ShouldBeNull();
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(null)]
+    public void When_Calculate_GCOperations_With_BaselineIteration_Invalid_Should_Return_Baseline_Null(int? baselineIteration)
+    {
+        // Arrange
+        decimal? baselineOperations = 12;
+        decimal? targetIteration = 1654;
+        decimal? targetOperations = 20;
+
+
+        // Act
+        var result = MetricComparison.CalculateGarbageCollectionOperations(
+            baselineIteration,
+            baselineOperations,
+            targetIteration,
+            targetOperations);
+
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.Status.ShouldBe(ComparisonStatus.New);
+        result.Baseline.ShouldBeNull();
+        result.Target.ShouldBe(82_700);
+        result.Diff.ShouldBeNull();
+        result.DiffPercentage.ShouldBeNull();
+    }
+
+    [Fact]
+    public void When_Calculate_GCOperations_With_TargetIteration_Null_Should_Return_Target_Null()
+    {
+        // Arrange
+        decimal? baselineIteration = 1000;
+        decimal? baselineOperations = 10;
+        decimal? targetIteration = null;
+        decimal? targetOperations = 2;
+
+
+        // Act
+        var result = MetricComparison.CalculateGarbageCollectionOperations(
+            baselineIteration,
+            baselineOperations,
+            targetIteration,
+            targetOperations);
+
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.Status.ShouldBe(ComparisonStatus.Removed);
+        result.Baseline.ShouldBe(100_000);
+        result.Target.ShouldBeNull();
+        result.Diff.ShouldBeNull();
+        result.DiffPercentage.ShouldBeNull();
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(null)]
+    public void When_Calculate_GCOperations_With_TargetOperations_Invalid_Should_Return_Target_Null(int? targetOperations)
+    {
+        // Arrange
+        decimal? baselineIteration = 27;
+        decimal? baselineOperations = 3;
+        decimal? targetIteration = 800;
+
+
+        // Act
+        var result = MetricComparison.CalculateGarbageCollectionOperations(
+            baselineIteration,
+            baselineOperations,
+            targetIteration,
+            targetOperations);
+
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.Status.ShouldBe(ComparisonStatus.Removed);
+        result.Baseline.ShouldBe(9_000);
+        result.Target.ShouldBeNull();
+        result.Diff.ShouldBeNull();
+        result.DiffPercentage.ShouldBeNull();
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(null)]
+    public void When_Calculate_GCOperations_With_TargetIteration_Invalid_Should_Return_Target_Null(int? targetIteration)
+    {
+        // Arrange
+        decimal? baselineIteration = 27;
+        decimal? baselineOperations = 3;
+        decimal? targetOperations = 800;
+
+
+        // Act
+        var result = MetricComparison.CalculateGarbageCollectionOperations(
+            baselineIteration,
+            baselineOperations,
+            targetIteration,
+            targetOperations);
+
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.Status.ShouldBe(ComparisonStatus.Removed);
+        result.Baseline.ShouldBe(9_000);
+        result.Target.ShouldBeNull();
+        result.Diff.ShouldBeNull();
+        result.DiffPercentage.ShouldBeNull();
+    }
 }
