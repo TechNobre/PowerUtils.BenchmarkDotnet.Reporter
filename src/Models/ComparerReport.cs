@@ -27,6 +27,11 @@ public sealed class ComparerReport
 
 
         public MetricComparison? Mean { get; set; }
+
+        public MetricComparison? Gen0Collections { get; set; }
+        public MetricComparison? Gen1Collections { get; set; }
+        public MetricComparison? Gen2Collections { get; set; }
+
         public MetricComparison? Allocated { get; set; }
     }
 }

@@ -22,7 +22,38 @@ public sealed record MetricComparison
     public static MetricComparison? CalculateMemoryUsage(decimal? baseline, decimal? target)
         => _calculate(baseline, target, DEFAULT_UNIT_MEMORY_USAGE);
 
-    private static MetricComparison? _calculate(decimal? baseline, decimal? target, string unit)
+    public static MetricComparison? CalculateGarbageCollectionOperations(decimal? baselineIteration, decimal? baselineOperations, decimal? targetIteration, decimal? targetOperations)
+    {
+        if(
+            baselineIteration is not null &&
+            baselineIteration > 0 &&
+            baselineOperations is not null &&
+            baselineOperations > 0)
+        {
+            baselineIteration = baselineIteration * 1_000 / baselineOperations;
+        }
+        else
+        {
+            baselineIteration = null;
+        }
+
+        if(
+            targetIteration is not null &&
+            targetIteration > 0 &&
+            targetOperations is not null &&
+            targetOperations > 0)
+        {
+            targetIteration = targetIteration * 1_000 / targetOperations;
+        }
+        else
+        {
+            targetIteration = null;
+        }
+
+        return _calculate(baselineIteration, targetIteration, null);
+    }
+
+    private static MetricComparison? _calculate(decimal? baseline, decimal? target, string? unit)
     {
         if(baseline is null && target is null)
         {

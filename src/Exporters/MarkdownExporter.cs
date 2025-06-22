@@ -45,48 +45,100 @@ public sealed class MarkdownExporter(FileWriter writer) : IExporter
         }
         else
         {
-            var table = new Table
+            var columns = new List<TableColumn>();
+
+            columns.Add(new()
             {
-                Columns = [
-                    new()
-                    {
-                        HeaderCell = new TableCell { Text = "Report" }
-                    },
-                    new()
-                    {
-                        HeaderCell = new TableCell { Text = "Type" }
-                    },
-                    new()
-                    {
-                        HeaderCell = new TableCell { Text = "Method" }
-                    },
-                    new()
-                    {
-                        HeaderCell = new TableCell { Text = "Mean" },
-                        Alignment = TableColumnAlignment.Right,
-                    },
-                    new()
-                    {
-                        HeaderCell = new TableCell { Text = "Allocated" },
-                        Alignment = TableColumnAlignment.Right,
-                    }
-                ]
+                HeaderCell = new TableCell { Text = "Report" }
+            });
+
+            columns.Add(new()
+            {
+                HeaderCell = new TableCell { Text = "Type" }
+            });
+
+            columns.Add(new()
+            {
+                HeaderCell = new TableCell { Text = "Method" }
+            });
+
+            columns.Add(new()
+            {
+                HeaderCell = new TableCell { Text = "Mean" },
+                Alignment = TableColumnAlignment.Right,
+            });
+
+            var hasGen0CollectionsValues = report.Comparisons
+                .Any(c => c.Gen0Collections is not null);
+            if(hasGen0CollectionsValues)
+            {
+                columns.Add(new()
+                {
+                    HeaderCell = new TableCell { Text = "Gen0" },
+                    Alignment = TableColumnAlignment.Right,
+                });
+            }
+
+            var hasGen1CollectionsValues = report.Comparisons
+                .Any(c => c.Gen1Collections is not null);
+            if(hasGen1CollectionsValues)
+            {
+                columns.Add(new()
+                {
+                    HeaderCell = new TableCell { Text = "Gen1" },
+                    Alignment = TableColumnAlignment.Right,
+                });
+            }
+
+            var hasGen2CollectionsValues = report.Comparisons
+                .Any(c => c.Gen2Collections is not null);
+            if(hasGen2CollectionsValues)
+            {
+                columns.Add(new()
+                {
+                    HeaderCell = new TableCell { Text = "Gen2" },
+                    Alignment = TableColumnAlignment.Right,
+                });
+            }
+
+            columns.Add(new()
+            {
+                HeaderCell = new TableCell { Text = "Allocated" },
+                Alignment = TableColumnAlignment.Right,
+            });
+
+
+            var table = new MarkdownLog.Table
+            {
+                Columns = columns
             };
 
 
             var rows = new List<TableRow>();
             foreach(var comparison in report.Comparisons)
             {
+                var cellsBaseline = new List<TableCell>();
+                cellsBaseline.Add(new TableCell { Text = "Baseline" });
+                cellsBaseline.Add(new TableCell { Text = comparison.Type });
+                cellsBaseline.Add(new TableCell { Text = comparison.Name });
+                cellsBaseline.Add(new TableCell { Text = comparison.Mean?.Baseline.BeautifyTime() });
+                if(hasGen0CollectionsValues)
+                {
+                    cellsBaseline.Add(new TableCell { Text = comparison.Gen0Collections?.Baseline?.ToString() });
+                }
+                if(hasGen1CollectionsValues)
+                {
+                    cellsBaseline.Add(new TableCell { Text = comparison.Gen1Collections?.Baseline?.ToString() });
+                }
+                if(hasGen2CollectionsValues)
+                {
+                    cellsBaseline.Add(new TableCell { Text = comparison.Gen2Collections?.Baseline?.ToString() });
+                }
+                cellsBaseline.Add(new TableCell { Text = comparison.Allocated?.Baseline.BeautifyMemory() });
+
                 rows.Add(new()
                 {
-                    Cells =
-                    [
-                        new TableCell { Text = "Baseline" },
-                        new TableCell { Text = comparison.Type },
-                        new TableCell { Text = comparison.Name },
-                        new TableCell { Text = comparison.Mean?.Baseline.BeautifyTime() },
-                        new TableCell { Text = comparison.Allocated?.Baseline.BeautifyMemory() },
-                    ]
+                    Cells = cellsBaseline
                 });
 
 
@@ -96,24 +148,57 @@ public sealed class MarkdownExporter(FileWriter writer) : IExporter
                     mean = $"{mean} ({comparison.Mean?.DiffPercentage.BeautifyPercentage()})";
                 }
 
+                var gen0 = comparison.Gen0Collections?.Target.ToString();
+                if(comparison.Gen0Collections?.Status is ComparisonStatus.Better or ComparisonStatus.Worse)
+                {
+                    gen0 = $"{gen0} ({comparison.Gen0Collections?.DiffPercentage.BeautifyPercentage()})";
+                }
+
+                var gen1 = comparison.Gen1Collections?.Target.ToString();
+                if(comparison.Gen1Collections?.Status is ComparisonStatus.Better or ComparisonStatus.Worse)
+                {
+                    gen1 = $"{gen1} ({comparison.Gen1Collections?.DiffPercentage.BeautifyPercentage()})";
+                }
+
+                var gen2 = comparison.Gen2Collections?.Target.ToString();
+                if(comparison.Gen2Collections?.Status is ComparisonStatus.Better or ComparisonStatus.Worse)
+                {
+                    gen2 = $"{gen2} ({comparison.Gen2Collections?.DiffPercentage.BeautifyPercentage()})";
+                }
+
                 var allocated = comparison.Allocated?.Target.BeautifyMemory();
                 if(comparison.Allocated?.Status is ComparisonStatus.Better or ComparisonStatus.Worse)
                 {
                     allocated = $"{allocated} ({comparison.Allocated?.DiffPercentage.BeautifyPercentage()})";
                 }
 
+                var cellsTarget = new List<TableCell>();
+                cellsTarget.Add(new TableCell { Text = "Target" });
+                cellsTarget.Add(new TableCell { Text = "" });
+                cellsTarget.Add(new TableCell
+                {
+                    Text = comparison.Mean?.Status is ComparisonStatus.Removed or ComparisonStatus.New
+                        ? $"[{comparison.Mean?.Status.ToString().ToUpper()}]"
+                        : ""
+                });
+                cellsTarget.Add(new TableCell { Text = mean });
+                if(hasGen0CollectionsValues)
+                {
+                    cellsTarget.Add(new TableCell { Text = gen0 });
+                }
+                if(hasGen1CollectionsValues)
+                {
+                    cellsTarget.Add(new TableCell { Text = gen1 });
+                }
+                if(hasGen2CollectionsValues)
+                {
+                    cellsTarget.Add(new TableCell { Text = gen2 });
+                }
+                cellsTarget.Add(new TableCell { Text = allocated });
+
                 rows.Add(new()
                 {
-                    Cells =
-                    [
-                        new TableCell { Text = "Target" },
-                        new TableCell { Text = "" },
-                        new TableCell { Text = comparison.Mean?.Status is ComparisonStatus.Removed or ComparisonStatus.New
-                            ? $"[{comparison.Mean?.Status.ToString().ToUpper()}]"
-                            : "" },
-                        new TableCell { Text = mean },
-                        new TableCell { Text = allocated },
-                    ]
+                    Cells = cellsTarget
                 });
             }
             table.Rows = rows;

@@ -662,4 +662,233 @@ public sealed class ComparerCommandTests
                     i.Comparisons.Count(c => c.FullName == "Benchmark2") == 1),
                 Arg.Any<string>());
     }
+
+    [Fact]
+    public void When_Baseline_Have_Has_Value_For_Gen0Collections_Should_Have_Comparison_Baseline_With_For_Gen0Collections()
+    {
+        // Arrange
+        _baselineReports = [
+            new()
+            {
+                Benchmarks = [
+                    new()
+                    {
+                        Memory = new()
+                        {
+                            Gen0Collections = 20000,
+                            TotalOperations = 1000
+                        }
+                    }]
+            }];
+
+
+        // Act
+        _command.Execute(
+            "baseline",
+            "target",
+            null,
+            null,
+            ["xpto"],
+            "");
+
+
+        // Assert
+        _exporter
+            .Received()
+            .Generate(
+                Arg.Is<ComparerReport>(i =>
+                    i.Comparisons.Select(s => s.Gen0Collections!.Baseline).First() != null),
+                Arg.Any<string>());
+    }
+
+    [Fact]
+    public void When_Target_Have_Has_Value_For_Gen0Collections_Should_Have_Comparison_With_Target_For_Gen0Collections()
+    {
+        // Arrange
+        _targetReports = [
+            new()
+            {
+                Benchmarks = [
+                    new()
+                    {
+                        Memory = new()
+                        {
+                            Gen0Collections = 2000,
+                            TotalOperations = 100
+                        }
+                    }]
+            }];
+
+
+        // Act
+        _command.Execute(
+            "baseline",
+            "target",
+            null,
+            null,
+            ["xpto"],
+            "");
+
+
+        // Assert
+        _exporter
+            .Received()
+            .Generate(
+                Arg.Is<ComparerReport>(i =>
+                    i.Comparisons.Select(s => s.Gen0Collections!.Target).First() != null),
+                Arg.Any<string>());
+    }
+
+
+    [Fact]
+    public void When_Baseline_Have_Has_Value_For_Gen1Collections_Should_Have_Comparison_Baseline_With_For_Gen1Collections()
+    {
+        // Arrange
+        _baselineReports = [
+            new()
+            {
+                Benchmarks = [
+                    new()
+                    {
+                        Memory = new()
+                        {
+                            Gen1Collections = 20000,
+                            TotalOperations = 1000
+                        }
+                    }]
+            }];
+
+
+        // Act
+        _command.Execute(
+            "baseline",
+            "target",
+            null,
+            null,
+            ["xpto"],
+            "");
+
+
+        // Assert
+        _exporter
+            .Received()
+            .Generate(
+                Arg.Is<ComparerReport>(i =>
+                    i.Comparisons.Select(s => s.Gen1Collections!.Baseline).First() != null),
+                Arg.Any<string>());
+    }
+
+    [Fact]
+    public void When_Target_Have_Has_Value_For_Gen1Collections_Should_Have_Comparison_With_Target_For_Gen1Collections()
+    {
+        // Arrange
+        _targetReports = [
+            new()
+            {
+                Benchmarks = [
+                    new()
+                    {
+                        Memory = new()
+                        {
+                            Gen1Collections = 2000,
+                            TotalOperations = 100
+                        }
+                    }]
+            }];
+
+
+        // Act
+        _command.Execute(
+            "baseline",
+            "target",
+            null,
+            null,
+            ["xpto"],
+            "");
+
+
+        // Assert
+        _exporter
+            .Received()
+            .Generate(
+                Arg.Is<ComparerReport>(i =>
+                    i.Comparisons.Select(s => s.Gen1Collections!.Target).First() != null),
+                Arg.Any<string>());
+    }
+
+    [Fact]
+    public void When_Baseline_Have_Has_Value_For_Gen2Collections_Should_Have_Comparison_Baseline_With_For_Gen2Collections()
+    {
+        // Arrange
+        _baselineReports = [
+            new()
+            {
+                Benchmarks = [
+                    new()
+                    {
+                        Memory = new()
+                        {
+                            Gen2Collections = 20000,
+                            TotalOperations = 1000
+                        }
+                    }]
+            }];
+
+
+        // Act
+        _command.Execute(
+            "baseline",
+            "target",
+            null,
+            null,
+            ["xpto"],
+            "");
+
+
+        // Assert
+        _exporter
+            .Received()
+            .Generate(
+                Arg.Is<ComparerReport>(i =>
+                    i.Comparisons.Select(s => s.Gen2Collections!.Baseline).First() != null),
+                Arg.Any<string>());
+    }
+
+    [Fact]
+    public void When_Target_Have_Has_Value_For_Gen2Collections_Should_Have_Comparison_With_Target_For_Gen2Collections()
+    {
+        // Arrange
+        _targetReports = [
+            new()
+            {
+                Benchmarks = [
+                    new()
+                    {
+                        Memory = new()
+                        {
+                            Gen2Collections = 2000,
+                            TotalOperations = 100
+                        }
+                    }]
+            }];
+
+
+        // Act
+        _command.Execute(
+            "baseline",
+            "target",
+            null,
+            null,
+            ["xpto"],
+            "");
+
+
+        // Assert
+        _exporter
+            .Received()
+            .Generate(
+                Arg.Is<ComparerReport>(i =>
+                    i.Comparisons.Select(s => s.Gen2Collections!.Target).First() != null),
+                Arg.Any<string>());
+    }
 }
