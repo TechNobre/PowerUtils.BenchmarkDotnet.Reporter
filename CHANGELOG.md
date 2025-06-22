@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.2.2...v1.3.0) (2025-06-22)
+
+
+### Features
+
+* Add garbage collection operations in reporting ([1af4f9a](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/commit/1af4f9a12c63332e6cb5378ab43b0003f26976d6))
+
 ## [1.2.2](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.2.1...v1.2.2) (2025-06-21)
 
 ## [1.2.1](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.2.0...v1.2.1) (2025-06-16)
