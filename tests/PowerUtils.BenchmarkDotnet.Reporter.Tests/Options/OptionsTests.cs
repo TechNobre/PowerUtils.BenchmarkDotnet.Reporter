@@ -114,7 +114,8 @@ public sealed class OptionsTests
 
 
         // Assert
-        var compareCommand = toolCommands.Subcommands.Single(c => c.Name == "compare");        var option = compareCommand.Options.Single(o => o.Name == "--fail-on-threshold-hit");
+        var compareCommand = toolCommands.Subcommands.Single(c => c.Name == "compare");
+        var option = compareCommand.Options.Single(o => o.Name == "--fail-on-threshold-hit");
 
         option.ValueType.ShouldBe(typeof(bool));
         option.Aliases.Count.ShouldBe(1);
