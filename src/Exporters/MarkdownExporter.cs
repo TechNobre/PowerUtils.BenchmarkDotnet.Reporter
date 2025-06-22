@@ -174,12 +174,12 @@ public sealed class MarkdownExporter(FileWriter writer) : IExporter
 
                 var cellsTarget = new List<TableCell>();
                 cellsTarget.Add(new TableCell { Text = "Target" });
-                cellsTarget.Add(new TableCell { Text = "" });
+                cellsTarget.Add(new TableCell { Text = null });
                 cellsTarget.Add(new TableCell
                 {
                     Text = comparison.Mean?.Status is ComparisonStatus.Removed or ComparisonStatus.New
                         ? $"[{comparison.Mean?.Status.ToString().ToUpper()}]"
-                        : ""
+                        : null
                 });
                 cellsTarget.Add(new TableCell { Text = mean });
                 if(hasGen0CollectionsValues)

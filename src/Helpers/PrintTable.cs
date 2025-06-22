@@ -9,7 +9,7 @@ public sealed class TableBuilder
     public const int SPACE_BETWEEN_COLUMNS = 5;
 
     private string[]? _header;
-    private readonly List<string[]> _rows = [];
+    private readonly List<string?[]> _rows = [];
     private readonly List<int> _columnWidths = [];
 
     private TableBuilder() { }
@@ -49,7 +49,7 @@ public sealed class TableBuilder
         return this;
     }
 
-    public TableBuilder AddRow(params IEnumerable<string> columns)
+    public TableBuilder AddRow(params IEnumerable<string?> columns)
     {
         var totalColumns = columns.Count();
         if(totalColumns == 0)
@@ -62,13 +62,13 @@ public sealed class TableBuilder
             throw new InvalidOperationException("Cannot add row with a different number of columns than already defined before");
         }
 
-        var row = new string[totalColumns];
+        var row = new string?[totalColumns];
 
         var index = 0;
         foreach(var column in columns)
         {
             row[index] = column;
-            _setColumnWith(index, column.Length);
+            _setColumnWith(index, column?.Length ?? 0);
 
             index++;
         }
@@ -121,7 +121,7 @@ public sealed class TableBuilder
                     = _columnWidths[j]
                     + (j + 1 < columnsCount ? SPACE_BETWEEN_COLUMNS : 0); // Add space between columns except for the last one
 
-                columns[j] = $"{_rows[i][j]?.PadRight(maxWidth)}";
+                columns[j] = $"{(_rows[i][j] ?? "").PadRight(maxWidth)}";
             }
 
             rows[i + numberOfHeaderRows] = columns;

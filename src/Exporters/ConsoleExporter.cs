@@ -84,24 +84,24 @@ public sealed class ConsoleExporter(IOHelpers.Printer printer) : IExporter
             foreach(var comparison in report.Comparisons)
             {
                 // Add baseline row
-                var row = new List<string>();
+                var row = new List<string?>();
                 row.Add("Baseline");
-                row.Add(comparison.Type ?? "");
-                row.Add(comparison.Name ?? "");
-                row.Add(comparison.Mean?.Baseline.BeautifyTime() ?? "");
+                row.Add(comparison.Type);
+                row.Add(comparison.Name);
+                row.Add(comparison.Mean?.Baseline.BeautifyTime());
                 if(hasGen0CollectionsValues)
                 {
-                    row.Add(comparison.Gen0Collections?.Baseline?.ToString() ?? "");
+                    row.Add(comparison.Gen0Collections?.Baseline?.ToString());
                 }
                 if(hasGen1CollectionsValues)
                 {
-                    row.Add(comparison.Gen1Collections?.Baseline?.ToString() ?? "");
+                    row.Add(comparison.Gen1Collections?.Baseline?.ToString());
                 }
                 if(hasGen2CollectionsValues)
                 {
-                    row.Add(comparison.Gen2Collections?.Baseline?.ToString() ?? "");
+                    row.Add(comparison.Gen2Collections?.Baseline?.ToString());
                 }
-                row.Add(comparison.Allocated?.Baseline.BeautifyMemory() ?? "");
+                row.Add(comparison.Allocated?.Baseline.BeautifyMemory());
                 tableBuilder.AddRow(row);
 
 
@@ -109,10 +109,10 @@ public sealed class ConsoleExporter(IOHelpers.Printer printer) : IExporter
                 row =
                 [
                     "Target",
-                    "",
+                    null,
                     comparison.Mean?.Status is ComparisonStatus.Removed or ComparisonStatus.New
-                                ? $"[{comparison.Mean?.Status.ToString().ToUpper()}]"
-                                : "",
+                        ? $"[{comparison.Mean?.Status.ToString().ToUpper()}]"
+                        : null,
                 ];
 
                 var mean = comparison.Mean?.Target.BeautifyTime();
@@ -120,7 +120,7 @@ public sealed class ConsoleExporter(IOHelpers.Printer printer) : IExporter
                 {
                     mean = $"{mean} ({comparison.Mean?.DiffPercentage.BeautifyPercentage()})";
                 }
-                row.Add(mean ?? "");
+                row.Add(mean);
 
                 if(hasGen0CollectionsValues)
                 {
@@ -129,7 +129,7 @@ public sealed class ConsoleExporter(IOHelpers.Printer printer) : IExporter
                     {
                         gen0 = $"{gen0} ({comparison.Gen0Collections?.DiffPercentage.BeautifyPercentage()})";
                     }
-                    row.Add(gen0 ?? "");
+                    row.Add(gen0);
                 }
 
                 if(hasGen1CollectionsValues)
@@ -139,7 +139,7 @@ public sealed class ConsoleExporter(IOHelpers.Printer printer) : IExporter
                     {
                         gen1 = $"{gen1} ({comparison.Gen1Collections?.DiffPercentage.BeautifyPercentage()})";
                     }
-                    row.Add(gen1 ?? "");
+                    row.Add(gen1);
                 }
 
                 if(hasGen2CollectionsValues)
@@ -149,7 +149,7 @@ public sealed class ConsoleExporter(IOHelpers.Printer printer) : IExporter
                     {
                         gen2 = $"{gen2} ({comparison.Gen2Collections?.DiffPercentage.BeautifyPercentage()})";
                     }
-                    row.Add(gen2 ?? "");
+                    row.Add(gen2);
                 }
 
                 var allocated = comparison.Allocated?.Target.BeautifyMemory();
@@ -157,7 +157,7 @@ public sealed class ConsoleExporter(IOHelpers.Printer printer) : IExporter
                 {
                     allocated = $"{allocated} ({comparison.Allocated?.DiffPercentage.BeautifyPercentage()})";
                 }
-                row.Add(allocated ?? "");
+                row.Add(allocated);
 
 
                 tableBuilder.AddRow(row);
