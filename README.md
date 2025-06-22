@@ -32,6 +32,8 @@
     - [`compare`](#compare)
       - [Options:](#options)
       - [Example of usage:](#example-of-usage)
+      - [Error Handling Options](#error-handling-options)
+        - [Exit Codes](#exit-codes)
 - [Contribution](#contribution)
 
 
@@ -181,6 +183,8 @@ pbreporter compare -b baseline-full.json -t target-full.json
 * (`-ta`, `--threshold-allocation`) `<threshold-allocation>`: Throw an error when the allocation threshold is met. Examples: 5%, 10b, 10kb, 100mb, 1gb.
 * (`-f`, `--format`) `<console|hit-txt|json|markdown>`: Output format for the report. **[default: console]**
 * (`-o`, `--output`) `<output>`: Output directory to export the diff report. Default is current directory. **[default: ./BenchmarkReporter]**
+* (`-fw`, `--fail-on-warnings`): Exit with error code when any threshold is hit during comparison. **[default: disabled]**
+* (`-ft`, `--fail-on-threshold-hit`): Exit with error code when any threshold is hit during comparison. **[default: disabled]**
 * (`-?`, `-h`, `--help`): Show help and usage information
 
 ##### Example of usage:
@@ -222,6 +226,34 @@ pbreporter compare -b baseline-full.json -t target-full.json -f markdown
 ```bash
 pbreporter compare -b baseline-full.json -t target-full.json -f json -f markdown -f console
 ```
+
+##### Error Handling Options
+
+The tool provides options to control exit codes for CI/CD integration and automated quality gates.
+
+**Fail on warnings**
+```bash
+pbreporter compare -b baseline-full.json -t target-full.json -fw
+```
+> Note: Exits with code 1 if any warnings are generated during comparison (e.g., environment differences between baseline and target).
+
+**Fail on threshold hits**
+```bash
+pbreporter compare -b baseline-full.json -t target-full.json -tm 5% -ta 10% -ft
+```
+> Note: Exits with code 2 if any performance thresholds are exceeded during comparison.
+
+**Both error handling options**
+```bash
+pbreporter compare -b baseline-full.json -t target-full.json -tm 5% -fw -ft
+```
+> Note: If both conditions are met, warnings take priority and the tool exits with code 1.
+
+###### Exit Codes
+
+* **0**: Success - No issues detected
+* **1**: Warnings detected (when `--fail-on-warnings` is enabled)
+* **2**: Performance thresholds exceeded (when `--fail-on-threshold-hit` is enabled)
 
 
 ## Contribution
