@@ -119,6 +119,7 @@ public sealed class OptionsTests
         option.ValueType.ShouldBe(typeof(bool));
         option.Aliases.Count.ShouldBe(1);
         option.Aliases.ShouldContain("-ft");
+        option.Required.ShouldBeFalse();
         option.Description.ShouldBe("Exit with error code when any threshold is hit during comparison.");
         Convert.ToBoolean(option.GetDefaultValue()).ShouldBe(false);
     }
@@ -136,6 +137,7 @@ public sealed class OptionsTests
         option.ValueType.ShouldBe(typeof(bool));
         option.Aliases.Count.ShouldBe(1);
         option.Aliases.ShouldContain("-fw");
+        option.Required.ShouldBeFalse();
         option.Description.ShouldBe("Exit with error code when the comparison generates any warnings.");
         Convert.ToBoolean(option.GetDefaultValue()).ShouldBe(false);
     }
