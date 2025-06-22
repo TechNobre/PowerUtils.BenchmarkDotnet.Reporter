@@ -196,4 +196,26 @@ public sealed class TableBuilderTest
         act[0][2].ShouldBe("Row13");
         act[1][2].ShouldBe("     ");
     }
+
+    [Fact]
+    public void When_Doesnt_Add_Rows_Should_Print_Header_And_Separator_If_Exists_Header()
+    {
+        // Arrange
+        _builder.AddHeader("Header-1", "Header--2", "Header---3");
+
+
+        // Act
+        var act = _builder.Build();
+
+
+        // Assert
+        act[0][0].ShouldBe("Header-1     ");
+        act[1][0].ShouldBe("─────────────");
+
+        act[0][1].ShouldBe("Header--2     ");
+        act[1][1].ShouldBe("──────────────");
+
+        act[0][2].ShouldBe("Header---3");
+        act[1][2].ShouldBe("──────────");
+    }
 }
