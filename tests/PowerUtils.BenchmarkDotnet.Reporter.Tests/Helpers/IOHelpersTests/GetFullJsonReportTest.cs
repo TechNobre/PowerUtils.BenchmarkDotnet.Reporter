@@ -102,8 +102,8 @@ public sealed class GetFullJsonReportTest : IDisposable
     public void When_There_Are_Multiple_FullJsonReport_Files_Should_Return_All_Of_FullPaths_For_Them()
     {
         // Arrange
-        var filePath1 = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{IOHelpers.REPORT_FILE_ENDS}");
-        var filePath2 = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{IOHelpers.REPORT_FILE_ENDS}");
+        var filePath1 = Path.Combine(_tempDirectory, $"1-{Guid.NewGuid()}{IOHelpers.REPORT_FILE_ENDS}");
+        var filePath2 = Path.Combine(_tempDirectory, $"2-{Guid.NewGuid()}{IOHelpers.REPORT_FILE_ENDS}");
         File.WriteAllText(filePath1, "{}");
         File.WriteAllText(filePath2, "{}");
 
@@ -113,8 +113,6 @@ public sealed class GetFullJsonReportTest : IDisposable
 
 
         // Assert
-        string[] expected = [filePath1, filePath2];
-        Array.Sort(expected);
-        act.ShouldBe(expected);
+        act.ShouldBe([filePath1, filePath2]);
     }
 }
