@@ -81,11 +81,6 @@ public sealed class TableBuilder
 
     public string[][] Build()
     {
-        if(_rows.Count == 0)
-        {
-            return [];
-        }
-
         var numberOfHeaderRows = 0;
         if(_header is not null)
         {
