@@ -19,6 +19,9 @@ public sealed class ToolCommands : RootCommand
         var formats = new FormatsOption();
         var output = new OutputOption();
 
+        var failOnWarnings = new FailOnWarningsOption();
+        var failOnThresholdHit = new FailOnThresholdHitOption();
+
         var compareCommand = new Command(
             "compare",
             "Compare two BenchmarkDotNet reports and produce a diff report.")
@@ -28,7 +31,9 @@ public sealed class ToolCommands : RootCommand
             meanThreshold,
             allocationThreshold,
             formats,
-            output
+            output,
+            failOnWarnings,
+            failOnThresholdHit
         };
 
         compareCommand.SetAction(parser => provider
@@ -39,7 +44,9 @@ public sealed class ToolCommands : RootCommand
                 parser.GetValue(meanThreshold),
                 parser.GetValue(allocationThreshold),
                 parser.GetValue(formats)!,
-                parser.GetValue(output)!));
+                parser.GetValue(output)!,
+                parser.GetValue(failOnWarnings),
+                parser.GetValue(failOnThresholdHit)));
 
         Subcommands.Add(compareCommand);
     }

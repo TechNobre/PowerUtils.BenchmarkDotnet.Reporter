@@ -26,14 +26,14 @@ public sealed class FormatOptionTests
 
 
         // Assert
-        var compareCommand = toolCommands.Subcommands.Single(c => c.Name == "compare");
-        var formatsOption = compareCommand.Options.Single(o => o.Name == "--format");
+        var command = toolCommands.Subcommands.Single(c => c.Name == "compare");
+        var option = command.Options.Single(o => o.Name == "--format");
 
-        formatsOption.ValueType.ShouldBe(typeof(string[]));
-        formatsOption.Aliases.Count.ShouldBe(1);
-        formatsOption.Aliases.ShouldContain("-f");
-        formatsOption.Description.ShouldBe("Output format for the report.");
-        (formatsOption.GetDefaultValue() as string[]).ShouldBe(["console"]);
+        option.ValueType.ShouldBe(typeof(string[]));
+        option.Aliases.Count.ShouldBe(1);
+        option.Aliases.ShouldContain("-f");
+        option.Description.ShouldBe("Output format for the report.");
+        (option.GetDefaultValue() as string[]).ShouldBe(["console"]);
     }
 
     [Theory]

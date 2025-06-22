@@ -11,7 +11,7 @@ namespace PowerUtils.BenchmarkDotnet.Reporter.Commands;
 
 public interface IComparerCommand
 {
-    int Execute(string? baseline, string? target, string? meanThreshold, string? allocationThreshold, string[] formats, string output);
+    int Execute(string? baseline, string? target, string? meanThreshold, string? allocationThreshold, string[] formats, string output, bool failOnWarnings, bool failOnThresholdHit);
 }
 
 public sealed class ComparerCommand(
@@ -30,7 +30,9 @@ public sealed class ComparerCommand(
         string? meanThreshold,
         string? allocationThreshold,
         string[] formats,
-        string output)
+        string output,
+        bool failOnWarnings,
+        bool failOnThresholdHit)
     {
         var baselineReports = _readFullJsonReports(baseline);
         var targetReports = _readFullJsonReports(target);
@@ -203,7 +205,17 @@ public sealed class ComparerCommand(
                 .Generate(comparerReport, output);
         }
 
+        // Check for error conditions and return appropriate exit codes
+        if(failOnWarnings && comparerReport.Warnings.Count > 0)
+        {
+            return Constants.ExitCodes.WARNING; // Exit with error code when warnings are present and failOnWarnings is enabled
+        }
 
-        return 0; // Success exit code
+        if(failOnThresholdHit && comparerReport.HitThresholds.Count > 0)
+        {
+            return Constants.ExitCodes.THRESHOLD_HIT; // Exit with error code when thresholds are hit and failOnThresholdHit is enabled
+        }
+
+        return Constants.ExitCodes.SUCCESS;
     }
 }

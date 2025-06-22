@@ -67,7 +67,9 @@ public sealed class ComparerCommandTests
             null,
             null,
             ["xpto"],
-            "");
+            "",
+            false,
+            false);
 
 
         // Assert
@@ -84,7 +86,9 @@ public sealed class ComparerCommandTests
             null,
             null,
             ["xpto"],
-            "");
+            "",
+            false,
+            false);
 
 
         // Assert
@@ -120,7 +124,9 @@ public sealed class ComparerCommandTests
             null,
             null,
             ["xpto"],
-            "");
+            "",
+            false,
+            false);
 
 
         // Assert
@@ -158,7 +164,9 @@ public sealed class ComparerCommandTests
             null,
             null,
             ["xpto"],
-            "");
+            "",
+            false,
+            false);
 
 
         // Assert
@@ -181,7 +189,9 @@ public sealed class ComparerCommandTests
             "invalid",
             null,
             ["xpto"],
-            "");
+            "",
+            false,
+            false);
 
 
         // Assert
@@ -198,7 +208,9 @@ public sealed class ComparerCommandTests
             null,
             "invalid",
             ["xpto"],
-            "");
+            "",
+            false,
+            false);
 
 
         // Assert
@@ -281,7 +293,9 @@ public sealed class ComparerCommandTests
             "10%",
             "11%",
             ["xpto"],
-            "");
+            "",
+            false,
+            false);
 
 
         // Assert
@@ -374,7 +388,9 @@ public sealed class ComparerCommandTests
             "5ns",
             "5B",
             ["xpto"],
-            "");
+            "",
+            false,
+            false);
 
 
         // Assert
@@ -418,7 +434,9 @@ public sealed class ComparerCommandTests
             null,
             null,
             ["xpto"],
-            "");
+            "",
+            false,
+            false);
 
 
         // Assert
@@ -461,7 +479,9 @@ public sealed class ComparerCommandTests
             null,
             null,
             ["xpto"],
-            "");
+            "",
+            false,
+            false);
 
 
         // Assert
@@ -550,7 +570,9 @@ public sealed class ComparerCommandTests
             "10%",
             "11%",
             ["xpto"],
-            "");
+            "",
+            false,
+            false);
 
 
         // Assert
@@ -649,7 +671,9 @@ public sealed class ComparerCommandTests
             "10%",
             "11%",
             ["xpto"],
-            "");
+            "",
+            false,
+            false);
 
 
         // Assert
@@ -689,7 +713,9 @@ public sealed class ComparerCommandTests
             null,
             null,
             ["xpto"],
-            "");
+            "",
+            false,
+            false);
 
 
         // Assert
@@ -727,7 +753,9 @@ public sealed class ComparerCommandTests
             null,
             null,
             ["xpto"],
-            "");
+            "",
+            false,
+            false);
 
 
         // Assert
@@ -766,7 +794,9 @@ public sealed class ComparerCommandTests
             null,
             null,
             ["xpto"],
-            "");
+            "",
+            false,
+            false);
 
 
         // Assert
@@ -804,7 +834,9 @@ public sealed class ComparerCommandTests
             null,
             null,
             ["xpto"],
-            "");
+            "",
+            false,
+            false);
 
 
         // Assert
@@ -842,7 +874,9 @@ public sealed class ComparerCommandTests
             null,
             null,
             ["xpto"],
-            "");
+            "",
+            false,
+            false);
 
 
         // Assert
@@ -880,7 +914,9 @@ public sealed class ComparerCommandTests
             null,
             null,
             ["xpto"],
-            "");
+            "",
+            false,
+            false);
 
 
         // Assert
@@ -890,5 +926,240 @@ public sealed class ComparerCommandTests
                 Arg.Is<ComparerReport>(i =>
                     i.Comparisons.Select(s => s.Gen2Collections!.Target).First() != null),
                 Arg.Any<string>());
+    }
+
+
+    [Fact]
+    public void When_Comparison_Generate_Warning_And_FailOnWarnings_Is_False_Should_Return_Success_ExitCode()
+    {
+        // Arrange
+        var failOnWarnings = false;
+
+        _validation
+            .HostEnvironmentValidate(Arg.Any<BenchmarkFullJsonResport>(), Arg.Any<BenchmarkFullJsonResport>())
+            .Returns(["Warning message"]);
+
+        _baselineReports = [
+            new()
+            {
+                Benchmarks = [
+                    new()
+                    {
+                        Statistics = new()
+                        {
+                            Mean = 12
+                        }
+                    }]
+            }];
+
+
+        // Act
+        var act = _command.Execute(
+            "baseline",
+            "target",
+            null,
+            null,
+            ["xpto"],
+            "",
+            failOnWarnings,
+            false);
+
+
+        // Assert
+        _exporter
+            .Received()
+            .Generate(
+                Arg.Is<ComparerReport>(i => i.Warnings.Count > 0),
+                Arg.Any<string>());
+
+        act.ShouldBe(Constants.ExitCodes.SUCCESS);
+    }
+
+    [Fact]
+    public void When_Comparison_Generate_Warning_And_FailOnWarnings_Is_True_Should_Return_Failure_Warning_ExitCode()
+    {
+        // Arrange
+        var failOnWarnings = true;
+
+        _validation
+            .HostEnvironmentValidate(Arg.Any<BenchmarkFullJsonResport>(), Arg.Any<BenchmarkFullJsonResport>())
+            .Returns(["Warning message"]);
+
+        _baselineReports = [
+            new()
+            {
+                Benchmarks = [
+                    new()
+                    {
+                        Statistics = new()
+                        {
+                            Mean = 12
+                        }
+                    }]
+            }];
+
+
+        // Act
+        var act = _command.Execute(
+            "baseline",
+            "target",
+            null,
+            null,
+            ["xpto"],
+            "",
+            failOnWarnings,
+            false);
+
+
+        // Assert
+        _exporter
+            .Received()
+            .Generate(
+                Arg.Is<ComparerReport>(i => i.Warnings.Count > 0),
+                Arg.Any<string>());
+
+        act.ShouldBe(Constants.ExitCodes.WARNING);
+    }
+
+    [Fact]
+    public void When_Comparison_Generate_Threshold_Hit_And_FailOnThresholdHit_Is_False_Should_Return_Success_ExitCode()
+    {
+        // Arrange
+        var failOnThresholdHit = false;
+
+        _baselineReports = [
+            new()
+            {
+                Benchmarks = [
+                    new()
+                    {
+                        FullName = "test hit",
+                        Method = "test hit",
+                        Statistics = new()
+                        {
+                            Mean = 12
+                        },
+                        Memory = new()
+                        {
+                            BytesAllocatedPerOperation = 120
+                        }
+                    }
+                ]
+            }
+        ];
+
+        _targetReports = [
+            new()
+            {
+                Benchmarks = [
+                    new()
+                    {
+                        FullName = "test hit",
+                        Method = "tetest hitst",
+                        Statistics = new()
+                        {
+                            Mean = 1200
+                        },
+                        Memory = new()
+                        {
+                            BytesAllocatedPerOperation = 120000
+                        }
+                    }
+                ]
+            }
+        ];
+
+
+        // Act
+        var act = _command.Execute(
+            "baseline",
+            "target",
+            "5ns",
+            "5B",
+            ["xpto"],
+            "",
+            false,
+            failOnThresholdHit);
+
+
+        // Assert
+        _exporter
+            .Received()
+            .Generate(
+                Arg.Is<ComparerReport>(i => i.HitThresholds.Count > 0),
+                Arg.Any<string>());
+
+        act.ShouldBe(Constants.ExitCodes.SUCCESS);
+    }
+
+    [Fact]
+    public void When_Comparison_Generate_Threshold_Hit_And_FailOnThresholdHit_Is_True_Should_Return_ThresholdHit_ExitCode()
+    {
+        // Arrange
+        var failOnThresholdHit = true;
+
+        _baselineReports = [
+            new()
+            {
+                Benchmarks = [
+                    new()
+                    {
+                        FullName = "test hit",
+                        Method = "test hit",
+                        Statistics = new()
+                        {
+                            Mean = 12
+                        },
+                        Memory = new()
+                        {
+                            BytesAllocatedPerOperation = 120
+                        }
+                    }
+                ]
+            }
+        ];
+
+        _targetReports = [
+            new()
+            {
+                Benchmarks = [
+                    new()
+                    {
+                        FullName = "test hit",
+                        Method = "tetest hitst",
+                        Statistics = new()
+                        {
+                            Mean = 1200
+                        },
+                        Memory = new()
+                        {
+                            BytesAllocatedPerOperation = 120000
+                        }
+                    }
+                ]
+            }
+        ];
+
+
+        // Act
+        var act = _command.Execute(
+            "baseline",
+            "target",
+            "5ns",
+            "5B",
+            ["xpto"],
+            "",
+            false,
+            failOnThresholdHit);
+
+
+        // Assert
+        _exporter
+            .Received()
+            .Generate(
+                Arg.Is<ComparerReport>(i => i.HitThresholds.Count > 0),
+                Arg.Any<string>());
+
+        act.ShouldBe(Constants.ExitCodes.THRESHOLD_HIT);
     }
 }

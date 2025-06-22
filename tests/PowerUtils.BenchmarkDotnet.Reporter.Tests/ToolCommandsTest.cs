@@ -45,7 +45,7 @@ public sealed class ToolCommandsTest
     }
 
     [Fact]
-    public void CompareCommand_ShouldHave_6Options()
+    public void CompareCommand_ShouldHave_8Options()
     {
         // Arrange & Act
         var toolCommands = new ToolCommands(_provider);
@@ -54,6 +54,6 @@ public sealed class ToolCommandsTest
         // Assert
         var compareCommand = toolCommands.Subcommands.Single(c => c.Name == "compare");
 
-        compareCommand.Options.Count.ShouldBe(6);
+        compareCommand.Options.Count.ShouldBe(8);
     }
 }
