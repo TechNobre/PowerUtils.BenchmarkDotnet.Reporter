@@ -173,4 +173,27 @@ public sealed class TableBuilderTest
         act[0][2].ShouldBe("Row13");
         act[1][2].ShouldBe("Row23");
     }
+
+    [Fact]
+    public void When_Has_Null_Columns_Should_Continue_Cells_With_Same_Width_Per_Column()
+    {
+        // Arrange
+        _builder.AddRow("Row11", null, "Row13");
+        _builder.AddRow("Row21", "Row22", null);
+
+
+        // Act
+        var act = _builder.Build();
+
+
+        // Assert
+        act[0][0].ShouldBe("Row11     ");
+        act[1][0].ShouldBe("Row21     ");
+
+        act[0][1].ShouldBe("          ");
+        act[1][1].ShouldBe("Row22     ");
+
+        act[0][2].ShouldBe("Row13");
+        act[1][2].ShouldBe("     ");
+    }
 }
