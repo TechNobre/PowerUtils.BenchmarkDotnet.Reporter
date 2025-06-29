@@ -256,6 +256,11 @@ pbreporter compare -b baseline-full.json -t target-full.json -tm 5% -fw -ft
 * **2**: Performance thresholds exceeded (when `--fail-on-threshold-hit` is enabled)
 
 
+## Acknowledgments
+
+This project was inspired by and based on the [ResultsComparer tool](https://github.com/dotnet/performance/tree/main/src/tools/ResultsComparer) from the .NET performance repository.
+
+
 ## Contribution
 
 If you have any questions, comments, or suggestions, please open an [issue](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/issues/new/choose) or create a [pull request](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare).
