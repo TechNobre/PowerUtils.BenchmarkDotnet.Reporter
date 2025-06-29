@@ -34,6 +34,8 @@
       - [Example of usage:](#example-of-usage)
       - [Error Handling Options](#error-handling-options)
         - [Exit Codes](#exit-codes)
+- [GitHub Actions Setup](#github-actions-setup)
+- [Acknowledgments](#acknowledgments)
 - [Contribution](#contribution)
 
 
@@ -254,6 +256,11 @@ pbreporter compare -b baseline-full.json -t target-full.json -tm 5% -fw -ft
 * **0**: Success - No issues detected
 * **1**: Warnings detected (when `--fail-on-warnings` is enabled)
 * **2**: Performance thresholds exceeded (when `--fail-on-threshold-hit` is enabled)
+
+
+## GitHub Actions Setup
+
+PowerUtils.BenchmarkDotnet.Reporter can be easily integrated into your CI/CD pipeline to automatically analyze and compare benchmark performance. For detailed instructions on setting up GitHub Actions workflows, see the [GitHub Actions Setup Guide](docs/github-actions-setup.md).
 
 
 ## Acknowledgments
