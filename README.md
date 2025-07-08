@@ -1,6 +1,6 @@
 # PowerUtils.BenchmarkDotnet.Reporter
 
-![Banner](https://raw.githubusercontent.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/main/assets/logo/banner.png)
+![PowerUtils.BenchmarkDotnet.Reporter banner](https://raw.githubusercontent.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/main/assets/logo/banner.png)
 
 ***Tool to analyze and compare .NET benchmark reports***
 
