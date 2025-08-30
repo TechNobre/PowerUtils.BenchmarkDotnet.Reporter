@@ -30,7 +30,7 @@ env:
   TERM: xterm # Enable ANSI color redirection
   NUGET_XMLDOC_MODE: skip # Disable NuGet XML documentation generation
 
-  SONAR_ORGANIZATION: 'TechNobre'
+  SONAR_ORGANIZATION: 'technobre'
 
 
 permissions:
