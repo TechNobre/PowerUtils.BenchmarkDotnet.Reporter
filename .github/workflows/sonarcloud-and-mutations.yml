@@ -107,6 +107,8 @@ jobs:
         dotnet tool update dotnet-coverage --tool-path ./.sonar/scanner
 
     - name: "Run Stryker"
+      env:
+        STRYKER_API_KEY: ${{ secrets.STRYKER_API_KEY }}
       run: |
         dotnet stryker \
           -tp ${{ env.TEST_PROJECT_PATH }} \
@@ -114,7 +116,7 @@ jobs:
           --reporter json \
           --reporter markdown \
           --reporter progress \
-          --reporter dashboard --dashboard-api-key ${{ secrets.STRYKER_API_KEY }} \
+          --reporter dashboard --dashboard-api-key $STRYKER_API_KEY \
           --version ${{ env.STRYKER_BRANCH }} \
           -O ${{ github.workspace }}/mutations
 
@@ -140,11 +142,13 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+        SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
       run: |
         ./.sonar/scanner/dotnet-sonarscanner begin \
-          /k:"${{ secrets.SONAR_PROJECT_KEY }}" \
-          /o:"${{ secrets.SONAR_ORGANIZATION }}" \
-          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+          /k:"$SONAR_PROJECT_KEY" \
+          /o:"$SONAR_ORGANIZATION" \
+          /d:sonar.token="$SONAR_TOKEN" \
           /d:sonar.host.url="https://sonarcloud.io" \
           /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml \
           /d:sonar.vstest.reportsPaths="**/*.trx" \
@@ -158,4 +162,4 @@ jobs:
           /s:"$(pwd)/SonarQube.Analysis.xml"
         dotnet build -c Release --no-incremental
         ./.sonar/scanner/dotnet-coverage collect "dotnet test -c Release --no-restore --no-build --logger trx" -f xml -o "coverage.xml"
-        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="$SONAR_TOKEN"
