@@ -314,7 +314,7 @@ jobs:
     ...
 
     - name: 'Add compare benchmark report in PR Comment'
-      uses: marocchino/sticky-pull-request-comment@v2
+      uses: marocchino/sticky-pull-request-comment@773744901bac0e8cbb5a0dc842800d45e9b2b405
       if: github.event_name == 'pull_request' && steps.cache.outputs.cache-matched-key != '' && always()
       with:
         header: compare-benchmark-report
