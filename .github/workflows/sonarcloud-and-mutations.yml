@@ -30,6 +30,8 @@ env:
   TERM: xterm # Enable ANSI color redirection
   NUGET_XMLDOC_MODE: skip # Disable NuGet XML documentation generation
 
+  SONAR_ORGANIZATION: 'TechNobre'
+
 
 permissions:
   pull-requests: write # To can create a comment with the results
@@ -143,11 +145,10 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
-        SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
       run: |
         ./.sonar/scanner/dotnet-sonarscanner begin \
           /k:"$SONAR_PROJECT_KEY" \
-          /o:"$SONAR_ORGANIZATION" \
+          /o:"${{ env.SONAR_ORGANIZATION }}" \
           /d:sonar.token="$SONAR_TOKEN" \
           /d:sonar.host.url="https://sonarcloud.io" \
           /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml \
