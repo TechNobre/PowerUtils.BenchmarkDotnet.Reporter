@@ -50,11 +50,17 @@ jobs:
         fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
     - name: "Define branch name for Stryker"
+      env:
+        GH_REF: ${{ github.ref }}
+        GH_HEAD_REF: ${{ github.head_ref }}
+        GH_RUN_NUMBER: ${{ github.run_number }}
       run: |
-        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+        # Sanitize branch name
+        SAFE_HEAD_REF="$(printf '%s' "$GH_HEAD_REF" | tr -c 'A-Za-z0-9._-' '-')"
+        if [[ "$GH_REF" == "refs/heads/main" ]]; then
           echo "STRYKER_BRANCH=main" >> $GITHUB_ENV
         else
-          echo "STRYKER_BRANCH=${{ github.head_ref }}-${{ github.run_number }}" >> $GITHUB_ENV
+          printf 'STRYKER_BRANCH=%s-%s\n' "$SAFE_HEAD_REF" "$GH_RUN_NUMBER" >> "$GITHUB_ENV"
         fi
 
     - name: "Display branch name for Stryker"
