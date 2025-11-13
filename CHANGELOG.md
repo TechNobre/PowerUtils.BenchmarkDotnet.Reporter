@@ -1,3 +1,5 @@
+## [1.4.1](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.4.0...v1.4.1) (2025-11-13)
+
 # [1.4.0](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.3.0...v1.4.0) (2025-06-22)
 
 
