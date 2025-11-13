@@ -1,20 +1,38 @@
 using System;
-using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using PowerUtils.BenchmarkDotnet.Reporter.Exporters;
 using PowerUtils.BenchmarkDotnet.Reporter.Models;
-using static PowerUtils.BenchmarkDotnet.Reporter.Helpers.IOHelpers;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Exporters;
 
-public sealed class ConsoleExporterTests
+[CollectionDefinition(nameof(ConsoleExporterTests), DisableParallelization = true)]
+public class ConsoleTestCollection;
+
+// Tests in this class manipulate Console.Out (shared global state) and must run sequentially
+// to prevent race conditions when running in parallel with other tests
+[Collection(nameof(ConsoleExporterTests))]
+public sealed class ConsoleExporterTests : IDisposable
 {
-    private readonly ConsoleExporter _exporter;
-    private readonly List<string> _output = [];
+    private readonly TextWriter _originalOutput;
+    private readonly StringBuilder _stringBuilder;
+    private readonly StringWriter _stringWriter;
+
+    private readonly ConsoleExporter _exporter = new();
 
     public ConsoleExporterTests()
     {
-        Printer printer = _output.Add;
-        _exporter = new ConsoleExporter(printer);
+        _originalOutput = Console.Out;
+        _stringBuilder = new();
+        _stringWriter = new(_stringBuilder);
+        Console.SetOut(_stringWriter);
+    }
+
+    public void Dispose()
+    {
+        _stringBuilder.Clear();
+        _stringWriter.Dispose();
+        Console.SetOut(_originalOutput);
     }
 
 
@@ -30,22 +48,18 @@ public sealed class ConsoleExporterTests
 
 
         // Assert
-        _output[0].ShouldBe(Environment.NewLine);
-        _output[1].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[2].ShouldBe(Environment.NewLine);
-        _output[3].ShouldBe("                        BENCHMARK COMPARISON REPORT");
-        _output[4].ShouldBe(Environment.NewLine);
-        _output[5].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[6].ShouldBe(Environment.NewLine);
-        _output[7].ShouldBe(Environment.NewLine);
-        _output[8].ShouldBe("📊 RESULTS:");
-        _output[9].ShouldBe(Environment.NewLine);
-        _output[10].ShouldBe(Environment.NewLine);
-        _output[11].ShouldBe("   No comparisons found.");
-        _output[12].ShouldBe(Environment.NewLine);
-        _output[13].ShouldBe(Environment.NewLine);
-        _output[14].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[15].ShouldBe(Environment.NewLine);
+        _outputShouldBe(
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "                        BENCHMARK COMPARISON REPORT",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "",
+            "📊 RESULTS:",
+            "",
+            "   No comparisons found.",
+            "",
+            "",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "");
     }
 
     [Fact]
@@ -66,34 +80,25 @@ public sealed class ConsoleExporterTests
 
 
         // Assert
-
-        _output[0].ShouldBe(Environment.NewLine);
-        _output[1].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[2].ShouldBe(Environment.NewLine);
-        _output[3].ShouldBe("                        BENCHMARK COMPARISON REPORT");
-        _output[4].ShouldBe(Environment.NewLine);
-        _output[5].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[6].ShouldBe(Environment.NewLine);
-        _output[7].ShouldBe(Environment.NewLine);
-        _output[8].ShouldBe("⚠️ WARNINGS:");
-        _output[9].ShouldBe(Environment.NewLine);
-        _output[10].ShouldBe(Environment.NewLine);
-        _output[11].ShouldBe("   • Warning 1");
-        _output[12].ShouldBe(Environment.NewLine);
-        _output[13].ShouldBe("   • Warning 2");
-        _output[14].ShouldBe(Environment.NewLine);
-        _output[15].ShouldBe(Environment.NewLine);
-        _output[16].ShouldBe(".................................................................................");
-        _output[17].ShouldBe(Environment.NewLine);
-        _output[18].ShouldBe(Environment.NewLine);
-        _output[19].ShouldBe("📊 RESULTS:");
-        _output[20].ShouldBe(Environment.NewLine);
-        _output[21].ShouldBe(Environment.NewLine);
-        _output[22].ShouldBe("   No comparisons found.");
-        _output[23].ShouldBe(Environment.NewLine);
-        _output[24].ShouldBe(Environment.NewLine);
-        _output[25].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[26].ShouldBe(Environment.NewLine);
+        _outputShouldBe(
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "                        BENCHMARK COMPARISON REPORT",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "",
+            "⚠️ WARNINGS:",
+            "",
+            "   • Warning 1",
+            "   • Warning 2",
+            "",
+            ".................................................................................",
+            "",
+            "📊 RESULTS:",
+            "",
+            "   No comparisons found.",
+            "",
+            "",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "");
     }
 
     [Fact]
@@ -117,28 +122,20 @@ public sealed class ConsoleExporterTests
 
 
         // Assert
-        _output[0].ShouldBe(Environment.NewLine);
-        _output[1].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[2].ShouldBe(Environment.NewLine);
-        _output[3].ShouldBe("                        BENCHMARK COMPARISON REPORT");
-        _output[4].ShouldBe(Environment.NewLine);
-        _output[5].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[6].ShouldBe(Environment.NewLine);
-        _output[7].ShouldBe(Environment.NewLine);
-        _output[8].ShouldBe("📊 RESULTS:");
-        _output[9].ShouldBe(Environment.NewLine);
-        _output[10].ShouldBe(Environment.NewLine);
-        _output[11].ShouldBe("Report       Type     Method     Mean      Allocated");
-        _output[12].ShouldBe(Environment.NewLine);
-        _output[13].ShouldBe("────────────────────────────────────────────────────");
-        _output[14].ShouldBe(Environment.NewLine);
-        _output[15].ShouldBe("Baseline     Bmk      Name       12 ns     20 B     ");
-        _output[16].ShouldBe(Environment.NewLine);
-        _output[17].ShouldBe("Target                           12 ns     20 B     ");
-        _output[18].ShouldBe(Environment.NewLine);
-        _output[19].ShouldBe(Environment.NewLine);
-        _output[20].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[21].ShouldBe(Environment.NewLine);
+        _outputShouldBe(
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "                        BENCHMARK COMPARISON REPORT",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "",
+            "📊 RESULTS:",
+            "",
+            "Report       Type     Method     Mean      Allocated",
+            "────────────────────────────────────────────────────",
+            "Baseline     Bmk      Name       12 ns     20 B     ",
+            "Target                           12 ns     20 B     ",
+            "",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "");
     }
 
     [Fact]
@@ -171,32 +168,22 @@ public sealed class ConsoleExporterTests
 
 
         // Assert
-        _output[0].ShouldBe(Environment.NewLine);
-        _output[1].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[2].ShouldBe(Environment.NewLine);
-        _output[3].ShouldBe("                        BENCHMARK COMPARISON REPORT");
-        _output[4].ShouldBe(Environment.NewLine);
-        _output[5].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[6].ShouldBe(Environment.NewLine);
-        _output[7].ShouldBe(Environment.NewLine);
-        _output[8].ShouldBe("📊 RESULTS:");
-        _output[9].ShouldBe(Environment.NewLine);
-        _output[10].ShouldBe(Environment.NewLine);
-        _output[11].ShouldBe("Report       Type     Method      Mean      Allocated");
-        _output[12].ShouldBe(Environment.NewLine);
-        _output[13].ShouldBe("─────────────────────────────────────────────────────");
-        _output[14].ShouldBe(Environment.NewLine);
-        _output[15].ShouldBe("Baseline     Bmk7     Method1     43 ns     122 B    ");
-        _output[16].ShouldBe(Environment.NewLine);
-        _output[17].ShouldBe("Target                            43 ns     122 B    ");
-        _output[18].ShouldBe(Environment.NewLine);
-        _output[19].ShouldBe("Baseline     Bmk8     Method2     52 ns     21 B     ");
-        _output[20].ShouldBe(Environment.NewLine);
-        _output[21].ShouldBe("Target                            52 ns     21 B     ");
-        _output[22].ShouldBe(Environment.NewLine);
-        _output[23].ShouldBe(Environment.NewLine);
-        _output[24].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[25].ShouldBe(Environment.NewLine);
+        _outputShouldBe(
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "                        BENCHMARK COMPARISON REPORT",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "",
+            "📊 RESULTS:",
+            "",
+            "Report       Type     Method      Mean      Allocated",
+            "─────────────────────────────────────────────────────",
+            "Baseline     Bmk7     Method1     43 ns     122 B    ",
+            "Target                            43 ns     122 B    ",
+            "Baseline     Bmk8     Method2     52 ns     21 B     ",
+            "Target                            52 ns     21 B     ",
+            "",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "");
     }
 
     [Fact]
@@ -220,28 +207,20 @@ public sealed class ConsoleExporterTests
 
 
         // Assert
-        _output[0].ShouldBe(Environment.NewLine);
-        _output[1].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[2].ShouldBe(Environment.NewLine);
-        _output[3].ShouldBe("                        BENCHMARK COMPARISON REPORT");
-        _output[4].ShouldBe(Environment.NewLine);
-        _output[5].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[6].ShouldBe(Environment.NewLine);
-        _output[7].ShouldBe(Environment.NewLine);
-        _output[8].ShouldBe("📊 RESULTS:");
-        _output[9].ShouldBe(Environment.NewLine);
-        _output[10].ShouldBe(Environment.NewLine);
-        _output[11].ShouldBe("Report       Type     Method      Mean             Allocated  ");
-        _output[12].ShouldBe(Environment.NewLine);
-        _output[13].ShouldBe("──────────────────────────────────────────────────────────────");
-        _output[14].ShouldBe(Environment.NewLine);
-        _output[15].ShouldBe("Baseline     Bmk3     Method1     50 ns            100 B      ");
-        _output[16].ShouldBe(Environment.NewLine);
-        _output[17].ShouldBe("Target                            25 ns (-50%)     75 B (-25%)");
-        _output[18].ShouldBe(Environment.NewLine);
-        _output[19].ShouldBe(Environment.NewLine);
-        _output[20].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[21].ShouldBe(Environment.NewLine);
+        _outputShouldBe(
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "                        BENCHMARK COMPARISON REPORT",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "",
+            "📊 RESULTS:",
+            "",
+            "Report       Type     Method      Mean             Allocated  ",
+            "──────────────────────────────────────────────────────────────",
+            "Baseline     Bmk3     Method1     50 ns            100 B      ",
+            "Target                            25 ns (-50%)     75 B (-25%)",
+            "",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "");
     }
 
     [Fact]
@@ -265,28 +244,20 @@ public sealed class ConsoleExporterTests
 
 
         // Assert
-        _output[0].ShouldBe(Environment.NewLine);
-        _output[1].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[2].ShouldBe(Environment.NewLine);
-        _output[3].ShouldBe("                        BENCHMARK COMPARISON REPORT");
-        _output[4].ShouldBe(Environment.NewLine);
-        _output[5].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[6].ShouldBe(Environment.NewLine);
-        _output[7].ShouldBe(Environment.NewLine);
-        _output[8].ShouldBe("📊 RESULTS:");
-        _output[9].ShouldBe(Environment.NewLine);
-        _output[10].ShouldBe(Environment.NewLine);
-        _output[11].ShouldBe("Report       Type     Method     Mean      Allocated");
-        _output[12].ShouldBe(Environment.NewLine);
-        _output[13].ShouldBe("────────────────────────────────────────────────────");
-        _output[14].ShouldBe(Environment.NewLine);
-        _output[15].ShouldBe("Baseline     Bmk1     xpto                          ");
-        _output[16].ShouldBe(Environment.NewLine);
-        _output[17].ShouldBe("Target                [NEW]      12 ns     37 B     ");
-        _output[18].ShouldBe(Environment.NewLine);
-        _output[19].ShouldBe(Environment.NewLine);
-        _output[20].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[21].ShouldBe(Environment.NewLine);
+        _outputShouldBe(
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "                        BENCHMARK COMPARISON REPORT",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "",
+            "📊 RESULTS:",
+            "",
+            "Report       Type     Method     Mean      Allocated",
+            "────────────────────────────────────────────────────",
+            "Baseline     Bmk1     xpto                          ",
+            "Target                [NEW]      12 ns     37 B     ",
+            "",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "");
     }
 
     [Fact]
@@ -310,28 +281,20 @@ public sealed class ConsoleExporterTests
 
 
         // Assert
-        _output[0].ShouldBe(Environment.NewLine);
-        _output[1].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[2].ShouldBe(Environment.NewLine);
-        _output[3].ShouldBe("                        BENCHMARK COMPARISON REPORT");
-        _output[4].ShouldBe(Environment.NewLine);
-        _output[5].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[6].ShouldBe(Environment.NewLine);
-        _output[7].ShouldBe(Environment.NewLine);
-        _output[8].ShouldBe("📊 RESULTS:");
-        _output[9].ShouldBe(Environment.NewLine);
-        _output[10].ShouldBe(Environment.NewLine);
-        _output[11].ShouldBe("Report       Type     Method        Mean      Allocated");
-        _output[12].ShouldBe(Environment.NewLine);
-        _output[13].ShouldBe("───────────────────────────────────────────────────────");
-        _output[14].ShouldBe(Environment.NewLine);
-        _output[15].ShouldBe("Baseline     Bmk9     wdcs          12 ns     20 B     ");
-        _output[16].ShouldBe(Environment.NewLine);
-        _output[17].ShouldBe("Target                [REMOVED]                        ");
-        _output[18].ShouldBe(Environment.NewLine);
-        _output[19].ShouldBe(Environment.NewLine);
-        _output[20].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[21].ShouldBe(Environment.NewLine);
+        _outputShouldBe(
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "                        BENCHMARK COMPARISON REPORT",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "",
+            "📊 RESULTS:",
+            "",
+            "Report       Type     Method        Mean      Allocated",
+            "───────────────────────────────────────────────────────",
+            "Baseline     Bmk9     wdcs          12 ns     20 B     ",
+            "Target                [REMOVED]                        ",
+            "",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "");
     }
 
     [Theory]
@@ -358,7 +321,8 @@ public sealed class ConsoleExporterTests
 
 
         // Assert
-        var targetLine = _output?[^5];
+        var lines = _stringBuilder.ToString().Split(Environment.NewLine);
+        var targetLine = lines?[^4];
         var methodColumn = targetLine?
             .Split([' '], StringSplitOptions.RemoveEmptyEntries)[1]
             .Trim(' ', '[', ']');
@@ -380,33 +344,25 @@ public sealed class ConsoleExporterTests
 
 
         // Assert
-        _output[0].ShouldBe(Environment.NewLine);
-        _output[1].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[2].ShouldBe(Environment.NewLine);
-        _output[3].ShouldBe("                        BENCHMARK COMPARISON REPORT");
-        _output[4].ShouldBe(Environment.NewLine);
-        _output[5].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[6].ShouldBe(Environment.NewLine);
-        _output[7].ShouldBe(Environment.NewLine);
-        _output[8].ShouldBe("📊 RESULTS:");
-        _output[9].ShouldBe(Environment.NewLine);
-        _output[10].ShouldBe(Environment.NewLine);
-        _output[11].ShouldBe("   No comparisons found.");
-        _output[12].ShouldBe(Environment.NewLine);
-        _output[13].ShouldBe(Environment.NewLine);
-        _output[14].ShouldBe(".................................................................................");
-        _output[15].ShouldBe(Environment.NewLine);
-        _output[16].ShouldBe(Environment.NewLine);
-        _output[17].ShouldBe("🚨 THRESHOLD VIOLATIONS:");
-        _output[18].ShouldBe(Environment.NewLine);
-        _output[19].ShouldBe(Environment.NewLine);
-        _output[20].ShouldBe("   • Hit Threshold 1");
-        _output[21].ShouldBe(Environment.NewLine);
-        _output[22].ShouldBe("   • Hit Threshold 2");
-        _output[23].ShouldBe(Environment.NewLine);
-        _output[24].ShouldBe(Environment.NewLine);
-        _output[25].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[26].ShouldBe(Environment.NewLine);
+        _outputShouldBe(
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "                        BENCHMARK COMPARISON REPORT",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "",
+            "📊 RESULTS:",
+            "",
+            "   No comparisons found.",
+            "",
+            "",
+            ".................................................................................",
+            "",
+            "🚨 THRESHOLD VIOLATIONS:",
+            "",
+            "   • Hit Threshold 1",
+            "   • Hit Threshold 2",
+            "",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "");
     }
 
     [Fact]
@@ -440,32 +396,22 @@ public sealed class ConsoleExporterTests
 
 
         // Assert
-        _output[0].ShouldBe(Environment.NewLine);
-        _output[1].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[2].ShouldBe(Environment.NewLine);
-        _output[3].ShouldBe("                        BENCHMARK COMPARISON REPORT");
-        _output[4].ShouldBe(Environment.NewLine);
-        _output[5].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[6].ShouldBe(Environment.NewLine);
-        _output[7].ShouldBe(Environment.NewLine);
-        _output[8].ShouldBe("📊 RESULTS:");
-        _output[9].ShouldBe(Environment.NewLine);
-        _output[10].ShouldBe(Environment.NewLine);
-        _output[11].ShouldBe("Report       Type     Method      Mean      Gen0           Allocated");
-        _output[12].ShouldBe(Environment.NewLine);
-        _output[13].ShouldBe("────────────────────────────────────────────────────────────────────");
-        _output[14].ShouldBe(Environment.NewLine);
-        _output[15].ShouldBe("Baseline     Bmk1     Method1     43 ns                    122 B    ");
-        _output[16].ShouldBe(Environment.NewLine);
-        _output[17].ShouldBe("Target                            43 ns                    122 B    ");
-        _output[18].ShouldBe(Environment.NewLine);
-        _output[19].ShouldBe("Baseline     Bmk2     Method2     52 ns     2000           21 B     ");
-        _output[20].ShouldBe(Environment.NewLine);
-        _output[21].ShouldBe("Target                            52 ns     2 (-99.9%)     21 B     ");
-        _output[22].ShouldBe(Environment.NewLine);
-        _output[23].ShouldBe(Environment.NewLine);
-        _output[24].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[25].ShouldBe(Environment.NewLine);
+        _outputShouldBe(
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "                        BENCHMARK COMPARISON REPORT",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "",
+            "📊 RESULTS:",
+            "",
+            "Report       Type     Method      Mean      Gen0           Allocated",
+            "────────────────────────────────────────────────────────────────────",
+            "Baseline     Bmk1     Method1     43 ns                    122 B    ",
+            "Target                            43 ns                    122 B    ",
+            "Baseline     Bmk2     Method2     52 ns     2000           21 B     ",
+            "Target                            52 ns     2 (-99.9%)     21 B     ",
+            "",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "");
     }
 
     [Fact]
@@ -499,32 +445,22 @@ public sealed class ConsoleExporterTests
 
 
         // Assert
-        _output[0].ShouldBe(Environment.NewLine);
-        _output[1].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[2].ShouldBe(Environment.NewLine);
-        _output[3].ShouldBe("                        BENCHMARK COMPARISON REPORT");
-        _output[4].ShouldBe(Environment.NewLine);
-        _output[5].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[6].ShouldBe(Environment.NewLine);
-        _output[7].ShouldBe(Environment.NewLine);
-        _output[8].ShouldBe("📊 RESULTS:");
-        _output[9].ShouldBe(Environment.NewLine);
-        _output[10].ShouldBe(Environment.NewLine);
-        _output[11].ShouldBe("Report       Type     Method      Mean      Gen1         Allocated");
-        _output[12].ShouldBe(Environment.NewLine);
-        _output[13].ShouldBe("──────────────────────────────────────────────────────────────────");
-        _output[14].ShouldBe(Environment.NewLine);
-        _output[15].ShouldBe("Baseline     Bmk1     Method1     43 ns                  122 B    ");
-        _output[16].ShouldBe(Environment.NewLine);
-        _output[17].ShouldBe("Target                            43 ns                  122 B    ");
-        _output[18].ShouldBe(Environment.NewLine);
-        _output[19].ShouldBe("Baseline     Bmk2     Method2     52 ns     100          21 B     ");
-        _output[20].ShouldBe(Environment.NewLine);
-        _output[21].ShouldBe("Target                            52 ns     109 (9%)     21 B     ");
-        _output[22].ShouldBe(Environment.NewLine);
-        _output[23].ShouldBe(Environment.NewLine);
-        _output[24].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[25].ShouldBe(Environment.NewLine);
+        _outputShouldBe(
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "                        BENCHMARK COMPARISON REPORT",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "",
+            "📊 RESULTS:",
+            "",
+            "Report       Type     Method      Mean      Gen1         Allocated",
+            "──────────────────────────────────────────────────────────────────",
+            "Baseline     Bmk1     Method1     43 ns                  122 B    ",
+            "Target                            43 ns                  122 B    ",
+            "Baseline     Bmk2     Method2     52 ns     100          21 B     ",
+            "Target                            52 ns     109 (9%)     21 B     ",
+            "",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "");
     }
 
     [Fact]
@@ -558,32 +494,22 @@ public sealed class ConsoleExporterTests
 
 
         // Assert
-        _output[0].ShouldBe(Environment.NewLine);
-        _output[1].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[2].ShouldBe(Environment.NewLine);
-        _output[3].ShouldBe("                        BENCHMARK COMPARISON REPORT");
-        _output[4].ShouldBe(Environment.NewLine);
-        _output[5].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[6].ShouldBe(Environment.NewLine);
-        _output[7].ShouldBe(Environment.NewLine);
-        _output[8].ShouldBe("📊 RESULTS:");
-        _output[9].ShouldBe(Environment.NewLine);
-        _output[10].ShouldBe(Environment.NewLine);
-        _output[11].ShouldBe("Report       Type     Method      Mean      Gen2     Allocated");
-        _output[12].ShouldBe(Environment.NewLine);
-        _output[13].ShouldBe("──────────────────────────────────────────────────────────────");
-        _output[14].ShouldBe(Environment.NewLine);
-        _output[15].ShouldBe("Baseline     Bmk1     Method1     43 ns     352      122 B    ");
-        _output[16].ShouldBe(Environment.NewLine);
-        _output[17].ShouldBe("Target                            43 ns     352      122 B    ");
-        _output[18].ShouldBe(Environment.NewLine);
-        _output[19].ShouldBe("Baseline     Bmk2     Method2     52 ns              21 B     ");
-        _output[20].ShouldBe(Environment.NewLine);
-        _output[21].ShouldBe("Target                            52 ns              21 B     ");
-        _output[22].ShouldBe(Environment.NewLine);
-        _output[23].ShouldBe(Environment.NewLine);
-        _output[24].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[25].ShouldBe(Environment.NewLine);
+        _outputShouldBe(
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "                        BENCHMARK COMPARISON REPORT",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "",
+            "📊 RESULTS:",
+            "",
+            "Report       Type     Method      Mean      Gen2     Allocated",
+            "──────────────────────────────────────────────────────────────",
+            "Baseline     Bmk1     Method1     43 ns     352      122 B    ",
+            "Target                            43 ns     352      122 B    ",
+            "Baseline     Bmk2     Method2     52 ns              21 B     ",
+            "Target                            52 ns              21 B     ",
+            "",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "");
     }
 
     [Fact]
@@ -610,27 +536,29 @@ public sealed class ConsoleExporterTests
 
 
         // Assert
-        _output[0].ShouldBe(Environment.NewLine);
-        _output[1].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[2].ShouldBe(Environment.NewLine);
-        _output[3].ShouldBe("                        BENCHMARK COMPARISON REPORT");
-        _output[4].ShouldBe(Environment.NewLine);
-        _output[5].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[6].ShouldBe(Environment.NewLine);
-        _output[7].ShouldBe(Environment.NewLine);
-        _output[8].ShouldBe("📊 RESULTS:");
-        _output[9].ShouldBe(Environment.NewLine);
-        _output[10].ShouldBe(Environment.NewLine);
-        _output[11].ShouldBe("Report       Type     Method      Mean      Gen0           Gen1     Gen2             Allocated");
-        _output[12].ShouldBe(Environment.NewLine);
-        _output[13].ShouldBe("──────────────────────────────────────────────────────────────────────────────────────────────");
-        _output[14].ShouldBe(Environment.NewLine);
-        _output[15].ShouldBe("Baseline     Bmk1     Method1     43 ns     122            2000     352              122 B    ");
-        _output[16].ShouldBe(Environment.NewLine);
-        _output[17].ShouldBe("Target                            43 ns     132 (8.2%)     2000     332 (-5.68%)     122 B    ");
-        _output[18].ShouldBe(Environment.NewLine);
-        _output[19].ShouldBe(Environment.NewLine);
-        _output[20].ShouldBe("══════════════════════════════════════════════════════════════════════════════════");
-        _output[21].ShouldBe(Environment.NewLine);
+        _outputShouldBe(
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "                        BENCHMARK COMPARISON REPORT",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "",
+            "📊 RESULTS:",
+            "",
+            "Report       Type     Method      Mean      Gen0           Gen1     Gen2             Allocated",
+            "──────────────────────────────────────────────────────────────────────────────────────────────",
+            "Baseline     Bmk1     Method1     43 ns     122            2000     352              122 B    ",
+            "Target                            43 ns     132 (8.2%)     2000     332 (-5.68%)     122 B    ",
+            "",
+            "══════════════════════════════════════════════════════════════════════════════════",
+            "");
+    }
+
+    private void _outputShouldBe(params string[] expectedLines)
+    {
+        var lines = _stringBuilder.ToString().Split(Environment.NewLine);
+
+        for(var i = 0; i < expectedLines.Length; i++)
+        {
+            lines[i].ShouldBe(expectedLines[i]);
+        }
     }
 }

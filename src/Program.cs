@@ -15,8 +15,6 @@ Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 var serviceCollection = new ServiceCollection();
 serviceCollection
     .AddTransient<ToolCommands>()
-    .AddTransient<IOHelpers.Printer>(sp =>
-        (message) => IOHelpers.Print(message))
     .AddTransient<IOHelpers.FileWriter>(sp =>
         (path, content) => IOHelpers.WriteFile(path, content))
     .AddTransient<Func<string?, BenchmarkFullJsonResport[]>>(sp =>
