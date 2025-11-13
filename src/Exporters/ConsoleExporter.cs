@@ -6,47 +6,37 @@ using PowerUtils.BenchmarkDotnet.Reporter.Models;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Exporters;
 
-public sealed class ConsoleExporter(IOHelpers.Printer printer) : IExporter
+public sealed class ConsoleExporter : IExporter
 {
-    private readonly IOHelpers.Printer _printer = printer;
-
     public void Generate(ComparerReport report, string outputDirectory)
     {
-        _printer(Environment.NewLine);
-        _printer("══════════════════════════════════════════════════════════════════════════════════");
-        _printer(Environment.NewLine);
-        _printer("                        BENCHMARK COMPARISON REPORT");
-        _printer(Environment.NewLine);
-        _printer("══════════════════════════════════════════════════════════════════════════════════");
-        _printer(Environment.NewLine);
-        _printer(Environment.NewLine);
+        Console.WriteLine("══════════════════════════════════════════════════════════════════════════════════");
+        Console.WriteLine("                        BENCHMARK COMPARISON REPORT");
+        Console.WriteLine("══════════════════════════════════════════════════════════════════════════════════");
+        Console.WriteLine();
 
         if(report.Warnings.Count != 0)
         {
-            _printer("⚠️ WARNINGS:");
-            _printer(Environment.NewLine);
-            _printer(Environment.NewLine);
+            Console.WriteLine("⚠️ WARNINGS:");
+            Console.WriteLine();
 
             foreach(var warning in report.Warnings)
             {
-                _printer($"   • {warning}");
-                _printer(Environment.NewLine);
+                Console.WriteLine($"   • {warning}");
             }
 
-            _printer(Environment.NewLine);
-            _printer(".................................................................................");
-            _printer(Environment.NewLine);
-            _printer(Environment.NewLine);
+            Console.WriteLine();
+            Console.WriteLine(".................................................................................");
+            Console.WriteLine();
         }
 
-        _printer("📊 RESULTS:");
-        _printer(Environment.NewLine);
-        _printer(Environment.NewLine);
+        Console.WriteLine("📊 RESULTS:");
+        Console.WriteLine();
 
         if(report.Comparisons.Count == 0)
         {
-            _printer("   No comparisons found.");
-            _printer(Environment.NewLine);
+            Console.WriteLine("   No comparisons found.");
+            Console.WriteLine();
         }
         else
         {
@@ -167,30 +157,25 @@ public sealed class ConsoleExporter(IOHelpers.Printer printer) : IExporter
 
             foreach(var row in table)
             {
-                _printer(string.Join("", row));
-                _printer(Environment.NewLine);
+                Console.WriteLine(string.Join("", row));
             }
         }
 
         if(report.HitThresholds.Count != 0)
         {
-            _printer(Environment.NewLine);
-            _printer(".................................................................................");
-            _printer(Environment.NewLine);
-            _printer(Environment.NewLine);
-            _printer("🚨 THRESHOLD VIOLATIONS:");
-            _printer(Environment.NewLine);
-            _printer(Environment.NewLine);
+            Console.WriteLine();
+            Console.WriteLine(".................................................................................");
+            Console.WriteLine();
+            Console.WriteLine("🚨 THRESHOLD VIOLATIONS:");
+            Console.WriteLine();
 
             foreach(var hit in report.HitThresholds)
             {
-                _printer($"   • {hit}");
-                _printer(Environment.NewLine);
+                Console.WriteLine($"   • {hit}");
             }
         }
 
-        _printer(Environment.NewLine);
-        _printer("══════════════════════════════════════════════════════════════════════════════════");
-        _printer(Environment.NewLine);
+        Console.WriteLine();
+        Console.WriteLine("══════════════════════════════════════════════════════════════════════════════════");
     }
 }

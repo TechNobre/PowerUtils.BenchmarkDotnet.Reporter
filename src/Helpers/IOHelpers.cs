@@ -10,11 +10,6 @@ public static class IOHelpers
     public const string REPORT_FILE_ENDS = "-report-full.json";
 
 
-    public delegate void Printer(string message);
-    public static void Print(string message)
-        => Console.Write(message);
-
-
     public delegate void FileWriter(string path, string content);
     public static void WriteFile(string path, string content)
     {
@@ -26,7 +21,7 @@ public static class IOHelpers
 
         File.WriteAllText(path, content);
 
-        Print($"{Environment.NewLine}File exported to: '{path}'");
+        Console.Write($"{Environment.NewLine}File exported to: '{path}'");
     }
 
     public static BenchmarkFullJsonResport[] ReadFullJsonReport(string? path)
