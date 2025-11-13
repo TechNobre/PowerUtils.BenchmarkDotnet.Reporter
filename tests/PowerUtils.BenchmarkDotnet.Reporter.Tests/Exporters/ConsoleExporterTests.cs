@@ -30,7 +30,6 @@ public sealed class ConsoleExporterTests : IDisposable
 
     public void Dispose()
     {
-        _stringBuilder.Clear();
         _stringWriter.Dispose();
         Console.SetOut(_originalOutput);
     }
