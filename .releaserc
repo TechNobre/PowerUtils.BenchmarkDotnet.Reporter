@@ -37,7 +37,7 @@
       }
     }],
     ["semantic-release-plugin-csproj", {
-      "projectFile": "src/Demo.Api/Demo.Api.csproj"
+      "projectFile": "src/PowerUtils.BenchmarkDotnet.Reporter.csproj"
     }],
     "@semantic-release/changelog",
     "@semantic-release/github",
