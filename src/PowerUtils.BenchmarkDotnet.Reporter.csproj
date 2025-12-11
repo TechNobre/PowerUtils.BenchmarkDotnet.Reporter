@@ -9,7 +9,7 @@
     <AssemblyName>PBReporter</AssemblyName>
     <RootNamespace>PowerUtils.BenchmarkDotnet.Reporter</RootNamespace>
 
-    <Version>1.4.1</Version>
+    <Version>1.4.2</Version>
 
     <PackageOutputPath>bin\</PackageOutputPath>
 
@@ -94,7 +94,7 @@
 
   <ItemGroup>
     <PackageReference Include="MarkdownLog" Version="0.9.64" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
     <PackageReference Include="System.CommandLine" Version="2.0.0" />
   </ItemGroup>
 
