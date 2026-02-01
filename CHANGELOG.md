@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.4.2...v1.5.0) (2026-02-01)
+
+
+### Features
+
+* add support for .NET 10.0 ([ed92759](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/commit/ed927592724754ecf15075a38d722de2424860b2))
+
 ## [1.4.2](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.4.1...v1.4.2) (2025-12-11)
 
 ## [1.4.1](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.4.0...v1.4.1) (2025-11-13)
