@@ -18,7 +18,7 @@ on:
 
 
 env:
-  FRAMEWORK_VERSION: 'net9.0'
+  FRAMEWORK_VERSION: 'net10.0'
 
   PROJECT_FILE: 'PowerUtils.BenchmarkDotnet.Reporter.csproj'
   TEST_PROJECT_PATH: 'tests/PowerUtils.BenchmarkDotnet.Reporter.Tests/PowerUtils.BenchmarkDotnet.Reporter.Tests.csproj'
