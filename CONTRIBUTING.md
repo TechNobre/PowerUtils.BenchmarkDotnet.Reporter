@@ -33,10 +33,10 @@ Please read and follow our [Code of Conduct][coc].
 
 ## <a name="commits-pr"></a>Commits and Pull Requests
 
-* :x: **AVOID** breaking the continuous integration build.
-* :heavy_check_mark: **DO** atomic commits to make it easier to analyze changes.
-* :heavy_check_mark: **DO** keep pull requests small so they can be easily reviewed.
-* :heavy_check_mark: **DO** only commit with conventional commit patterns
+* :x: **AVOID** breaking the continuous integration build;
+* :heavy_check_mark: **DO** atomic commits to make it easier to analyze changes;
+* :heavy_check_mark: **DO** keep pull requests small so they can be easily reviewed;
+* :heavy_check_mark: **DO** only commit with conventional commit patterns;
 
 ### <a name="conventional-commits"></a>Conventional Commits
 To know more about conventional commits, visit [Conventional Commits](https://conventionalcommits.org/).
@@ -65,36 +65,36 @@ feat(blog): add comment section
 
 #### <a name="commits-types"></a>Common types you can use (based on the Angular convention)
 
-- `feat:` A new feature
-- `fix:` A bug fix
-- `docs:` Documentation only changes
-- `style:` Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
-- `refactor:` A code change that neither fixes a bug nor adds a feature
-- `perf:` A code change that improves performance
-- `build:` Changes that affect the build system or external dependencies (example scopes: nugets, npm, SDKs, etc)
-- `test:` Adding missing tests or correcting existing tests
-- `ci:` Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs)
-- `chore:` Other changes that don't modify src or test files
-- `merge:` Merge a branch into other branch
-- `revert:` Reverts a previous commit
+- `feat:` A new feature;
+- `fix:` A bug fix;
+- `docs:` Documentation only changes;
+- `style:` Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc);
+- `refactor:` A code change that neither fixes a bug nor adds a feature;
+- `perf:` A code change that improves performance;
+- `build:` Changes that affect the build system or external dependencies (example scopes: nugets, npm, SDKs, etc);
+- `test:` Adding missing tests or correcting existing tests;
+- `ci:` Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs);
+- `chore:` Other changes that don't modify src or test files;
+- `merge:` Merge a branch into other branch;
+- `revert:` Reverts a previous commit;
 
 
 
 ## <a name="coding-standards"></a>Coding Standards
-* :heavy_check_mark: **DO** add XML comment documentation to new classes, methods or parameters.
-* :heavy_check_mark: **DO** add a test class for each feature and a test method for each
-* :heavy_check_mark: **DO** use language conventions to make code easy to understand quickly. See some tips here: [dofactory](https://www.dofactory.com/csharp-coding-standards);
+* :heavy_check_mark: **DO** add XML comment documentation to new classes, methods or parameters;
+* :heavy_check_mark: **DO** add a test class for each feature and a test method for each;
+* :heavy_check_mark: **DO** use language conventions to make code easy to understand quickly;
 * :heavy_check_mark: **CONSIDER** using SOLID patterns;
 
 
 
 ## <a name="tests"></a>Tests
-* :heavy_check_mark: **DO** add a unit test if your Pull Requests resolves an issue or adds features.
+* :heavy_check_mark: **DO** add a unit test if your Pull Requests resolves an issue or adds features;
 * :heavy_check_mark: **CONSIDER** using test patterns like "AAA" and "Given When Then";
 * :heavy_check_mark: **DO** add a test class for each feature and a test method for each assertion;
-* :heavy_check_mark: **DO** make sure unit tests pass.
-* :x: **AVOID** adding tests just to get coverage on sonarcloud.
+* :heavy_check_mark: **DO** make sure unit tests pass;
+* :x: **AVOID** adding tests just to get coverage on sonarcloud;
 
 ***Disclaimer***
-- 1️⃣ Unit in Unit Test is not a method/function.
-- 2️⃣ One assertion per test doesn't mean invoking the Assert method only once.
+- 1️⃣ Unit in Unit Test is not a method/function;
+- 2️⃣ One assertion per test doesn't mean invoking the Assert method only once;
