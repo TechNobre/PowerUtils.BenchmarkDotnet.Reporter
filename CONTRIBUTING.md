@@ -68,14 +68,14 @@ feat(blog): add comment section
 - `feat:` A new feature;
 - `fix:` A bug fix;
 - `docs:` Documentation only changes;
-- `style:` Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc);
+- `style:` Changes that do not affect the meaning of the code (white-space, formatting, missing semicolons, etc);
 - `refactor:` A code change that neither fixes a bug nor adds a feature;
 - `perf:` A code change that improves performance;
 - `build:` Changes that affect the build system or external dependencies (example scopes: nugets, npm, SDKs, etc);
 - `test:` Adding missing tests or correcting existing tests;
 - `ci:` Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs);
 - `chore:` Other changes that don't modify src or test files;
-- `merge:` Merge a branch into other branch;
+- `merge:` Merge a branch into another branch;
 - `revert:` Reverts a previous commit;
 
 
@@ -89,11 +89,11 @@ feat(blog): add comment section
 
 
 ## <a name="tests"></a>Tests
-* :heavy_check_mark: **DO** add a unit test if your Pull Requests resolves an issue or adds features;
+* :heavy_check_mark: **DO** add a unit test if your Pull Request resolves an issue or adds features;
 * :heavy_check_mark: **CONSIDER** using test patterns like "AAA" and "Given When Then";
 * :heavy_check_mark: **DO** add a test class for each feature and a test method for each assertion;
 * :heavy_check_mark: **DO** make sure unit tests pass;
-* :x: **AVOID** adding tests just to get coverage on sonarcloud;
+* :x: **AVOID** adding tests just to get coverage on SonarCloud;
 
 ***Disclaimer***
 - 1️⃣ Unit in Unit Test is not a method/function;
