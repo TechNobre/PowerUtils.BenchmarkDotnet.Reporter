@@ -6,80 +6,78 @@ namespace PowerUtils.BenchmarkDotnet.Reporter.Validations;
 
 public interface IReportValidation
 {
-    List<string> HostEnvironmentValidate(BenchmarkFullJsonResport? baseline, BenchmarkFullJsonResport? target);
+    List<string> HostEnvironmentValidate(BenchmarkResport? baseline, BenchmarkResport? target);
 }
 
 public sealed class ReportValidation : IReportValidation
 {
-    public List<string> HostEnvironmentValidate(BenchmarkFullJsonResport? baseline, BenchmarkFullJsonResport? target)
+    public List<string> HostEnvironmentValidate(BenchmarkResport? baseline, BenchmarkResport? target)
     {
         var messages = new List<string>();
 
         if(baseline is null)
         {
-            messages.Add("The baseline report isn't defined");
             return messages;
         }
 
         if(target is null)
         {
-            messages.Add("The target report isn't defined");
             return messages;
         }
 
-        if(baseline.HostEnvironmentInfo?.OsVersion.Equivalente(target.HostEnvironmentInfo?.OsVersion) == false)
+        if(baseline.Header?.HostEnvironmentInfo?.OsVersion.Equivalente(target.Header?.HostEnvironmentInfo?.OsVersion) == false)
         {
-            messages.Add($"OS Version is different: '{baseline.HostEnvironmentInfo?.OsVersion}' != '{target.HostEnvironmentInfo?.OsVersion}'");
+            messages.Add($"[{baseline.FullName}] OS Version is different: '{baseline.Header?.HostEnvironmentInfo?.OsVersion}' != '{target.Header?.HostEnvironmentInfo?.OsVersion}'");
         }
 
-        if(baseline.HostEnvironmentInfo?.ProcessorName.Equivalente(target.HostEnvironmentInfo?.ProcessorName) == false)
+        if(baseline.Header?.HostEnvironmentInfo?.ProcessorName.Equivalente(target.Header?.HostEnvironmentInfo?.ProcessorName) == false)
         {
-            messages.Add($"Processor Name is different: '{baseline.HostEnvironmentInfo?.ProcessorName}' != '{target.HostEnvironmentInfo?.ProcessorName}'");
+            messages.Add($"[{baseline.FullName}] Processor Name is different: '{baseline.Header?.HostEnvironmentInfo?.ProcessorName}' != '{target.Header?.HostEnvironmentInfo?.ProcessorName}'");
         }
 
-        if(baseline.HostEnvironmentInfo?.PhysicalProcessorCount != target.HostEnvironmentInfo?.PhysicalProcessorCount)
+        if(baseline.Header?.HostEnvironmentInfo?.PhysicalProcessorCount != target.Header?.HostEnvironmentInfo?.PhysicalProcessorCount)
         {
-            messages.Add($"Physical Processor Count is different: '{baseline.HostEnvironmentInfo?.PhysicalProcessorCount}' != '{target.HostEnvironmentInfo?.PhysicalProcessorCount}'");
+            messages.Add($"[{baseline.FullName}] Physical Processor Count is different: '{baseline.Header?.HostEnvironmentInfo?.PhysicalProcessorCount}' != '{target.Header?.HostEnvironmentInfo?.PhysicalProcessorCount}'");
         }
 
-        if(baseline.HostEnvironmentInfo?.PhysicalCoreCount != target.HostEnvironmentInfo?.PhysicalCoreCount)
+        if(baseline.Header?.HostEnvironmentInfo?.PhysicalCoreCount != target.Header?.HostEnvironmentInfo?.PhysicalCoreCount)
         {
-            messages.Add($"Physical Core Count is different: '{baseline.HostEnvironmentInfo?.PhysicalCoreCount}' != '{target.HostEnvironmentInfo?.PhysicalCoreCount}'");
+            messages.Add($"[{baseline.FullName}] Physical Core Count is different: '{baseline.Header?.HostEnvironmentInfo?.PhysicalCoreCount}' != '{target.Header?.HostEnvironmentInfo?.PhysicalCoreCount}'");
         }
 
-        if(baseline.HostEnvironmentInfo?.LogicalCoreCount != target.HostEnvironmentInfo?.LogicalCoreCount)
+        if(baseline.Header?.HostEnvironmentInfo?.LogicalCoreCount != target.Header?.HostEnvironmentInfo?.LogicalCoreCount)
         {
-            messages.Add($"Logical Core Count is different: '{baseline.HostEnvironmentInfo?.LogicalCoreCount}' != '{target.HostEnvironmentInfo?.LogicalCoreCount}'");
+            messages.Add($"[{baseline.FullName}] Logical Core Count is different: '{baseline.Header?.HostEnvironmentInfo?.LogicalCoreCount}' != '{target.Header?.HostEnvironmentInfo?.LogicalCoreCount}'");
         }
 
-        if(baseline.HostEnvironmentInfo?.RuntimeVersion.Equivalente(target.HostEnvironmentInfo?.RuntimeVersion) == false)
+        if(baseline.Header?.HostEnvironmentInfo?.RuntimeVersion.Equivalente(target.Header?.HostEnvironmentInfo?.RuntimeVersion) == false)
         {
-            messages.Add($"Runtime Version is different: '{baseline.HostEnvironmentInfo?.RuntimeVersion}' != '{target.HostEnvironmentInfo?.RuntimeVersion}'");
+            messages.Add($"[{baseline.FullName}] Runtime Version is different: '{baseline.Header?.HostEnvironmentInfo?.RuntimeVersion}' != '{target.Header?.HostEnvironmentInfo?.RuntimeVersion}'");
         }
 
-        if(baseline.HostEnvironmentInfo?.Architecture.Equivalente(target.HostEnvironmentInfo?.Architecture) == false)
+        if(baseline.Header?.HostEnvironmentInfo?.Architecture.Equivalente(target.Header?.HostEnvironmentInfo?.Architecture) == false)
         {
-            messages.Add($"Architecture is different: '{baseline.HostEnvironmentInfo?.Architecture}' != '{target.HostEnvironmentInfo?.Architecture}'");
+            messages.Add($"[{baseline.FullName}] Architecture is different: '{baseline.Header?.HostEnvironmentInfo?.Architecture}' != '{target.Header?.HostEnvironmentInfo?.Architecture}'");
         }
 
-        if(baseline.HostEnvironmentInfo?.DotNetCliVersion.Equivalente(target.HostEnvironmentInfo?.DotNetCliVersion) == false)
+        if(baseline.Header?.HostEnvironmentInfo?.DotNetCliVersion.Equivalente(target.Header?.HostEnvironmentInfo?.DotNetCliVersion) == false)
         {
-            messages.Add($"DotNet CLI Version is different: '{baseline.HostEnvironmentInfo?.DotNetCliVersion}' != '{target.HostEnvironmentInfo?.DotNetCliVersion}'");
+            messages.Add($"[{baseline.FullName}] DotNet CLI Version is different: '{baseline.Header?.HostEnvironmentInfo?.DotNetCliVersion}' != '{target.Header?.HostEnvironmentInfo?.DotNetCliVersion}'");
         }
 
-        if(baseline.HostEnvironmentInfo?.ChronometerFrequency?.Hertz != target.HostEnvironmentInfo?.ChronometerFrequency?.Hertz)
+        if(baseline.Header?.HostEnvironmentInfo?.ChronometerFrequency?.Hertz != target.Header?.HostEnvironmentInfo?.ChronometerFrequency?.Hertz)
         {
-            messages.Add($"Chronometer Frequency is different: '{baseline.HostEnvironmentInfo?.ChronometerFrequency?.Hertz}' != '{target.HostEnvironmentInfo?.ChronometerFrequency?.Hertz}'");
+            messages.Add($"[{baseline.FullName}] Chronometer Frequency is different: '{baseline.Header?.HostEnvironmentInfo?.ChronometerFrequency?.Hertz}' != '{target.Header?.HostEnvironmentInfo?.ChronometerFrequency?.Hertz}'");
         }
 
-        if("RELEASE".Equivalente(baseline.HostEnvironmentInfo?.Configuration) == false)
+        if("RELEASE".Equivalente(baseline.Header?.HostEnvironmentInfo?.Configuration) == false)
         {
-            messages.Add($"The baseline report wasn't executed in RELEASE mode: '{baseline.HostEnvironmentInfo?.Configuration}'");
+            messages.Add($"[{baseline.FullName}] The baseline report wasn't executed in RELEASE mode: '{baseline.Header?.HostEnvironmentInfo?.Configuration}'");
         }
 
-        if("RELEASE".Equivalente(target.HostEnvironmentInfo?.Configuration) == false)
+        if("RELEASE".Equivalente(target.Header?.HostEnvironmentInfo?.Configuration) == false)
         {
-            messages.Add($"The target report wasn't executed in RELEASE mode: '{target.HostEnvironmentInfo?.Configuration}'");
+            messages.Add($"[{target.FullName}] The target report wasn't executed in RELEASE mode: '{target.Header?.HostEnvironmentInfo?.Configuration}'");
         }
 
         return messages;

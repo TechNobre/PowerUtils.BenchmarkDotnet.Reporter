@@ -23,10 +23,10 @@ public class ReportValidationTest
     }
 
     [Fact]
-    public void When_BaselineReport_Is_Null_Returns_Message()
+    public void When_BaselineReport_Is_Null_Shouldnt_Returns_Message()
     {
         // Arrange
-        BenchmarkFullJsonResport? baseline = null;
+        BenchmarkResport? baseline = null;
         var target = _createBenchmarkReport();
         var validation = new ReportValidation();
 
@@ -36,8 +36,7 @@ public class ReportValidationTest
 
 
         // Assert
-        result.Count.ShouldBe(1);
-        result[0].ShouldContain("The baseline report isn't defined");
+        result.ShouldBeEmpty();
     }
 
     [Fact]
@@ -45,7 +44,7 @@ public class ReportValidationTest
     {
         // Arrange
         var baseline = _createBenchmarkReport();
-        BenchmarkFullJsonResport? target = null;
+        BenchmarkResport? target = null;
         var validation = new ReportValidation();
 
 
@@ -54,8 +53,7 @@ public class ReportValidationTest
 
 
         // Assert
-        result.Count.ShouldBe(1);
-        result[0].ShouldContain("The target report isn't defined");
+        result.ShouldBeEmpty();
     }
 
     [Fact]
@@ -256,7 +254,7 @@ public class ReportValidationTest
         result[0].ShouldContain("The target report wasn't executed in RELEASE mode");
     }
 
-    private static BenchmarkFullJsonResport _createBenchmarkReport(
+    private static BenchmarkResport _createBenchmarkReport(
         string osVersion = "Windows 11 (10.0.26100.3323)",
         string processorName = "AMD Ryzen 5 3600X",
         int? physicalProcessorCount = 1,
@@ -268,23 +266,24 @@ public class ReportValidationTest
         int hertz = 10000000,
         string configuration = "RELEASE") => new()
         {
-            HostEnvironmentInfo = new()
+            Header = new()
             {
-                OsVersion = osVersion,
-                ProcessorName = processorName,
-                PhysicalProcessorCount = physicalProcessorCount,
-                PhysicalCoreCount = physicalCoreCount,
-                LogicalCoreCount = logicalCoreCount,
-                RuntimeVersion = runtimeVersion,
-                Architecture = architecture,
-                DotNetCliVersion = dotNetCliVersion,
-                ChronometerFrequency = new() { Hertz = hertz },
-                Configuration = configuration,
-                BenchmarkDotNetCaption = "BenchmarkDotNet",
-                BenchmarkDotNetVersion = "0.14.0",
-                HardwareTimerKind = "Unknown"
-            },
-
-            Benchmarks = []
+                HostEnvironmentInfo = new()
+                {
+                    OsVersion = osVersion,
+                    ProcessorName = processorName,
+                    PhysicalProcessorCount = physicalProcessorCount,
+                    PhysicalCoreCount = physicalCoreCount,
+                    LogicalCoreCount = logicalCoreCount,
+                    RuntimeVersion = runtimeVersion,
+                    Architecture = architecture,
+                    DotNetCliVersion = dotNetCliVersion,
+                    ChronometerFrequency = new() { Hertz = hertz },
+                    Configuration = configuration,
+                    BenchmarkDotNetCaption = "BenchmarkDotNet",
+                    BenchmarkDotNetVersion = "0.14.0",
+                    HardwareTimerKind = "Unknown"
+                }
+            }
         };
 }

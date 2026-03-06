@@ -1,0 +1,90 @@
+{
+   "Title":"Demo.Benchmarks.ArrayProcessorBenchmarks-20260305-031440",
+   "HostEnvironmentInfo":{
+      "BenchmarkDotNetCaption":"BenchmarkDotNet",
+      "BenchmarkDotNetVersion":"0.15.1",
+      "OsVersion":"Windows 11 (10.0.26200.7922)",
+      "ProcessorName":"AMD Ryzen 5 3600X",
+      "PhysicalProcessorCount":1,
+      "PhysicalCoreCount":6,
+      "LogicalCoreCount":12,
+      "RuntimeVersion":".NET 9.0.13 (9.0.1326.6317)",
+      "Architecture":"X64",
+      "HasAttachedDebugger":false,
+      "HasRyuJit":true,
+      "Configuration":"RELEASE",
+      "DotNetCliVersion":"10.0.200-preview.0.26103.119",
+      "ChronometerFrequency":{
+         "Hertz":10000000
+      },
+      "HardwareTimerKind":"Unknown"
+   },
+   "Benchmarks":[
+      {
+         "DisplayInfo":"ArrayProcessorBenchmarks.GenerateArray: DefaultJob",
+         "Namespace":"Demo.Benchmarks",
+         "Type":"ArrayProcessorBenchmarks",
+         "Method":"GenerateArray",
+         "MethodTitle":"GenerateArray",
+         "Parameters":"",
+         "FullName":"Demo.Benchmarks.ArrayProcessorBenchmarks.GenerateArray",
+         "HardwareIntrinsics":"AVX2,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256",
+         "Statistics":{
+            "OriginalValues":[
+               17341.966247558594,17313.499450683594,17446.754455566406,17661.84539794922,17216.63360595703,17320.582580566406,17462.159729003906,17178.004455566406,17166.786193847656,17410.15167236328,17244.66094970703,17937.416076660156,17596.815490722656,17810.240173339844,18095.84503173828
+            ],
+            "N":15,
+            "Min":17166.786193847656,
+            "LowerFence":16753.704833984375,
+            "Q1":17279.080200195312,
+            "Median":17410.15167236328,
+            "Mean":17480.2241007487,
+            "Q3":17629.330444335938,
+            "UpperFence":18154.705810546875,
+            "Max":18095.84503173828,
+            "InterquartileRange":350.250244140625,
+            "LowerOutliers":[
+               
+            ],
+            "UpperOutliers":[
+               
+            ],
+            "AllOutliers":[
+               
+            ],
+            "StandardError":73.575633704393,
+            "Variance":81200.60812504518,
+            "StandardDeviation":284.9572040237712,
+            "Skewness":0.7804537606392749,
+            "Kurtosis":2.307028245174569,
+            "ConfidenceInterval":{
+               "N":15,
+               "Mean":17480.2241007487,
+               "StandardError":73.575633704393,
+               "Level":12,
+               "Margin":304.63653504703234,
+               "Lower":17175.587565701666,
+               "Upper":17784.860635795732
+            },
+            "Percentiles":{
+               "P0":17166.786193847656,
+               "P25":17279.080200195312,
+               "P50":17410.15167236328,
+               "P67":17513.32891845703,
+               "P80":17691.524353027344,
+               "P85":17795.40069580078,
+               "P90":17886.54571533203,
+               "P95":17984.944763183594,
+               "P100":18095.84503173828
+            }
+         },
+         "Memory":{
+            "Gen0Collections":85,
+            "Gen1Collections":0,
+            "Gen2Collections":0,
+            "TotalOperations":32768,
+            "BytesAllocatedPerOperation":21967
+         }
+      }
+   ]
+}

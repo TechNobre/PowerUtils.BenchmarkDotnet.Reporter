@@ -99,7 +99,8 @@ dotnet tool uninstall --global PowerUtils.BenchmarkDotnet.Reporter
 
 ## Export reports using BenchmarkDotNet
 
-To use the `PowerUtils.BenchmarkDotnet.Reporter` tool, you first need to generate benchmark reports using [BenchmarkDotNet](https://www.nuget.org/packages/BenchmarkDotNet) and export them in JSON Full format. You can do this by looking at the documentation of BenchmarkDotNet [here](https://benchmarkdotnet.org/articles/configs/exporters.html) or following the examples below:
+To use the `PowerUtils.BenchmarkDotnet.Reporter` tool, you first need to generate benchmark reports using [BenchmarkDotNet](https://www.nuget.org/packages/BenchmarkDotNet) and export them in JSON format. You can do this by looking at the documentation of BenchmarkDotNet [here](https://benchmarkdotnet.org/articles/configs/exporters.html) or following the examples below:
+> NOTE: Now the `PowerUtils.BenchmarkDotnet.Reporter` tool supports all the Json Formatters provided by BenchmarkDotNet, so you can choose the one that best suits your needs.
 
 ```csharp
 // TheBenchmark.cs
@@ -107,6 +108,9 @@ using BenchmarkDotNet.Attributes;
 
 [MemoryDiagnoser]
 [JsonExporterAttribute.Full]
+[JsonExporterAttribute.FullCompressed]
+[JsonExporterAttribute.Brief]
+[JsonExporterAttribute.BriefCompressed]
 public class TheBenchmark
 {
     [Benchmark]
@@ -145,7 +149,10 @@ using BenchmarkDotNet.Running;
 
 var config = ManualConfig
     .Create(DefaultConfig.Instance)
-    .AddExporter(JsonExporter.Full);
+    .AddExporter(JsonExporter.Full)
+    .AddExporter(JsonExporter.FullCompressed)
+    .AddExporter(JsonExporter.Brief)
+    .AddExporter(JsonExporter.BriefCompressed);
 
 BenchmarkRunner.Run<TheBenchmark>(config);
 ```
@@ -195,6 +202,12 @@ pbreporter compare -b baseline-full.json -t target-full.json
 ```bash
 pbreporter compare -b baseline-full.json -t target-full.json
 ```
+
+**Passing folder paths**
+```bash
+pbreporter compare -b ./baseline-reports -t ./target-reports
+```
+> Note: You can pass a file path, a folder or mix both. The tool will automatically find the supported report files in the provided paths.
 
 **With output format and directory**
 ```bash

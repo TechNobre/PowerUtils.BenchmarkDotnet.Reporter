@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using PowerUtils.BenchmarkDotnet.Reporter.Exporters;
@@ -15,11 +16,11 @@ public interface IComparerCommand
 }
 
 public sealed class ComparerCommand(
-    Func<string?, BenchmarkFullJsonResport[]> readFullJsonReport,
+    Func<string?, List<BenchmarkResport>> readBenchmarks,
     IReportValidation validation,
     IServiceProvider provider) : IComparerCommand
 {
-    private readonly Func<string?, BenchmarkFullJsonResport[]> _readFullJsonReports = readFullJsonReport;
+    private readonly Func<string?, List<BenchmarkResport>> _readBenchmarks = readBenchmarks;
     private readonly IReportValidation _validation = validation;
     private readonly IServiceProvider _provider = provider;
 
@@ -34,33 +35,24 @@ public sealed class ComparerCommand(
         bool failOnWarnings,
         bool failOnThresholdHit)
     {
-        var baselineReports = _readFullJsonReports(baseline);
-        var targetReports = _readFullJsonReports(target);
+        var baselineBenchmarks = _readBenchmarks(baseline);
+        var targetBenchmarks = _readBenchmarks(target);
 
         var comparerReport = new ComparerReport();
 
-        foreach(var baselineReport in baselineReports)
+        foreach(var baselineBenchmark in baselineBenchmarks)
         {
-            var targetReport = targetReports
-                .SingleOrDefault(s => s.FileName.Equivalente(baselineReport.FileName));
+            var targetBenchmark = targetBenchmarks
+                .SingleOrDefault(s => s.FullName.Equivalente(baselineBenchmark.FullName));
 
             var validationMessages = _validation
-                .HostEnvironmentValidate(baselineReport, targetReport);
+                .HostEnvironmentValidate(baselineBenchmark, targetBenchmark);
 
             if(validationMessages?.Count > 0)
             {
                 comparerReport.Warnings.AddRange(validationMessages);
             }
         }
-
-
-        var baselineBenchmarks = baselineReports
-            .SelectMany(s => s.Benchmarks ?? [])
-            .ToList();
-
-        var targetBenchmarks = targetReports
-            .SelectMany(s => s.Benchmarks ?? [])
-            .ToList();
 
         foreach(var baselineBenchmark in baselineBenchmarks)
         {
