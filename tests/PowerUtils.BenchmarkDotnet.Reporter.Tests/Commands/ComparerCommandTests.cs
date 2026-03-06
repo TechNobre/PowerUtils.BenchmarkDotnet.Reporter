@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands;
@@ -10,10 +11,11 @@ namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Commands;
 
 public sealed class ComparerCommandTests
 {
-    private readonly Func<string?, BenchmarkFullJsonResport[]> _readFullJsonReport;
-    private BenchmarkFullJsonResport[] _baselineReports;
-    private BenchmarkFullJsonResport[] _targetReports;
+    private readonly Func<string?, List<BenchmarkResport>> _readBenchmarks;
+    private List<BenchmarkResport> _baselineBenchmarks;
+    private List<BenchmarkResport> _targetBenchmarks;
 
+    private readonly IKeyedServiceProvider _serviceProvider;
     private readonly IReportValidation _validation;
     private readonly IExporter _exporter;
 
@@ -22,14 +24,14 @@ public sealed class ComparerCommandTests
 
     public ComparerCommandTests()
     {
-        _baselineReports = [];
-        _targetReports = [];
+        _baselineBenchmarks = [];
+        _targetBenchmarks = [];
 
-        _readFullJsonReport = (path)
+        _readBenchmarks = (path)
             => path switch
             {
-                "baseline" => _baselineReports,
-                "target" => _targetReports,
+                "baseline" => _baselineBenchmarks,
+                "target" => _targetBenchmarks,
                 _ => throw new ArgumentException()
             };
 
@@ -37,17 +39,51 @@ public sealed class ComparerCommandTests
         _exporter = Substitute.For<IExporter>();
 
 
-        var provider = Substitute.For<IKeyedServiceProvider>();
-        provider
+        _serviceProvider = Substitute.For<IKeyedServiceProvider>();
+        _serviceProvider
             .GetRequiredKeyedService(Arg.Any<Type>(), Arg.Any<object?>())
             .Returns(_exporter);
 
         _command = new(
-            _readFullJsonReport,
+            _readBenchmarks,
             _validation,
-            provider);
+            _serviceProvider);
     }
 
+
+    [Fact]
+    public void When_Have_Baseline_And_Target_Shouldnt_Generate_Warning()
+    {
+        // Arrange
+        _baselineBenchmarks = [new() { Header = new() { HostEnvironmentInfo = new() { Configuration = "RELEASE" } } }];
+        _targetBenchmarks = [new() { Header = new() { HostEnvironmentInfo = new() { Configuration = "RELEASE" } } }];
+
+        var validation = new ReportValidation();
+
+
+        var command = new ComparerCommand(
+            _readBenchmarks,
+            validation,
+            _serviceProvider);
+
+
+        // Act
+        command.Execute(
+            "baseline",
+            "target",
+            null,
+            null,
+            ["xpto"],
+            "",
+            false,
+            false);
+
+
+        // Assert
+        _exporter
+            .Received()
+            .Generate(Arg.Is<ComparerReport>(i => i.Warnings.Count == 0), Arg.Any<string>());
+    }
 
     [Fact]
     public void When_Report_Has_Warnings_And_WarningThrow_Equals_False_Should_Not_Throw_Exception()
@@ -56,7 +92,7 @@ public sealed class ComparerCommandTests
         var expectedMessage = Guid.NewGuid().ToString();
 
         _validation
-            .HostEnvironmentValidate(Arg.Any<BenchmarkFullJsonResport>(), Arg.Any<BenchmarkFullJsonResport>())
+            .HostEnvironmentValidate(Arg.Any<BenchmarkResport>(), Arg.Any<BenchmarkResport>())
             .Returns([expectedMessage]);
 
 
@@ -103,17 +139,13 @@ public sealed class ComparerCommandTests
     public void When_Only_Have_Method_On_Baseline_Should_Have_OneComparation_With_Status_Removed()
     {
         // Arrange
-        _baselineReports = [
+        _baselineBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        Statistics = new()
-                        {
-                            Mean = 12
-                        }
-                    }]
+                Statistics = new()
+                {
+                    Mean = 12
+                }
             }];
 
 
@@ -143,17 +175,13 @@ public sealed class ComparerCommandTests
     public void When_Only_Have_Method_On_Target_Should_Have_OneComparation_With_Status_New()
     {
         // Arrange
-        _targetReports = [
+        _targetBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        Memory = new()
-                        {
-                            BytesAllocatedPerOperation = 120
-                        }
-                    }]
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 120
+                }
             }];
 
 
@@ -221,68 +249,60 @@ public sealed class ComparerCommandTests
     public void Should_Register_Thrashold_Values_Above_Setted_PercentsThrashold()
     {
         // Arrange
-        _baselineReports = [
+        _baselineBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        FullName = "test hit",
-                        Method = "test hit",
-                        Statistics = new()
-                        {
-                            Mean = 12
-                        },
-                        Memory = new()
-                        {
-                            BytesAllocatedPerOperation = 120
-                        }
-                    },
-                    new()
-                    {
-                        FullName = "test equals",
-                        Method = "test equals",
-                        Statistics = new()
-                        {
-                            Mean = 45
-                        },
-                        Memory = new()
-                        {
-                            BytesAllocatedPerOperation = 1234
-                        }
-                    }]
+                FullName = "test hit",
+                Method = "test hit",
+                Statistics = new()
+                {
+                    Mean = 12
+                },
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 120
+                }
+            },
+            new()
+            {
+                FullName = "test equals",
+                Method = "test equals",
+                Statistics = new()
+                {
+                    Mean = 45
+                },
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 1234
+                }
             }];
 
-        _targetReports = [
+        _targetBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        FullName = "test hit",
-                        Method = "test hit",
-                        Statistics = new()
-                        {
-                            Mean = 1200
-                        },
-                        Memory = new()
-                        {
-                            BytesAllocatedPerOperation = 120000
-                        }
-                    },
-                new()
+                FullName = "test hit",
+                Method = "test hit",
+                Statistics = new()
                 {
-                    FullName = "test equals",
-                    Method = "test equals",
-                    Statistics = new()
-                    {
-                        Mean = 45
-                    },
-                    Memory = new()
-                    {
-                        BytesAllocatedPerOperation = 1234
-                    }
-                }]
+                    Mean = 1200
+                },
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 120000
+                }
+            },
+            new()
+            {
+                FullName = "test equals",
+                Method = "test equals",
+                Statistics = new()
+                {
+                    Mean = 45
+                },
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 1234
+                }
             }];
 
 
@@ -312,73 +332,61 @@ public sealed class ComparerCommandTests
     public void Should_Register_Thrashold_Values_Above_Setted_UnitThrashold()
     {
         // Arrange
-        _baselineReports = [
+        _baselineBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        FullName = "test hit",
-                        Method = "test hit",
-                        Statistics = new()
-                        {
-                            Mean = 12
-                        },
-                        Memory = new()
-                        {
-                            BytesAllocatedPerOperation = 120
-                        }
-                    },
-                    new()
-                    {
-                        FullName = "test equals",
-                        Method = "test equals",
-                        Statistics = new()
-                        {
-                            Mean = 45
-                        },
-                        Memory = new()
-                        {
-                            BytesAllocatedPerOperation = 1234
-                        }
-                    }
-                ]
-            }
-        ];
+                FullName = "test hit",
+                Method = "test hit",
+                Statistics = new()
+                {
+                    Mean = 12
+                },
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 120
+                }
+            },
+            new()
+            {
+                FullName = "test equals",
+                Method = "test equals",
+                Statistics = new()
+                {
+                    Mean = 45
+                },
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 1234
+                }
+            }];
 
-        _targetReports = [
+        _targetBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        FullName = "test hit",
-                        Method = "tetest hitst",
-                        Statistics = new()
-                        {
-                            Mean = 1200
-                        },
-                        Memory = new()
-                        {
-                            BytesAllocatedPerOperation = 120000
-                        }
-                    },
-                    new()
-                    {
-                        FullName = "test equals",
-                        Method = "test equals",
-                        Statistics = new()
-                        {
-                            Mean = 45
-                        },
-                        Memory = new()
-                        {
-                            BytesAllocatedPerOperation = 1234
-                        }
-                    }
-                ]
-            }
-        ];
+                FullName = "test hit",
+                Method = "tetest hitst",
+                Statistics = new()
+                {
+                    Mean = 1200
+                },
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 120000
+                }
+            },
+            new()
+            {
+                FullName = "test equals",
+                Method = "test equals",
+                Statistics = new()
+                {
+                    Mean = 45
+                },
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 1234
+                }
+            }];
 
 
         // Act
@@ -410,20 +418,16 @@ public sealed class ComparerCommandTests
         const string EXPECTED_MESSAGE = "Processor Name is different";
 
         _validation
-            .HostEnvironmentValidate(Arg.Any<BenchmarkFullJsonResport>(), Arg.Any<BenchmarkFullJsonResport>())
+            .HostEnvironmentValidate(Arg.Any<BenchmarkResport>(), Arg.Any<BenchmarkResport>())
             .Returns([EXPECTED_MESSAGE]);
 
-        _baselineReports = [
+        _baselineBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        Statistics = new()
-                        {
-                            Mean = 12
-                        }
-                    }]
+                Statistics = new()
+                {
+                    Mean = 12
+                }
             }];
 
 
@@ -452,23 +456,19 @@ public sealed class ComparerCommandTests
     public void When_Target_Doesnt_Have_Benchmarks_Should_Generate_Comparisons_With_Status_Removed()
     {
         // Arrange
-        _baselineReports = [
+        _baselineBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        FullName = "TestMethod",
-                        Method = "TestMethod",
-                        Statistics = new()
-                        {
-                            Mean = 12
-                        },
-                        Memory = new()
-                        {
-                            BytesAllocatedPerOperation = 120
-                        }
-                    }]
+                FullName = "TestMethod",
+                Method = "TestMethod",
+                Statistics = new()
+                {
+                    Mean = 12
+                },
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 120
+                }
             }];
 
 
@@ -499,67 +499,59 @@ public sealed class ComparerCommandTests
     public void Each_Method_In_Benchmarks_Should_Appear_Once_In_ComparerReport()
     {
         // Arrange
-        _baselineReports = [
+        _baselineBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        FullName = "method one",
-                        Method = "method 1",
-                        Statistics = new()
-                        {
-                            Mean = 12
-                        },
-                        Memory = new()
-                        {
-                            BytesAllocatedPerOperation = 120
-                        }
-                    },
-                    new()
-                    {
-                        FullName = "method two",
-                        Method = "method 2",
-                        Statistics = new()
-                        {
-                            Mean = 13
-                        },
-                        Memory = new()
-                        {
-                            BytesAllocatedPerOperation = 130
-                        }
-                    }]
+                FullName = "method one",
+                Method = "method 1",
+                Statistics = new()
+                {
+                    Mean = 12
+                },
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 120
+                }
+            },
+            new()
+            {
+                FullName = "method two",
+                Method = "method 2",
+                Statistics = new()
+                {
+                    Mean = 13
+                },
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 130
+                }
             }];
-        _targetReports = [
+        _targetBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        FullName = "method one",
-                        Method = "method 1",
-                        Statistics = new()
-                        {
-                            Mean = 12
-                        },
-                        Memory = new()
-                        {
-                            BytesAllocatedPerOperation = 120
-                        }
-                    },
-                    new()
-                    {
-                        FullName = "method two",
-                        Method = "method 2",
-                        Statistics = new()
-                        {
-                            Mean = 13
-                        },
-                        Memory = new()
-                        {
-                            BytesAllocatedPerOperation = 130
-                        }
-                    }]
+                FullName = "method one",
+                Method = "method 1",
+                Statistics = new()
+                {
+                    Mean = 12
+                },
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 120
+                }
+            },
+            new()
+            {
+                FullName = "method two",
+                Method = "method 2",
+                Statistics = new()
+                {
+                    Mean = 13
+                },
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 130
+                }
             }];
 
 
@@ -587,80 +579,60 @@ public sealed class ComparerCommandTests
     public void When_Have_Two_Baseline_And_TargetShould_Register_Two_Comparisons()
     {
         // Arrange
-        _baselineReports = [
+        _baselineBenchmarks = [
             new()
             {
-                FileName = "report1.json",
-                Benchmarks = [
-                    new()
-                    {
-                        FullName = "Benchmark1",
-                        Method = "Benchmark1",
-                        Statistics = new()
-                        {
-                            Mean = 45
-                        },
-                        Memory = new()
-                        {
-                            BytesAllocatedPerOperation = 1234
-                        }
-                    }]
+                FullName = "Benchmark1",
+                Method = "Benchmark1",
+                Statistics = new()
+                {
+                    Mean = 45
+                },
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 1234
+                }
             },
             new()
             {
-                FileName = "report2.json",
-                Benchmarks = [
-                    new()
-                    {
-                        FullName = "Benchmark2",
-                        Method = "Benchmark2",
-                        Statistics = new()
-                        {
-                            Mean = 124
-                        },
-                        Memory = new()
-                        {
-                            BytesAllocatedPerOperation = 12334
-                        }
-                    }]
+                FullName = "Benchmark2",
+                Method = "Benchmark2",
+                Statistics = new()
+                {
+                    Mean = 124
+                },
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 12334
+                }
             }];
 
-        _targetReports = [
+        _targetBenchmarks = [
             new()
             {
-                FileName = "report1.json",
-                Benchmarks = [
-                    new()
-                    {
-                        FullName = "Benchmark1",
-                        Method = "Benchmark1",
-                        Statistics = new()
-                        {
-                            Mean = 45
-                        },
-                        Memory = new()
-                        {
-                            BytesAllocatedPerOperation = 1234
-                        }
-                    }]
+                FullName = "Benchmark1",
+                Method = "Benchmark1",
+                Statistics = new()
+                {
+                    Mean = 45
+                },
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 1234
+                }
             },
             new()
             {
-                FileName = "report2.json",
-                Benchmarks = [
-                    new()
-                    {
-                        FullName = "Benchmark2",
-                        Method = "Benchmark2",
-                        Statistics = new()
-                        {
-                            Mean = 124
-                        },
-                        Memory = new()
-                        {
-                            BytesAllocatedPerOperation = 12334
-                        }
-                    }]
+                FullName = "Benchmark2",
+                Method = "Benchmark2",
+                Statistics = new()
+                {
+                    Mean = 124
+                },
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 12334
+                }
             }];
 
 
@@ -691,18 +663,14 @@ public sealed class ComparerCommandTests
     public void When_Baseline_Have_Has_Value_For_Gen0Collections_Should_Have_Comparison_Baseline_With_For_Gen0Collections()
     {
         // Arrange
-        _baselineReports = [
+        _baselineBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        Memory = new()
-                        {
-                            Gen0Collections = 20000,
-                            TotalOperations = 1000
-                        }
-                    }]
+                Memory = new()
+                {
+                    Gen0Collections = 20000,
+                    TotalOperations = 1000
+                }
             }];
 
 
@@ -731,18 +699,14 @@ public sealed class ComparerCommandTests
     public void When_Target_Have_Has_Value_For_Gen0Collections_Should_Have_Comparison_With_Target_For_Gen0Collections()
     {
         // Arrange
-        _targetReports = [
+        _targetBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        Memory = new()
-                        {
-                            Gen0Collections = 2000,
-                            TotalOperations = 100
-                        }
-                    }]
+                Memory = new()
+                {
+                    Gen0Collections = 2000,
+                    TotalOperations = 100
+                }
             }];
 
 
@@ -772,18 +736,14 @@ public sealed class ComparerCommandTests
     public void When_Baseline_Have_Has_Value_For_Gen1Collections_Should_Have_Comparison_Baseline_With_For_Gen1Collections()
     {
         // Arrange
-        _baselineReports = [
+        _baselineBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        Memory = new()
-                        {
-                            Gen1Collections = 20000,
-                            TotalOperations = 1000
-                        }
-                    }]
+                Memory = new()
+                {
+                    Gen1Collections = 20000,
+                    TotalOperations = 1000
+                }
             }];
 
 
@@ -812,18 +772,14 @@ public sealed class ComparerCommandTests
     public void When_Target_Have_Has_Value_For_Gen1Collections_Should_Have_Comparison_With_Target_For_Gen1Collections()
     {
         // Arrange
-        _targetReports = [
+        _targetBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        Memory = new()
-                        {
-                            Gen1Collections = 2000,
-                            TotalOperations = 100
-                        }
-                    }]
+                Memory = new()
+                {
+                    Gen1Collections = 2000,
+                    TotalOperations = 100
+                }
             }];
 
 
@@ -852,18 +808,14 @@ public sealed class ComparerCommandTests
     public void When_Baseline_Have_Has_Value_For_Gen2Collections_Should_Have_Comparison_Baseline_With_For_Gen2Collections()
     {
         // Arrange
-        _baselineReports = [
+        _baselineBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        Memory = new()
-                        {
-                            Gen2Collections = 20000,
-                            TotalOperations = 1000
-                        }
-                    }]
+                Memory = new()
+                {
+                    Gen2Collections = 20000,
+                    TotalOperations = 1000
+                }
             }];
 
 
@@ -892,18 +844,14 @@ public sealed class ComparerCommandTests
     public void When_Target_Have_Has_Value_For_Gen2Collections_Should_Have_Comparison_With_Target_For_Gen2Collections()
     {
         // Arrange
-        _targetReports = [
+        _targetBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        Memory = new()
-                        {
-                            Gen2Collections = 2000,
-                            TotalOperations = 100
-                        }
-                    }]
+                Memory = new()
+                {
+                    Gen2Collections = 2000,
+                    TotalOperations = 100
+                }
             }];
 
 
@@ -936,20 +884,16 @@ public sealed class ComparerCommandTests
         var failOnWarnings = false;
 
         _validation
-            .HostEnvironmentValidate(Arg.Any<BenchmarkFullJsonResport>(), Arg.Any<BenchmarkFullJsonResport>())
+            .HostEnvironmentValidate(Arg.Any<BenchmarkResport>(), Arg.Any<BenchmarkResport>())
             .Returns(["Warning message"]);
 
-        _baselineReports = [
+        _baselineBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        Statistics = new()
-                        {
-                            Mean = 12
-                        }
-                    }]
+                Statistics = new()
+                {
+                    Mean = 12
+                }
             }];
 
 
@@ -982,20 +926,16 @@ public sealed class ComparerCommandTests
         var failOnWarnings = true;
 
         _validation
-            .HostEnvironmentValidate(Arg.Any<BenchmarkFullJsonResport>(), Arg.Any<BenchmarkFullJsonResport>())
+            .HostEnvironmentValidate(Arg.Any<BenchmarkResport>(), Arg.Any<BenchmarkResport>())
             .Returns(["Warning message"]);
 
-        _baselineReports = [
+        _baselineBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        Statistics = new()
-                        {
-                            Mean = 12
-                        }
-                    }]
+                Statistics = new()
+                {
+                    Mean = 12
+                }
             }];
 
 
@@ -1027,47 +967,35 @@ public sealed class ComparerCommandTests
         // Arrange
         var failOnThresholdHit = false;
 
-        _baselineReports = [
+        _baselineBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        FullName = "test hit",
-                        Method = "test hit",
-                        Statistics = new()
-                        {
-                            Mean = 12
-                        },
-                        Memory = new()
-                        {
-                            BytesAllocatedPerOperation = 120
-                        }
-                    }
-                ]
-            }
-        ];
+                FullName = "test hit",
+                Method = "test hit",
+                Statistics = new()
+                {
+                    Mean = 12
+                },
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 120
+                }
+            }];
 
-        _targetReports = [
+        _targetBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        FullName = "test hit",
-                        Method = "tetest hitst",
-                        Statistics = new()
-                        {
-                            Mean = 1200
-                        },
-                        Memory = new()
-                        {
-                            BytesAllocatedPerOperation = 120000
-                        }
-                    }
-                ]
-            }
-        ];
+                FullName = "test hit",
+                Method = "tetest hitst",
+                Statistics = new()
+                {
+                    Mean = 1200
+                },
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 120000
+                }
+            }];
 
 
         // Act
@@ -1098,47 +1026,34 @@ public sealed class ComparerCommandTests
         // Arrange
         var failOnThresholdHit = true;
 
-        _baselineReports = [
+        _baselineBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        FullName = "test hit",
-                        Method = "test hit",
-                        Statistics = new()
-                        {
-                            Mean = 12
-                        },
-                        Memory = new()
-                        {
-                            BytesAllocatedPerOperation = 120
-                        }
-                    }
-                ]
-            }
-        ];
-
-        _targetReports = [
+                FullName = "test hit",
+                Method = "test hit",
+                Statistics = new()
+                {
+                    Mean = 12
+                },
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 120
+                }
+            }];
+        _targetBenchmarks = [
             new()
             {
-                Benchmarks = [
-                    new()
-                    {
-                        FullName = "test hit",
-                        Method = "tetest hitst",
-                        Statistics = new()
-                        {
-                            Mean = 1200
-                        },
-                        Memory = new()
-                        {
-                            BytesAllocatedPerOperation = 120000
-                        }
-                    }
-                ]
-            }
-        ];
+                FullName = "test hit",
+                Method = "tetest hitst",
+                Statistics = new()
+                {
+                    Mean = 1200
+                },
+                Memory = new()
+                {
+                    BytesAllocatedPerOperation = 120000
+                }
+            }];
 
 
         // Act

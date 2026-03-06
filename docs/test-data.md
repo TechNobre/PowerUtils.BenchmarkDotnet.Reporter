@@ -8,7 +8,7 @@ This document provides detailed information about the test data samples availabl
 
 The test data directory contains various benchmark report samples that can be used to test and demonstrate the functionality of PowerUtils.BenchmarkDotNet.Reporter. These samples are organized in numbered folders and represent different benchmark scenarios and configurations.
 
-> **💡 Important**: Always use the `*-full.json` files when working with PowerUtils.BenchmarkDotNet.Reporter, as this tool requires the full JSON format exported by BenchmarkDotNet.
+> **💡 NOTE**: For best results with `PowerUtils.BenchmarkDotNet.Reporter`, always use **Full Benchmark JSON** files, typically named `*-report-full.json` or `*-report-full-compressed.json`. If files were renamed, the extension may differ, but what matters is that the content is the full JSON format exported by BenchmarkDotNet.
 
 
 
@@ -18,12 +18,13 @@ Each test data folder typically contains the following files:
 
 | File Type | Description | Required for Tool |
 |-----------|-------------|-------------------|
-| `*-report-full.json` | Full JSON report with complete benchmark data | ✅ **Required** |
-| `*-report-github.md` | GitHub-formatted markdown report | ❌ Reference only |
-| `*-report.csv` | CSV format report | ❌ Reference only |
-| `*-report.html` | HTML format report | ❌ Reference only |
-
-> **⚠️ Note**: PowerUtils.BenchmarkDotNet.Reporter only works with the full JSON format (`*-full.json` files).
+| `*-report-full.json` | Full JSON report with complete benchmark data | ✅ **Supported** |
+| `*-report-full-compressed.json` | Compressed full JSON report | ✅ **Supported** |
+| `*-report-brief.json` | Brief JSON report with summary data | ✅ **Supported** |
+| `*-report-brief-compressed.json` | Compressed brief JSON report | ✅ **Supported** |
+| `*-report-github.md` | GitHub-formatted markdown report | ❌ Not supported |
+| `*-report.csv` | CSV format report | ❌ Not supported |
+| `*-report.html` | HTML format report | ❌ Not supported |
 
 
 
@@ -85,6 +86,14 @@ Each test data folder typically contains the following files:
 
 ---
 
+### 📊 `report-05` - Equivalent reports with different file names
+- **Files**:
+  - `Baseline-report-full.json`
+  - `Target-report-full.json`
+- **Purpose**: Identical benchmark results with different file names
+
+---
+
 ### 📊 `report-10` - Multi-Benchmark Classes (Baseline)
 - **Files**:
   - `Demo.Benchmarks.ArrayProcessorBenchmarks-report-full.json`
@@ -130,6 +139,19 @@ Each test data folder typically contains the following files:
 
 **Best for**: Testing decimal precision for $.Benchmarks[].Measurements[].Nanoseconds
 
+---
+
+### 📊 `report-20`, `report-21` - All Json formats
+- **Files**:
+  - `Demo.Benchmarks.ArrayProcessorBenchmarks-report-full.json`
+  - `Demo.Benchmarks.ArrayProcessorBenchmarks-report-full-compressed.json`
+  - `Demo.Benchmarks.ArrayProcessorBenchmarks-report-brief.json`
+  - `Demo.Benchmarks.ArrayProcessorBenchmarks-report-brief-compressed.json`
+  - `Demo.Benchmarks.StringProcessorBenchmarks-report-full.json`
+  - `Demo.Benchmarks.StringProcessorBenchmarks-report-full-compressed.json`
+  - `Demo.Benchmarks.StringProcessorBenchmarks-report-brief.json`
+  - `Demo.Benchmarks.StringProcessorBenchmarks-report-brief-compressed.json`
+- **Purpose**: Test handling of all JSON report formats (full, brief, compressed)
 
 
 ## Sample Comparisons

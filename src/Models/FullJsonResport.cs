@@ -5,17 +5,20 @@
 using System.Collections.Generic;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Models;
-public sealed class BenchmarkFullJsonResport
+
+public sealed class JsonBenchmarkResports : BenchmarkHeader
 { // Generated with https://json2csharp.com/
+    public List<BenchmarkResport>? Benchmarks { get; set; }
+}
+
+public class BenchmarkHeader
+{
     public string? FilePath { get; set; }
     public string? FileName { get; set; }
 
     public string? Title { get; set; }
 
     public HostEnvironmentInfoRecord? HostEnvironmentInfo { get; set; }
-    public List<BenchmarkRecord>? Benchmarks { get; set; }
-
-
 
     public sealed class HostEnvironmentInfoRecord
     {
@@ -42,112 +45,114 @@ public sealed class BenchmarkFullJsonResport
             public int Hertz { get; set; }
         }
     }
+}
 
-    public sealed class BenchmarkRecord
+public sealed class BenchmarkResport
+{
+    public BenchmarkHeader? Header { get; set; }
+
+    public string? DisplayInfo { get; set; }
+    public string? Namespace { get; set; }
+    public string? Type { get; set; }
+    public string? Method { get; set; }
+    public string? MethodTitle { get; set; }
+    public string? Parameters { get; set; }
+    public string? FullName { get; set; }
+    public string? HardwareIntrinsics { get; set; }
+    public StatisticsRecord? Statistics { get; set; }
+    public MemoryRecord? Memory { get; set; }
+    public List<MeasurementRecord>? Measurements { get; set; }
+    public List<MetricRecord>? Metrics { get; set; }
+
+
+
+    public sealed class StatisticsRecord
     {
-        public string? DisplayInfo { get; set; }
-        public string? Namespace { get; set; }
-        public string? Type { get; set; }
-        public string? Method { get; set; }
-        public string? MethodTitle { get; set; }
-        public string? Parameters { get; set; }
-        public string? FullName { get; set; }
-        public string? HardwareIntrinsics { get; set; }
-        public StatisticsRecord? Statistics { get; set; }
-        public MemoryRecord? Memory { get; set; }
-        public List<MeasurementRecord>? Measurements { get; set; }
-        public List<MetricRecord>? Metrics { get; set; }
+        public List<decimal>? OriginalValues { get; set; }
+        public int N { get; set; }
+        public decimal Min { get; set; }
+        public decimal LowerFence { get; set; }
+        public decimal Q1 { get; set; }
+        public decimal Median { get; set; }
+        public decimal Mean { get; set; }
+        public decimal Q3 { get; set; }
+        public decimal UpperFence { get; set; }
+        public decimal Max { get; set; }
+        public decimal InterquartileRange { get; set; }
+        public List<decimal>? LowerOutliers { get; set; }
+        public List<decimal>? UpperOutliers { get; set; }
+        public List<decimal>? AllOutliers { get; set; }
+        public decimal StandardError { get; set; }
+        public decimal Variance { get; set; }
+        public decimal StandardDeviation { get; set; }
+        public decimal Skewness { get; set; }
+        public decimal Kurtosis { get; set; }
+        public ConfidenceIntervalRecord? ConfidenceInterval { get; set; }
+        public PercentilesRecord? Percentiles { get; set; }
 
 
 
-        public sealed class StatisticsRecord
+        public sealed class ConfidenceIntervalRecord
         {
-            public List<decimal>? OriginalValues { get; set; }
             public int N { get; set; }
-            public decimal Min { get; set; }
-            public decimal LowerFence { get; set; }
-            public decimal Q1 { get; set; }
-            public decimal Median { get; set; }
             public decimal Mean { get; set; }
-            public decimal Q3 { get; set; }
-            public decimal UpperFence { get; set; }
-            public decimal Max { get; set; }
-            public decimal InterquartileRange { get; set; }
-            public List<decimal>? LowerOutliers { get; set; }
-            public List<decimal>? UpperOutliers { get; set; }
-            public List<decimal>? AllOutliers { get; set; }
             public decimal StandardError { get; set; }
-            public decimal Variance { get; set; }
-            public decimal StandardDeviation { get; set; }
-            public decimal Skewness { get; set; }
-            public decimal Kurtosis { get; set; }
-            public ConfidenceIntervalRecord? ConfidenceInterval { get; set; }
-            public PercentilesRecord? Percentiles { get; set; }
-
-
-
-            public sealed class ConfidenceIntervalRecord
-            {
-                public int N { get; set; }
-                public decimal Mean { get; set; }
-                public decimal StandardError { get; set; }
-                public int Level { get; set; }
-                public decimal Margin { get; set; }
-                public decimal Lower { get; set; }
-                public decimal Upper { get; set; }
-            }
-
-            public sealed class PercentilesRecord
-            {
-                public decimal P0 { get; set; }
-                public decimal P25 { get; set; }
-                public decimal P50 { get; set; }
-                public decimal P67 { get; set; }
-                public decimal P80 { get; set; }
-                public decimal P85 { get; set; }
-                public decimal P90 { get; set; }
-                public decimal P95 { get; set; }
-                public decimal P100 { get; set; }
-            }
+            public int Level { get; set; }
+            public decimal Margin { get; set; }
+            public decimal Lower { get; set; }
+            public decimal Upper { get; set; }
         }
 
-        public sealed class MemoryRecord
+        public sealed class PercentilesRecord
         {
-            public int Gen0Collections { get; set; }
-            public int Gen1Collections { get; set; }
-            public int Gen2Collections { get; set; }
-            public int TotalOperations { get; set; }
-            public int BytesAllocatedPerOperation { get; set; }
+            public decimal P0 { get; set; }
+            public decimal P25 { get; set; }
+            public decimal P50 { get; set; }
+            public decimal P67 { get; set; }
+            public decimal P80 { get; set; }
+            public decimal P85 { get; set; }
+            public decimal P90 { get; set; }
+            public decimal P95 { get; set; }
+            public decimal P100 { get; set; }
         }
+    }
 
-        public sealed class MeasurementRecord
+    public sealed class MemoryRecord
+    {
+        public int Gen0Collections { get; set; }
+        public int Gen1Collections { get; set; }
+        public int Gen2Collections { get; set; }
+        public int TotalOperations { get; set; }
+        public int BytesAllocatedPerOperation { get; set; }
+    }
+
+    public sealed class MeasurementRecord
+    {
+        public string? IterationMode { get; set; }
+        public string? IterationStage { get; set; }
+        public int LaunchIndex { get; set; }
+        public int IterationIndex { get; set; }
+        public int Operations { get; set; }
+        public decimal Nanoseconds { get; set; }
+    }
+
+    public sealed class MetricRecord
+    {
+        public decimal Value { get; set; }
+        public DescriptorRecord? Descriptor { get; set; }
+
+
+
+        public sealed class DescriptorRecord
         {
-            public string? IterationMode { get; set; }
-            public string? IterationStage { get; set; }
-            public int LaunchIndex { get; set; }
-            public int IterationIndex { get; set; }
-            public int Operations { get; set; }
-            public decimal Nanoseconds { get; set; }
-        }
-
-        public sealed class MetricRecord
-        {
-            public decimal Value { get; set; }
-            public DescriptorRecord? Descriptor { get; set; }
-
-
-
-            public sealed class DescriptorRecord
-            {
-                public string? Id { get; set; }
-                public string? DisplayName { get; set; }
-                public string? Legend { get; set; }
-                public string? NumberFormat { get; set; }
-                public int UnitType { get; set; }
-                public string? Unit { get; set; }
-                public bool TheGreaterTheBetter { get; set; }
-                public int PriorityInCategory { get; set; }
-            }
+            public string? Id { get; set; }
+            public string? DisplayName { get; set; }
+            public string? Legend { get; set; }
+            public string? NumberFormat { get; set; }
+            public int UnitType { get; set; }
+            public string? Unit { get; set; }
+            public bool TheGreaterTheBetter { get; set; }
+            public int PriorityInCategory { get; set; }
         }
     }
 }

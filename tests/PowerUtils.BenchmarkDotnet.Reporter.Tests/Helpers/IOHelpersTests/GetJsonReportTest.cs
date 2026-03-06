@@ -5,12 +5,12 @@ using PowerUtils.BenchmarkDotnet.Reporter.Helpers;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Helpers.IOHelpersTests;
 
-public sealed class GetFullJsonReportTest : IDisposable
+public sealed class GetJsonReportTest : IDisposable
 {
     private readonly string _tempDirectory;
 
 
-    public GetFullJsonReportTest()
+    public GetJsonReportTest()
     {
         _tempDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(_tempDirectory);
@@ -33,7 +33,7 @@ public sealed class GetFullJsonReportTest : IDisposable
 
 
         // Act
-        var act = IOHelpers.GetFullJsonReport(path);
+        var act = IOHelpers.GetJsonReport(path);
 
 
         // Assert
@@ -47,12 +47,12 @@ public sealed class GetFullJsonReportTest : IDisposable
     public void When_Path_Isnt_Defined_Should_Throw_NotFoundException(string? path)
     {
         // Arrange & Act
-        string[] act() => IOHelpers.GetFullJsonReport(path);
+        string[] act() => IOHelpers.GetJsonReport(path);
 
 
         // Assert
         Should.Throw<FileNotFoundException>(act)
-            .Message.ShouldContain("The provided path is null or empty.");
+            .Message.ShouldContain("The provided path is null or empty");
     }
 
     [Fact]
@@ -63,7 +63,7 @@ public sealed class GetFullJsonReportTest : IDisposable
 
 
         // Act
-        string[] act() => IOHelpers.GetFullJsonReport(filePath);
+        string[] act() => IOHelpers.GetJsonReport(filePath);
 
 
         // Assert
@@ -75,7 +75,7 @@ public sealed class GetFullJsonReportTest : IDisposable
     public void When_Directory_Doesnt_Exist_Should_Throw_FileNotFoundException()
     {
         // Arrange & Act
-        string[] act() => IOHelpers.GetFullJsonReport(_tempDirectory);
+        string[] act() => IOHelpers.GetJsonReport(_tempDirectory);
 
 
         // Assert
@@ -91,7 +91,7 @@ public sealed class GetFullJsonReportTest : IDisposable
 
 
         // Act
-        string[] act() => IOHelpers.GetFullJsonReport(path);
+        string[] act() => IOHelpers.GetJsonReport(path);
 
 
         // Assert
@@ -100,7 +100,7 @@ public sealed class GetFullJsonReportTest : IDisposable
     }
 
     [Fact]
-    public void When_There_Are_Multiple_FullJsonReport_Files_Should_Return_All_Of_FullPaths_For_Them()
+    public void When_There_Are_Multiple_JsonReport_Files_Should_Return_All_Of_FullPaths_For_Them()
     {
         // Arrange
         var filePath1 = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{IOHelpers.REPORT_FILE_ENDS}");
@@ -110,7 +110,7 @@ public sealed class GetFullJsonReportTest : IDisposable
 
 
         // Act
-        var act = IOHelpers.GetFullJsonReport(_tempDirectory)
+        var act = IOHelpers.GetJsonReport(_tempDirectory)
             .OrderBy(f => f)
             .ToArray();
 
@@ -120,5 +120,30 @@ public sealed class GetFullJsonReportTest : IDisposable
             .OrderBy(f => f)
             .ToArray();
         act.ShouldBe(expectedPaths);
+    }
+
+    [Fact]
+    public void When_Folder_Contains_Brief_Full_Compressed_And_Uncompressed_Should_Return_All_Of_Them()
+    {
+        // Arrange
+        var path = Path.GetFullPath(Path.Combine("test-data", "report-21"));
+
+
+        // Act
+        var act = IOHelpers.GetJsonReport(path);
+
+
+        // Assert
+        act.Length.ShouldBe(8);
+
+        act.ShouldContain(s => Path.GetFileName(s) == "Demo.Benchmarks.ArrayProcessorBenchmarks-report-brief.json");
+        act.ShouldContain(s => Path.GetFileName(s) == "Demo.Benchmarks.ArrayProcessorBenchmarks-report-brief-compressed.json");
+        act.ShouldContain(s => Path.GetFileName(s) == "Demo.Benchmarks.ArrayProcessorBenchmarks-report-full.json");
+        act.ShouldContain(s => Path.GetFileName(s) == "Demo.Benchmarks.ArrayProcessorBenchmarks-report-full-compressed.json");
+
+        act.ShouldContain(s => Path.GetFileName(s) == "Demo.Benchmarks.StringProcessorBenchmarks-report-brief.json");
+        act.ShouldContain(s => Path.GetFileName(s) == "Demo.Benchmarks.StringProcessorBenchmarks-report-brief-compressed.json");
+        act.ShouldContain(s => Path.GetFileName(s) == "Demo.Benchmarks.StringProcessorBenchmarks-report-full.json");
+        act.ShouldContain(s => Path.GetFileName(s) == "Demo.Benchmarks.StringProcessorBenchmarks-report-full-compressed.json");
     }
 }

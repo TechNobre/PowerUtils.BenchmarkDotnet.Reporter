@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,8 +18,8 @@ serviceCollection
     .AddTransient<ToolCommands>()
     .AddTransient<IOHelpers.FileWriter>(sp =>
         (path, content) => IOHelpers.WriteFile(path, content))
-    .AddTransient<Func<string?, BenchmarkFullJsonResport[]>>(sp =>
-        (path) => IOHelpers.ReadFullJsonReport(path))
+    .AddTransient<Func<string?, List<BenchmarkResport>>>(sp =>
+        (path) => IOHelpers.ReadBenchmarkReports(path))
     .AddTransient<IReportValidation, ReportValidation>()
     .AddKeyedTransient<IExporter, MarkdownExporter>("markdown")
     .AddKeyedTransient<IExporter, JsonExporter>("json")
