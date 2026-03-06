@@ -52,6 +52,8 @@ public readonly struct TimeThreshold
             case "ns":
                 break;
             case "μs":
+            case "µs":
+            case "us":
                 numericValue *= 1_000;
                 break;
             case "ms":

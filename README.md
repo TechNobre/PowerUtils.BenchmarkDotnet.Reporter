@@ -31,6 +31,7 @@
   - [Commands](#commands)
     - [`compare`](#compare)
       - [Options:](#options)
+        - [Threshold Units](#threshold-units)
       - [Example of usage:](#example-of-usage)
       - [Error Handling Options](#error-handling-options)
         - [Exit Codes](#exit-codes)
@@ -188,13 +189,35 @@ pbreporter compare -b baseline-full.json -t target-full.json
 
 * (`-b`, `--baseline`) `<baseline>`: Path to the folder or file with Baseline report. **[Required]**
 * (`-t`, `--target`) `<target>`: Path to the folder or file with target reports. **[Required]**
-* (`-tm`, `--threshold-mean`) `<threshold-mean>`: Throw an error when the mean threshold is met. Examples: 5%, 10ms, 10μs, 100ns, 1s.
+* (`-tm`, `--threshold-mean`) `<threshold-mean>`: Throw an error when the mean threshold is met. Examples: 5%, 10ms, 10us, 100ns, 1s.
 * (`-ta`, `--threshold-allocation`) `<threshold-allocation>`: Throw an error when the allocation threshold is met. Examples: 5%, 10b, 10kb, 100mb, 1gb.
 * (`-f`, `--format`) `<console|hit-txt|json|markdown>`: Output format for the report. **[default: console]**
 * (`-o`, `--output`) `<output>`: Output directory to export the diff report. Default is current directory. **[default: ./BenchmarkReporter]**
 * (`-fw`, `--fail-on-warnings`): Exit with error code when any threshold is hit during comparison. **[default: disabled]**
 * (`-ft`, `--fail-on-threshold-hit`): Exit with error code when any threshold is hit during comparison. **[default: disabled]**
 * (`-?`, `-h`, `--help`): Show help and usage information
+
+###### Threshold Units
+
+**Time (`-tm`):**
+
+| Unit | Description | Example |
+|------|-------------|---------|
+| `ns` | Nanoseconds | `100ns` |
+| `us` | Microseconds | `10us` |
+| `ms` | Milliseconds | `10ms` |
+| `s` | Seconds | `1s` |
+| `%` | Percentage relative to baseline | `5%` |
+
+**Memory (`-ta`):**
+
+| Unit | Description | Example |
+|------|-------------|---------|
+| `b` | Bytes | `10b` |
+| `kb` | Kilobytes | `10kb` |
+| `mb` | Megabytes | `10mb` |
+| `gb` | Gigabytes | `1gb` |
+| `%` | Percentage relative to baseline | `5%` |
 
 ##### Example of usage:
 
