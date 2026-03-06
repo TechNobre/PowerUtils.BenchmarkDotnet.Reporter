@@ -68,7 +68,7 @@ public sealed class OptionsTests
         option.ValueType.ShouldBe(typeof(string));
         option.Aliases.Count.ShouldBe(1);
         option.Aliases.ShouldContain("-tm");
-        option.Description.ShouldBe("Throw an error when the mean threshold is met. Examples: 5%, 10ms, 10μs, 100ns, 1s.");
+        option.Description.ShouldBe("Throw an error when the mean threshold is met. Examples: 5%, 10ms, 10us, 100ns, 1s.");
     }
 
     [Fact]
