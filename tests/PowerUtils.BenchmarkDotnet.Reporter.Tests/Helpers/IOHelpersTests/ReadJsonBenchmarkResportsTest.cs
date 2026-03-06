@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using PowerUtils.BenchmarkDotnet.Reporter.Helpers;
+using PowerUtils.BenchmarkDotnet.Reporter.Models;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Helpers.IOHelpersTests;
 
@@ -79,11 +80,11 @@ public sealed class ReadJsonBenchmarkResportsTest : IDisposable
 
 
         // Act
-        Reporter.Models.JsonBenchmarkResports[] act() => IOHelpers.ReadJsonBenchmarkResports(filePath);
+        JsonBenchmarkResports[] act() => IOHelpers.ReadJsonBenchmarkResports(filePath);
 
 
         // Assert
-        Should.Throw<InvalidOperationException>((Func<Reporter.Models.JsonBenchmarkResports[]>)act)
+        Should.Throw<InvalidOperationException>(act)
             .Message.ShouldStartWith($"Failed to deserialize the file '{filePath}'. ");
     }
 

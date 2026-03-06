@@ -29,9 +29,11 @@ public static class IOHelpers
     public static List<BenchmarkResport> ReadBenchmarkReports(string? path)
     {
         var benchmarks = new List<BenchmarkResport>();
+        var seenFullNames = new HashSet<string?>(StringComparer.OrdinalIgnoreCase);
+
         foreach(var benchmark in ReadJsonBenchmarkResports(path).SelectMany(s => s.Benchmarks ?? []))
         {
-            if(benchmarks.Any(b => b.FullName?.Equals(benchmark.FullName) == true))
+            if(!seenFullNames.Add(benchmark.FullName))
             {
                 continue;
             }
@@ -102,7 +104,7 @@ public static class IOHelpers
             return files;
         }
 
-        if(File.Exists(path))
+        if(File.Exists(path) && Path.GetExtension(path).Equals(REPORT_FILE_ENDS, StringComparison.OrdinalIgnoreCase))
         {
             return [path];
         }
