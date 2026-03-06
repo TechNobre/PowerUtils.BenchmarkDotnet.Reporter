@@ -1,3 +1,11 @@
+## [1.5.1](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.5.0...v1.5.1) (2026-03-06)
+
+
+### Bug Fixes
+
+* accept "us" as microseconds in -tm time format close [#104](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/issues/104) ([0335acd](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/commit/0335acda13aa612078c65798560da48d48586950))
+* warning when different baseline and target file name close [#101](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/issues/101) ([6a84c10](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/commit/6a84c1009f9f33eab200fce67b8c4cb782fdbb78))
+
 # [1.5.0](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.4.2...v1.5.0) (2026-02-01)
 
 
