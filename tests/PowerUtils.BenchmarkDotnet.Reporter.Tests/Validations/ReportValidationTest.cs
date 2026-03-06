@@ -23,7 +23,7 @@ public class ReportValidationTest
     }
 
     [Fact]
-    public void When_BaselineReport_Is_Null_Shouldnt_Returns_Message()
+    public void When_BaselineReport_Is_Null_Shouldnt_Returns_EmptyList()
     {
         // Arrange
         BenchmarkResport? baseline = null;
@@ -40,7 +40,7 @@ public class ReportValidationTest
     }
 
     [Fact]
-    public void When_TargetReport_Is_Null_Returns_Message()
+    public void When_TargetReport_Is_Null_Shouldnt_Returns_EmptyList()
     {
         // Arrange
         var baseline = _createBenchmarkReport();
