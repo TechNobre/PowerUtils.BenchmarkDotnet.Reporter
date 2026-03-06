@@ -70,12 +70,12 @@ public sealed class ReportValidation : IReportValidation
             messages.Add($"[{baseline.FullName}] Chronometer Frequency is different: '{baseline.Header?.HostEnvironmentInfo?.ChronometerFrequency?.Hertz}' != '{target.Header?.HostEnvironmentInfo?.ChronometerFrequency?.Hertz}'");
         }
 
-        if("RELEASE".Equivalente(baseline.Header?.HostEnvironmentInfo?.Configuration))
+        if(!"RELEASE".Equivalente(baseline.Header?.HostEnvironmentInfo?.Configuration))
         {
             messages.Add($"[{baseline.FullName}] The baseline report wasn't executed in RELEASE mode: '{baseline.Header?.HostEnvironmentInfo?.Configuration}'");
         }
 
-        if("RELEASE".Equivalente(target.Header?.HostEnvironmentInfo?.Configuration))
+        if(!"RELEASE".Equivalente(target.Header?.HostEnvironmentInfo?.Configuration))
         {
             messages.Add($"[{target.FullName}] The target report wasn't executed in RELEASE mode: '{target.Header?.HostEnvironmentInfo?.Configuration}'");
         }
