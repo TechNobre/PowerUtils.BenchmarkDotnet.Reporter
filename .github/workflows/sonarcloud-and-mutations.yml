@@ -132,7 +132,7 @@ jobs:
       run: jq -f tests/mutation-report-to-sonar.jq '${{ github.workspace }}/mutations/reports/mutation-report.json' > '${{ github.workspace }}/mutations/reports/mutation-sonar.json'
 
     - name: "Add Stryker Report in PR Comment"
-      uses: marocchino/sticky-pull-request-comment@d4d6b0936434b21bc8345ad45a440c5f7d2c40ff
+      uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0
       if: github.event_name == 'pull_request'
       with:
         header: stryker-report
