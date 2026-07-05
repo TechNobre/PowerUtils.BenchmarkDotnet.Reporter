@@ -50,7 +50,7 @@ jobs:
         dotnet-version: '10.x.x'
 
     - name: 'Restore Baseline benchmark reports'
-     uses: actions/cache/restore@v6
+      uses: actions/cache/restore@v6
       id: cache
       with:
         path: ${{ github.workspace }}/${{ env.DIR_BASELINE_REPORTS }}
@@ -107,7 +107,7 @@ jobs:
     ...
 
     - name: 'Restore Baseline benchmark reports'
-     uses: actions/cache/restore@v6
+      uses: actions/cache/restore@v6
       id: cache
       with:
         path: ${{ github.workspace }}/${{ env.DIR_BASELINE_REPORTS }}
