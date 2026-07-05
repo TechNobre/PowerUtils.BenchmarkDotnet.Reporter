@@ -174,6 +174,12 @@ dotnet pbreporter [command] [options]
 pbreporter [command] [options]
 ```
 
+**.NET 10+ (without installation)**
+```bash
+dnx PowerUtils.BenchmarkDotnet.Reporter [command] [options]
+```
+> Starting with .NET 10, you can run the tool directly using `dnx` without installing it first.
+
 ### Commands
 
 #### `compare`
