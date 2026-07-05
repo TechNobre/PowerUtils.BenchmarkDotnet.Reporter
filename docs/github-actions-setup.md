@@ -216,6 +216,27 @@ jobs:
 
 > NOTE: When using local tool installation, it is necessary to use the `dotnet pbreporter ...` command instead of the `pbreporter ...` command to ensure the tool is executed correctly within the context of the project.
 
+#### Option 3: Using dnx (.NET 10+)
+
+Starting with .NET 10, you can run the tool directly without installing it:
+
+```yaml
+...
+
+jobs:
+  benchmarks-check:
+    ...
+
+    steps:
+    ...
+
+    - name: 'Run benchmarks compare'
+      if: steps.cache.outputs.cache-matched-key != ''
+      run: dnx PowerUtils.BenchmarkDotnet.Reporter compare -b ${{ github.workspace }}/${{ env.DIR_BASELINE_REPORTS }} -t ${{ github.workspace }}/${{ env.DIR_TARGET_REPORTS }} -f console -tm ${{ env.THRESHOLD_MEAN }} -ta ${{ env.THRESHOLD_ALLOCATION }} -ft -fw
+```
+
+> No installation step is required. `dnx` fetches and runs the tool on demand.
+
 
 ### Upload comparison results
 
@@ -335,3 +356,4 @@ jobs:
 
 - Minimal configuration: [examples/minimal.yml](https://github.com/NelsonBN/demo-powerutils-benchmarkdotnet-reporter/blob/main/.github/workflows/benchmarks-check-minimal-example.yml)
 - Full example: [examples/full-example.yml](https://github.com/NelsonBN/demo-powerutils-benchmarkdotnet-reporter/blob/main/.github/workflows/benchmarks-check-full-example.yml)
+- dnx example (.NET 10+): [examples/dnx-example.yml](https://github.com/NelsonBN/demo-powerutils-benchmarkdotnet-reporter/blob/main/.github/workflows/benchmarks-check-dnx-example.yml)
