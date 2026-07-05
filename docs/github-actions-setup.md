@@ -42,15 +42,15 @@ jobs:
 
     steps:
     - name: 'Checkout'
-      uses: actions/checkout@v4.2.2
+      uses: actions/checkout@v7.0.0
 
     - name: 'Setup .NET'
-      uses: actions/setup-dotnet@v4.3.1
+      uses: actions/setup-dotnet@v5.4.0
       with:
-        dotnet-version: '9.x.x'
+        dotnet-version: '10.x.x'
 
     - name: 'Restore Baseline benchmark reports'
-      uses: actions/cache/restore@v4
+     uses: actions/cache/restore@v6
       id: cache
       with:
         path: ${{ github.workspace }}/${{ env.DIR_BASELINE_REPORTS }}
@@ -67,7 +67,7 @@ jobs:
       run: dotnet build -c Release --no-restore ${{ github.workspace }}/${{ env.PATH_BENCHMARKS_PROJECT }}
 
     - name: 'Run benchmarks'
-      run: dotnet run -p ${{ github.workspace }}/${{ env.PATH_BENCHMARKS_PROJECT }} -c Release
+      run: dotnet run --project ${{ github.workspace }}/${{ env.PATH_BENCHMARKS_PROJECT }} -c Release
 
     - name: 'Run benchmarks compare'
       if: steps.cache.outputs.cache-matched-key != ''
@@ -80,7 +80,7 @@ jobs:
         mv ${{ github.workspace }}/${{ env.DIR_TARGET_REPORTS }} ${{ github.workspace }}/${{ env.DIR_BASELINE_REPORTS }}
 
     - name: 'Save current benchmark reports for next run'
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v6
       with:
         path: ${{ github.workspace }}/${{ env.DIR_BASELINE_REPORTS }}
         key: ${{ env.CACHE_KEY }}-${{ github.run_number }}
@@ -107,7 +107,7 @@ jobs:
     ...
 
     - name: 'Restore Baseline benchmark reports'
-      uses: actions/cache/restore@v4
+     uses: actions/cache/restore@v6
       id: cache
       with:
         path: ${{ github.workspace }}/${{ env.DIR_BASELINE_REPORTS }}
@@ -122,7 +122,7 @@ jobs:
         mv ${{ github.workspace }}/${{ env.DIR_TARGET_REPORTS }} ${{ github.workspace }}/${{ env.DIR_BASELINE_REPORTS }}
 
     - name: 'Save current benchmark reports for next run'
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v6
       with:
         path: ${{ github.workspace }}/${{ env.DIR_BASELINE_REPORTS }}
         key: ${{ env.CACHE_KEY }}-${{ github.run_number }}
@@ -148,7 +148,7 @@ jobs:
     ...
 
     - name: 'Restore Baseline benchmark reports'
-      uses: actions/cache/restore@v4
+     uses: actions/cache/restore@v6
       id: cache
       with:
         path: ${{ github.workspace }}/${{ env.DIR_BASELINE_REPORTS }}
@@ -235,7 +235,7 @@ jobs:
     ...
 
     - name: 'Upload compare benchmark report'
-      uses: actions/upload-artifact@v4.6.2
+      uses: actions/upload-artifact@v7.0.1
       if: steps.cache.outputs.cache-matched-key != '' && always()
       with:
         name: 'benchmark-comparison-reports'
@@ -314,7 +314,7 @@ jobs:
     ...
 
     - name: 'Add compare benchmark report in PR Comment'
-      uses: marocchino/sticky-pull-request-comment@773744901bac0e8cbb5a0dc842800d45e9b2b405
+      uses: marocchino/sticky-pull-request-comment@v3
       if: github.event_name == 'pull_request' && steps.cache.outputs.cache-matched-key != '' && always()
       with:
         header: compare-benchmark-report
