@@ -4,7 +4,9 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/" # Location of package manifests
     schedule:
-      interval: "daily"
+      interval: "weekly"
+    cooldown:
+      default-days: 7
     assignees:
       - "NelsonBN"
     reviewers:
@@ -17,7 +19,9 @@ updates:
   - package-ecosystem: "nuget"
     directory: "/" # Location of package manifests
     schedule:
-      interval: "daily"
+      interval: "weekly"
+    cooldown:
+      default-days: 7
     assignees:
       - "NelsonBN"
     reviewers:
@@ -30,7 +34,9 @@ updates:
   - package-ecosystem: "dotnet-sdk"
     directory: "/" # Location of package manifests
     schedule:
-      interval: "daily"
+      interval: "weekly"
+    cooldown:
+      default-days: 7
     assignees:
       - "NelsonBN"
     reviewers:
