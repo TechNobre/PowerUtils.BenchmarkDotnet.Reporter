@@ -13,11 +13,16 @@ env:
   NUGET_SERVER: https://api.nuget.org/v3/index.json
 
 
+permissions: {}
+
+
 jobs:
 
   deploy-nuget:
     name: "Deploy nuget"
     runs-on: 'ubuntu-latest'
+    permissions:
+      contents: read
 
     steps:
     - name: "Checkout"

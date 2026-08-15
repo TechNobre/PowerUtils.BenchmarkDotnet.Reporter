@@ -20,6 +20,10 @@ on:
   schedule:
     - cron: '0 5 * * 0'
 
+
+permissions: {}
+
+
 jobs:
   analyze:
     name: 'CodeQL Analyze'
@@ -42,7 +46,7 @@ jobs:
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@9e3211c9a3b9311dfe05da2ed48eea3386f042ddv4.37.6
+      uses: github/codeql-action/init@9e3211c9a3b9311dfe05da2ed48eea3386f042dd
       with:
         languages: ${{ matrix.language }}
         # If you wish to specify custom queries, you can do so here or in a config file.

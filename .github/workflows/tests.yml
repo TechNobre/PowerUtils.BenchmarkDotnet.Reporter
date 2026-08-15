@@ -21,6 +21,9 @@ env:
   NUGET_XMLDOC_MODE: skip # Disable NuGet XML documentation generation
 
 
+permissions: {}
+
+
 jobs:
 
   test-project:

@@ -33,8 +33,7 @@ env:
   SONAR_ORGANIZATION: 'technobre'
 
 
-permissions:
-  pull-requests: write # To can create a comment with the results
+permissions: {}
 
 
 jobs:
@@ -42,6 +41,9 @@ jobs:
   sonar-scanner:
     name: "Sonar Scanner and Mutation Tests"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # To can create a comment with the results
 
     steps:
     - name: "Checkout"

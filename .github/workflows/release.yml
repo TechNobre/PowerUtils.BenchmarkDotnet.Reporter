@@ -11,11 +11,16 @@ on:
       - "src/**"
 
 
+permissions: {}
+
+
 jobs:
 
   release-version:
     name: "Release new version"
     runs-on: 'ubuntu-latest'
+    permissions:
+      contents: write
 
     steps:
     - name: "Checkout"
