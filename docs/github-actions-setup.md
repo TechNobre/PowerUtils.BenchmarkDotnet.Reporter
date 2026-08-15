@@ -45,12 +45,12 @@ jobs:
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
     - name: 'Setup .NET'
-      uses: actions/setup-dotnet@v5.4.0
+      uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
       with:
         dotnet-version: '10.x.x'
 
     - name: 'Restore Baseline benchmark reports'
-      uses: actions/cache/restore@v6
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
       id: cache
       with:
         path: ${{ github.workspace }}/${{ env.DIR_BASELINE_REPORTS }}
@@ -80,7 +80,7 @@ jobs:
         mv ${{ github.workspace }}/${{ env.DIR_TARGET_REPORTS }} ${{ github.workspace }}/${{ env.DIR_BASELINE_REPORTS }}
 
     - name: 'Save current benchmark reports for next run'
-      uses: actions/cache/save@v6
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
       with:
         path: ${{ github.workspace }}/${{ env.DIR_BASELINE_REPORTS }}
         key: ${{ env.CACHE_KEY }}-${{ github.run_number }}
@@ -107,7 +107,7 @@ jobs:
     ...
 
     - name: 'Restore Baseline benchmark reports'
-      uses: actions/cache/restore@v6
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
       id: cache
       with:
         path: ${{ github.workspace }}/${{ env.DIR_BASELINE_REPORTS }}
@@ -122,7 +122,7 @@ jobs:
         mv ${{ github.workspace }}/${{ env.DIR_TARGET_REPORTS }} ${{ github.workspace }}/${{ env.DIR_BASELINE_REPORTS }}
 
     - name: 'Save current benchmark reports for next run'
-      uses: actions/cache/save@v6
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
       with:
         path: ${{ github.workspace }}/${{ env.DIR_BASELINE_REPORTS }}
         key: ${{ env.CACHE_KEY }}-${{ github.run_number }}
@@ -148,7 +148,7 @@ jobs:
     ...
 
     - name: 'Restore Baseline benchmark reports'
-      uses: actions/cache/restore@v6
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
       id: cache
       with:
         path: ${{ github.workspace }}/${{ env.DIR_BASELINE_REPORTS }}
