@@ -42,7 +42,7 @@ jobs:
 
     steps:
     - name: 'Checkout'
-      uses: actions/checkout@v7.0.0
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
     - name: 'Setup .NET'
       uses: actions/setup-dotnet@v5.4.0
@@ -256,7 +256,7 @@ jobs:
     ...
 
     - name: 'Upload compare benchmark report'
-      uses: actions/upload-artifact@v7.0.1
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
       if: steps.cache.outputs.cache-matched-key != '' && always()
       with:
         name: 'benchmark-comparison-reports'
@@ -335,7 +335,7 @@ jobs:
     ...
 
     - name: 'Add compare benchmark report in PR Comment'
-      uses: marocchino/sticky-pull-request-comment@v3
+      uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88
       if: github.event_name == 'pull_request' && steps.cache.outputs.cache-matched-key != '' && always()
       with:
         header: compare-benchmark-report

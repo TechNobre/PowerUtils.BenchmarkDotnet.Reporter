@@ -45,7 +45,7 @@ jobs:
 
     steps:
     - name: "Checkout"
-      uses: actions/checkout@v7.0.1
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       with:
         fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
@@ -91,7 +91,7 @@ jobs:
       run: mkdir -p ~/sonar/cache
 
     - name: "Cache SonarCloud packages"
-      uses: actions/cache@v6
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
       with:
         path: ~/sonar/cache
         key: ${{ runner.os }}-sonar-${{ hashFiles('**/*.csproj') }}
@@ -101,7 +101,7 @@ jobs:
 
     - name: "Cache SonarCloud scanner"
       id: cache-sonar-scanner
-      uses: actions/cache@v6
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
       with:
         path: ./.sonar/scanner
         key: ${{ runner.os }}-sonar-scanner
@@ -132,7 +132,7 @@ jobs:
       run: jq -f tests/mutation-report-to-sonar.jq '${{ github.workspace }}/mutations/reports/mutation-report.json' > '${{ github.workspace }}/mutations/reports/mutation-sonar.json'
 
     - name: "Add Stryker Report in PR Comment"
-      uses: marocchino/sticky-pull-request-comment@v3
+      uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88
       if: github.event_name == 'pull_request'
       with:
         header: stryker-report
