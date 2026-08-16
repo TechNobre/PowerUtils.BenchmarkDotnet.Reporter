@@ -36,9 +36,9 @@ public sealed class ReadBenchmarkReportsTests : IDisposable
 
 
         // Assert
-        act.Count.ShouldBe(2);
-        act.ShouldContain(b => b.FullName == "Benchmark.StringConcat");
-        act.ShouldContain(b => b.FullName == "Benchmark.StringJoin");
+        act.Count.Should().Be(2);
+        act.Should().Contain(b => b.FullName == "Benchmark.StringConcat");
+        act.Should().Contain(b => b.FullName == "Benchmark.StringJoin");
     }
 
     [Fact]
@@ -53,9 +53,9 @@ public sealed class ReadBenchmarkReportsTests : IDisposable
 
 
         // Assert
-        act.Count.ShouldBe(2);
-        act.ShouldContain(b => b.FullName == "Demo.Benchmarks.ArrayProcessorBenchmarks.GenerateArray");
-        act.ShouldContain(b => b.FullName == "Demo.Benchmarks.StringProcessorBenchmarks.GenerateString");
+        act.Count.Should().Be(2);
+        act.Should().Contain(b => b.FullName == "Demo.Benchmarks.ArrayProcessorBenchmarks.GenerateArray");
+        act.Should().Contain(b => b.FullName == "Demo.Benchmarks.StringProcessorBenchmarks.GenerateString");
     }
 
     [Fact]
@@ -70,9 +70,9 @@ public sealed class ReadBenchmarkReportsTests : IDisposable
 
 
         // Assert
-        act.Count.ShouldBe(2);
-        act.ShouldContain(b => b.FullName == "Demo.Benchmarks.ArrayProcessorBenchmarks.GenerateArray");
-        act.ShouldContain(b => b.FullName == "Demo.Benchmarks.StringProcessorBenchmarks.GenerateString");
+        act.Count.Should().Be(2);
+        act.Should().Contain(b => b.FullName == "Demo.Benchmarks.ArrayProcessorBenchmarks.GenerateArray");
+        act.Should().Contain(b => b.FullName == "Demo.Benchmarks.StringProcessorBenchmarks.GenerateString");
     }
 
     [Fact]
@@ -94,6 +94,6 @@ public sealed class ReadBenchmarkReportsTests : IDisposable
 
 
         // Assert
-        act.ShouldBeEmpty();
+        act.Should().BeEmpty();
     }
 }

@@ -19,10 +19,10 @@ public sealed class CompareThresholdTests
 
 
         // Assert
-        result.ExitCode.ShouldBe(3);
-        result.StandardOutput.ShouldContain("THRESHOLD VIOLATIONS");
-        result.StandardOutput.ShouldContain("Mean threshold hit for 'Benchmark.StringConcat'");
-        result.StandardOutput.ShouldContain("Mean threshold hit for 'Benchmark.StringJoin'");
+        result.ExitCode.Should().Be(3);
+        result.StandardOutput.Should().Contain("THRESHOLD VIOLATIONS");
+        result.StandardOutput.Should().Contain("Mean threshold hit for 'Benchmark.StringConcat'");
+        result.StandardOutput.Should().Contain("Mean threshold hit for 'Benchmark.StringJoin'");
     }
 
     [Fact]
@@ -37,8 +37,8 @@ public sealed class CompareThresholdTests
             "compare", "-b", baseline, "-t", target, "-tm", "5%");
 
         // Assert
-        result.ExitCode.ShouldBe(0);
-        result.StandardOutput.ShouldContain("THRESHOLD VIOLATIONS");
+        result.ExitCode.Should().Be(0);
+        result.StandardOutput.Should().Contain("THRESHOLD VIOLATIONS");
     }
 
     [Fact]
@@ -55,8 +55,8 @@ public sealed class CompareThresholdTests
 
 
         // Assert
-        result.ExitCode.ShouldBe(3);
-        result.StandardOutput.ShouldContain("THRESHOLD VIOLATIONS");
+        result.ExitCode.Should().Be(3);
+        result.StandardOutput.Should().Contain("THRESHOLD VIOLATIONS");
     }
 
     [Fact]
@@ -72,6 +72,6 @@ public sealed class CompareThresholdTests
 
 
         // Assert
-        result.ExitCode.ShouldBe(0);
+        result.ExitCode.Should().Be(0);
     }
 }

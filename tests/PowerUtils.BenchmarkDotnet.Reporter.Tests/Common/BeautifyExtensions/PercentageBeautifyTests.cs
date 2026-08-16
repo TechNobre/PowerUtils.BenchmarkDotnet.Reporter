@@ -16,7 +16,7 @@ public static class PercentageBeautifyTests
 
 
         // Assert
-        act.ShouldBeEmpty();
+        act.Should().BeEmpty();
     }
 
     [Theory]
@@ -31,6 +31,6 @@ public static class PercentageBeautifyTests
 
 
         // Assert
-        act.ShouldBe(expected);
+        act.Should().Be(expected);
     }
 }

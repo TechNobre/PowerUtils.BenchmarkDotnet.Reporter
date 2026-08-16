@@ -37,8 +37,8 @@ public sealed class WriteFileTests : IDisposable
 
 
         // Assert
-        File.Exists(path).ShouldBeTrue();
-        File.ReadAllText(path).ShouldBe(content);
+        File.Exists(path).Should().BeTrue();
+        File.ReadAllText(path).Should().Be(content);
     }
 
     [Fact]
@@ -49,10 +49,10 @@ public sealed class WriteFileTests : IDisposable
 
 
         // Act
-        void act() => IOHelpers.WriteFile(path, "Test content");
+        Action act = () => IOHelpers.WriteFile(path, "Test content");
 
 
         // Assert
-        Should.Throw<ArgumentNullException>(act);
+        act.Should().Throw<ArgumentNullException>();
     }
 }

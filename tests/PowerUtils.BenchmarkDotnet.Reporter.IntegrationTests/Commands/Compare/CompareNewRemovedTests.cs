@@ -18,12 +18,12 @@ public sealed class CompareNewRemovedTests
 
 
         // Assert
-        result.ExitCode.ShouldBe(0);
-        result.StandardOutput.ShouldContain("StringConcat");
-        result.StandardOutput.ShouldContain("[REMOVED]");
-        result.StandardOutput.ShouldContain("MethodTest");
-        result.StandardOutput.ShouldContain("[NEW]");
-        result.StandardOutput.ShouldContain("StringJoin");
-        result.StandardOutput.ShouldContain("-4.98%");
+        result.ExitCode.Should().Be(0);
+        result.StandardOutput.Should().Contain("StringConcat");
+        result.StandardOutput.Should().Contain("[REMOVED]");
+        result.StandardOutput.Should().Contain("MethodTest");
+        result.StandardOutput.Should().Contain("[NEW]");
+        result.StandardOutput.Should().Contain("StringJoin");
+        result.StandardOutput.Should().Contain("-4.98%");
     }
 }

@@ -17,6 +17,6 @@ public sealed class ComparableExtensionsTests
 
 
         // Assert
-        act.ShouldBe(expected);
+        act.Should().Be(expected);
     }
 }

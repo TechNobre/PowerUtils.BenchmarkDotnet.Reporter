@@ -27,7 +27,7 @@ public sealed class JsonExporterTests
 
 
         // Assert
-        _output.ShouldBe("""
+        _output.Should().Be("""
             {
               "Warnings": [],
               "Comparisons": [],
@@ -53,6 +53,6 @@ public sealed class JsonExporterTests
 
 
         // Assert
-        File.Exists(expectedFileName).ShouldBeTrue();
+        File.Exists(expectedFileName).Should().BeTrue();
     }
 }

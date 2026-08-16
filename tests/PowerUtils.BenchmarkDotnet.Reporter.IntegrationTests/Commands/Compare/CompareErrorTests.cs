@@ -18,8 +18,8 @@ public sealed class CompareErrorTests
 
 
         // Assert
-        result.ExitCode.ShouldNotBe(0);
-        result.StandardError.ShouldContain("doesn't exist or is not a .json file");
+        result.ExitCode.Should().NotBe(0);
+        result.StandardError.Should().Contain("doesn't exist or is not a .json file");
     }
 
     [Fact]
@@ -34,8 +34,8 @@ public sealed class CompareErrorTests
             "compare", "-b", baseline, "-t", "non-existent-target.json");
 
         // Assert
-        result.ExitCode.ShouldNotBe(0);
-        result.StandardError.ShouldContain("doesn't exist or is not a .json file");
+        result.ExitCode.Should().NotBe(0);
+        result.StandardError.Should().Contain("doesn't exist or is not a .json file");
     }
 
     [Fact]
@@ -52,7 +52,7 @@ public sealed class CompareErrorTests
 
 
         // Assert
-        result.ExitCode.ShouldNotBe(0);
+        result.ExitCode.Should().NotBe(0);
     }
 
     [Fact]
@@ -62,6 +62,6 @@ public sealed class CompareErrorTests
         var result = await ProcessRunner.RunAsync("compare");
 
         // Assert
-        result.ExitCode.ShouldNotBe(0);
+        result.ExitCode.Should().NotBe(0);
     }
 }

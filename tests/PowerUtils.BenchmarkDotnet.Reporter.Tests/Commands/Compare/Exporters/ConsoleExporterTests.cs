@@ -326,7 +326,7 @@ public sealed class ConsoleExporterTests : IDisposable
             .Split([' '], StringSplitOptions.RemoveEmptyEntries)[1]
             .Trim(' ', '[', ']');
 
-        methodColumn.ShouldBe(expected);
+        methodColumn.Should().Be(expected);
     }
 
     [Fact]
@@ -557,7 +557,7 @@ public sealed class ConsoleExporterTests : IDisposable
 
         for(var i = 0; i < expectedLines.Length; i++)
         {
-            lines[i].ShouldBe(expectedLines[i]);
+            lines[i].Should().Be(expectedLines[i]);
         }
     }
 }

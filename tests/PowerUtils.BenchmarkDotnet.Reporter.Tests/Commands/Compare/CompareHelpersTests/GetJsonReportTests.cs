@@ -37,7 +37,7 @@ public sealed class GetJsonReportTests : IDisposable
 
 
         // Assert
-        act.ShouldBe([path]);
+        act.Should().Equal(path);
     }
 
     [Theory]
@@ -47,12 +47,12 @@ public sealed class GetJsonReportTests : IDisposable
     public void When_Path_Isnt_Defined_Should_Throw_NotFoundException(string? path)
     {
         // Arrange & Act
-        string[] act() => CompareHelpers.GetJsonReport(path);
+        Action act = () => CompareHelpers.GetJsonReport(path);
 
 
         // Assert
-        Should.Throw<FileNotFoundException>(act)
-            .Message.ShouldContain("The provided path is null or empty");
+        act.Should().Throw<FileNotFoundException>()
+            .Which.Message.Should().Contain("The provided path is null or empty");
     }
 
     [Fact]
@@ -63,24 +63,24 @@ public sealed class GetJsonReportTests : IDisposable
 
 
         // Act
-        string[] act() => CompareHelpers.GetJsonReport(filePath);
+        Action act = () => CompareHelpers.GetJsonReport(filePath);
 
 
         // Assert
-        Should.Throw<FileNotFoundException>(act)
-            .Message.ShouldContain($"The provided path '{filePath}' doesn't exist or is not a {CompareHelpers.REPORT_FILE_ENDS} file");
+        act.Should().Throw<FileNotFoundException>()
+            .Which.Message.Should().Contain($"The provided path '{filePath}' doesn't exist or is not a {CompareHelpers.REPORT_FILE_ENDS} file");
     }
 
     [Fact]
     public void When_Directory_Doesnt_Exist_Should_Throw_FileNotFoundException()
     {
         // Arrange & Act
-        string[] act() => CompareHelpers.GetJsonReport(_tempDirectory);
+        Action act = () => CompareHelpers.GetJsonReport(_tempDirectory);
 
 
         // Assert
-        Should.Throw<FileNotFoundException>(act)
-            .Message.ShouldContain($"No {CompareHelpers.REPORT_FILE_ENDS} files found in the provided directory");
+        act.Should().Throw<FileNotFoundException>()
+            .Which.Message.Should().Contain($"No {CompareHelpers.REPORT_FILE_ENDS} files found in the provided directory");
     }
 
     [Fact]
@@ -91,12 +91,12 @@ public sealed class GetJsonReportTests : IDisposable
 
 
         // Act
-        string[] act() => CompareHelpers.GetJsonReport(path);
+        Action act = () => CompareHelpers.GetJsonReport(path);
 
 
         // Assert
-        Should.Throw<FileNotFoundException>(act)
-            .Message.ShouldContain($"The provided path '{path}' doesn't exist or is not a {CompareHelpers.REPORT_FILE_ENDS} file");
+        act.Should().Throw<FileNotFoundException>()
+            .Which.Message.Should().Contain($"The provided path '{path}' doesn't exist or is not a {CompareHelpers.REPORT_FILE_ENDS} file");
     }
 
     [Fact]
@@ -119,7 +119,7 @@ public sealed class GetJsonReportTests : IDisposable
         var expectedPaths = new[] { filePath1, filePath2 }
             .OrderBy(f => f)
             .ToArray();
-        act.ShouldBe(expectedPaths);
+        act.Should().Equal(expectedPaths);
     }
 
     [Fact]
@@ -134,16 +134,16 @@ public sealed class GetJsonReportTests : IDisposable
 
 
         // Assert
-        act.Length.ShouldBe(8);
+        act.Length.Should().Be(8);
 
-        act.ShouldContain(s => Path.GetFileName(s) == "Demo.Benchmarks.ArrayProcessorBenchmarks-report-brief.json");
-        act.ShouldContain(s => Path.GetFileName(s) == "Demo.Benchmarks.ArrayProcessorBenchmarks-report-brief-compressed.json");
-        act.ShouldContain(s => Path.GetFileName(s) == "Demo.Benchmarks.ArrayProcessorBenchmarks-report-full.json");
-        act.ShouldContain(s => Path.GetFileName(s) == "Demo.Benchmarks.ArrayProcessorBenchmarks-report-full-compressed.json");
+        act.Should().Contain(s => Path.GetFileName(s) == "Demo.Benchmarks.ArrayProcessorBenchmarks-report-brief.json");
+        act.Should().Contain(s => Path.GetFileName(s) == "Demo.Benchmarks.ArrayProcessorBenchmarks-report-brief-compressed.json");
+        act.Should().Contain(s => Path.GetFileName(s) == "Demo.Benchmarks.ArrayProcessorBenchmarks-report-full.json");
+        act.Should().Contain(s => Path.GetFileName(s) == "Demo.Benchmarks.ArrayProcessorBenchmarks-report-full-compressed.json");
 
-        act.ShouldContain(s => Path.GetFileName(s) == "Demo.Benchmarks.StringProcessorBenchmarks-report-brief.json");
-        act.ShouldContain(s => Path.GetFileName(s) == "Demo.Benchmarks.StringProcessorBenchmarks-report-brief-compressed.json");
-        act.ShouldContain(s => Path.GetFileName(s) == "Demo.Benchmarks.StringProcessorBenchmarks-report-full.json");
-        act.ShouldContain(s => Path.GetFileName(s) == "Demo.Benchmarks.StringProcessorBenchmarks-report-full-compressed.json");
+        act.Should().Contain(s => Path.GetFileName(s) == "Demo.Benchmarks.StringProcessorBenchmarks-report-brief.json");
+        act.Should().Contain(s => Path.GetFileName(s) == "Demo.Benchmarks.StringProcessorBenchmarks-report-brief-compressed.json");
+        act.Should().Contain(s => Path.GetFileName(s) == "Demo.Benchmarks.StringProcessorBenchmarks-report-full.json");
+        act.Should().Contain(s => Path.GetFileName(s) == "Demo.Benchmarks.StringProcessorBenchmarks-report-full-compressed.json");
     }
 }

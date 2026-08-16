@@ -25,7 +25,7 @@ public sealed class ComparerReportTests
 
 
         // Assert
-        report.Comparisons.ShouldBeEmpty();
+        report.Comparisons.Should().BeEmpty();
     }
 
     [Fact]
@@ -48,7 +48,7 @@ public sealed class ComparerReportTests
 
 
         // Assert
-        report.Comparisons.Count.ShouldBe(1);
+        report.Comparisons.Count.Should().Be(1);
     }
 
     [Fact]
@@ -71,6 +71,6 @@ public sealed class ComparerReportTests
 
 
         // Assert
-        report.Comparisons.Count.ShouldBe(1);
+        report.Comparisons.Count.Should().Be(1);
     }
 }

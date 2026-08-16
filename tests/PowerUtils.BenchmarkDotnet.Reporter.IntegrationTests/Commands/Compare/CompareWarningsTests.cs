@@ -18,9 +18,9 @@ public sealed class CompareWarningsTests
 
 
         // Assert
-        result.ExitCode.ShouldBe(0);
-        result.StandardOutput.ShouldContain("WARNINGS");
-        result.StandardOutput.ShouldContain("OS Version is different");
+        result.ExitCode.Should().Be(0);
+        result.StandardOutput.Should().Contain("WARNINGS");
+        result.StandardOutput.Should().Contain("OS Version is different");
     }
 
     [Fact]
@@ -36,7 +36,7 @@ public sealed class CompareWarningsTests
 
 
         // Assert
-        result.ExitCode.ShouldBe(2);
-        result.StandardOutput.ShouldContain("WARNINGS");
+        result.ExitCode.Should().Be(2);
+        result.StandardOutput.Should().Contain("WARNINGS");
     }
 }

@@ -28,11 +28,11 @@ public sealed class FormatOptionTests
         var option = _command.Options.Single(o => o.Name == "--format");
 
         // Assert
-        option.ValueType.ShouldBe(typeof(string[]));
-        option.Aliases.Count.ShouldBe(1);
-        option.Aliases.ShouldContain("-f");
-        option.Description.ShouldBe("Output format for the report.");
-        (option.GetDefaultValue() as string[]).ShouldBe(["console"]);
+        option.ValueType.Should().Be(typeof(string[]));
+        option.Aliases.Count.Should().Be(1);
+        option.Aliases.Should().Contain("-f");
+        option.Description.Should().Be("Output format for the report.");
+        (option.GetDefaultValue() as string[]).Should().Equal("console");
     }
 
     [Theory]
@@ -56,7 +56,7 @@ public sealed class FormatOptionTests
         var firstOptionResult = parseResult.GetResult(formatsOption);
 
         // Assert
-        firstOptionResult?.Errors.Count().ShouldBe(0);
+        firstOptionResult?.Errors.Count().Should().Be(0);
     }
 
     [Theory]
@@ -78,8 +78,8 @@ public sealed class FormatOptionTests
         var firstOptionResult = parseResult.GetResult(formatsOption);
 
         // Assert
-        firstOptionResult?.Errors.Count().ShouldBe(1);
-        firstOptionResult?.Errors.ShouldContain(e => e.Message == $"Invalid format '{format}'. Allowed values: console, markdown, json, hit-txt");
+        firstOptionResult?.Errors.Count().Should().Be(1);
+        firstOptionResult?.Errors.Should().Contain(e => e.Message == $"Invalid format '{format}'. Allowed values: console, markdown, json, hit-txt");
     }
 
     [Theory]
@@ -101,7 +101,7 @@ public sealed class FormatOptionTests
         var firstOptionResult = parseResult.GetResult(formatsOption);
 
         // Assert
-        firstOptionResult?.Errors.Count().ShouldBe(1);
-        firstOptionResult?.Errors.ShouldContain(e => e.Message == "Required argument missing for option: '--format'.");
+        firstOptionResult?.Errors.Count().Should().Be(1);
+        firstOptionResult?.Errors.Should().Contain(e => e.Message == "Required argument missing for option: '--format'.");
     }
 }

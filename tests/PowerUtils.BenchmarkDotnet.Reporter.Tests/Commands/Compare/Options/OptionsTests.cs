@@ -29,11 +29,11 @@ public sealed class OptionsTests
 
 
         // Assert
-        option.ValueType.ShouldBe(typeof(string));
-        option.Aliases.Count.ShouldBe(1);
-        option.Aliases.ShouldContain("-b");
-        option.Required.ShouldBeTrue();
-        option.Description.ShouldBe("Path to the folder or file with Baseline report.");
+        option.ValueType.Should().Be(typeof(string));
+        option.Aliases.Count.Should().Be(1);
+        option.Aliases.Should().Contain("-b");
+        option.Required.Should().BeTrue();
+        option.Description.Should().Be("Path to the folder or file with Baseline report.");
     }
 
     [Fact]
@@ -44,11 +44,11 @@ public sealed class OptionsTests
 
 
         // Assert
-        option.ValueType.ShouldBe(typeof(string));
-        option.Aliases.Count.ShouldBe(1);
-        option.Aliases.ShouldContain("-t");
-        option.Required.ShouldBeTrue();
-        option.Description.ShouldBe("Path to the folder or file with target reports.");
+        option.ValueType.Should().Be(typeof(string));
+        option.Aliases.Count.Should().Be(1);
+        option.Aliases.Should().Contain("-t");
+        option.Required.Should().BeTrue();
+        option.Description.Should().Be("Path to the folder or file with target reports.");
     }
 
     [Fact]
@@ -59,10 +59,10 @@ public sealed class OptionsTests
 
 
         // Assert
-        option.ValueType.ShouldBe(typeof(string));
-        option.Aliases.Count.ShouldBe(1);
-        option.Aliases.ShouldContain("-tm");
-        option.Description.ShouldBe("Throw an error when the mean threshold is met. Examples: 5%, 10ms, 10us, 100ns, 1s.");
+        option.ValueType.Should().Be(typeof(string));
+        option.Aliases.Count.Should().Be(1);
+        option.Aliases.Should().Contain("-tm");
+        option.Description.Should().Be("Throw an error when the mean threshold is met. Examples: 5%, 10ms, 10us, 100ns, 1s.");
     }
 
     [Fact]
@@ -73,10 +73,10 @@ public sealed class OptionsTests
 
 
         // Assert
-        option.ValueType.ShouldBe(typeof(string));
-        option.Aliases.Count.ShouldBe(1);
-        option.Aliases.ShouldContain("-ta");
-        option.Description.ShouldBe("Throw an error when the allocation threshold is met. Examples: 5%, 10b, 10kb, 100mb, 1gb.");
+        option.ValueType.Should().Be(typeof(string));
+        option.Aliases.Count.Should().Be(1);
+        option.Aliases.Should().Contain("-ta");
+        option.Description.Should().Be("Throw an error when the allocation threshold is met. Examples: 5%, 10b, 10kb, 100mb, 1gb.");
     }
 
     [Fact]
@@ -87,11 +87,11 @@ public sealed class OptionsTests
 
 
         // Assert
-        option.ValueType.ShouldBe(typeof(string));
-        option.Aliases.Count.ShouldBe(1);
-        option.Aliases.ShouldContain("-o");
-        option.Description.ShouldBe("Output directory to export the diff report. Default is current directory.");
-        (option.GetDefaultValue() as string).ShouldBe("./BenchmarkReporter");
+        option.ValueType.Should().Be(typeof(string));
+        option.Aliases.Count.Should().Be(1);
+        option.Aliases.Should().Contain("-o");
+        option.Description.Should().Be("Output directory to export the diff report. Default is current directory.");
+        (option.GetDefaultValue() as string).Should().Be("./BenchmarkReporter");
     }
 
     [Fact]
@@ -102,12 +102,12 @@ public sealed class OptionsTests
 
 
         // Assert
-        option.ValueType.ShouldBe(typeof(bool));
-        option.Aliases.Count.ShouldBe(1);
-        option.Aliases.ShouldContain("-ft");
-        option.Required.ShouldBeFalse();
-        option.Description.ShouldBe("Exit with error code when any threshold is hit during comparison.");
-        Convert.ToBoolean(option.GetDefaultValue()).ShouldBe(false);
+        option.ValueType.Should().Be(typeof(bool));
+        option.Aliases.Count.Should().Be(1);
+        option.Aliases.Should().Contain("-ft");
+        option.Required.Should().BeFalse();
+        option.Description.Should().Be("Exit with error code when any threshold is hit during comparison.");
+        Convert.ToBoolean(option.GetDefaultValue()).Should().Be(false);
     }
 
     [Fact]
@@ -118,11 +118,11 @@ public sealed class OptionsTests
 
 
         // Assert
-        option.ValueType.ShouldBe(typeof(bool));
-        option.Aliases.Count.ShouldBe(1);
-        option.Aliases.ShouldContain("-fw");
-        option.Required.ShouldBeFalse();
-        option.Description.ShouldBe("Exit with error code when the comparison generates any warnings.");
-        Convert.ToBoolean(option.GetDefaultValue()).ShouldBe(false);
+        option.ValueType.Should().Be(typeof(bool));
+        option.Aliases.Count.Should().Be(1);
+        option.Aliases.Should().Contain("-fw");
+        option.Required.Should().BeFalse();
+        option.Description.Should().Be("Exit with error code when the comparison generates any warnings.");
+        Convert.ToBoolean(option.GetDefaultValue()).Should().Be(false);
     }
 }

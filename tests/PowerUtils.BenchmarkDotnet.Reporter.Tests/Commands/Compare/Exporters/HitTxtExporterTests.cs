@@ -32,7 +32,7 @@ public sealed class HitTxtExporterTests
 
 
         // Assert
-        _output.ShouldBeEmpty();
+        _output.Should().BeEmpty();
     }
 
 
@@ -54,9 +54,9 @@ public sealed class HitTxtExporterTests
 
 
         // Assert
-        _output[0].ShouldBe("Warning 1");
-        _output[1].ShouldBe("Warning 2");
-        _output[2].ShouldBe("");
+        _output[0].Should().Be("Warning 1");
+        _output[1].Should().Be("Warning 2");
+        _output[2].Should().Be("");
     }
 
     [Fact]
@@ -78,10 +78,10 @@ public sealed class HitTxtExporterTests
 
 
         // Assert
-        _output[0].ShouldBe("hit1");
-        _output[1].ShouldBe("hit2");
-        _output[2].ShouldBe("hit3");
-        _output[3].ShouldBe("");
+        _output[0].Should().Be("hit1");
+        _output[1].Should().Be("hit2");
+        _output[2].Should().Be("hit3");
+        _output[3].Should().Be("");
     }
 
     [Fact]
@@ -105,10 +105,10 @@ public sealed class HitTxtExporterTests
 
 
         // Assert
-        _output[0].ShouldBe("Warning 2");
-        _output[1].ShouldBe("hit1");
-        _output[2].ShouldBe("hit3");
-        _output[3].ShouldBe("");
+        _output[0].Should().Be("Warning 2");
+        _output[1].Should().Be("hit1");
+        _output[2].Should().Be("hit3");
+        _output[3].Should().Be("");
     }
 
     [Fact]
@@ -131,6 +131,6 @@ public sealed class HitTxtExporterTests
 
 
         // Assert
-        File.Exists(expectedFileName).ShouldBeTrue();
+        File.Exists(expectedFileName).Should().BeTrue();
     }
 }

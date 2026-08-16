@@ -41,7 +41,7 @@ public sealed class ReadJsonBenchmarkReportsTests : IDisposable
 
 
         // Assert
-        act.ShouldNotBeNull();
+        act.Should().NotBeNull();
     }
 
     [Fact]
@@ -57,8 +57,8 @@ public sealed class ReadJsonBenchmarkReportsTests : IDisposable
 
 
         // Assert
-        act.FilePath.ShouldBe(path);
-        act.FileName.ShouldBe(fileName);
+        act.FilePath.Should().Be(path);
+        act.FileName.Should().Be(fileName);
     }
 
     [Fact]
@@ -80,12 +80,12 @@ public sealed class ReadJsonBenchmarkReportsTests : IDisposable
 
 
         // Act
-        JsonBenchmarkReports[] act() => CompareHelpers.ReadJsonBenchmarkReports(filePath);
+        Action act = () => CompareHelpers.ReadJsonBenchmarkReports(filePath);
 
 
         // Assert
-        Should.Throw<InvalidOperationException>(act)
-            .Message.ShouldStartWith($"Failed to deserialize the file '{filePath}'. ");
+        act.Should().Throw<InvalidOperationException>()
+            .Which.Message.Should().StartWith($"Failed to deserialize the file '{filePath}'. ");
     }
 
     [Fact]
@@ -107,7 +107,7 @@ public sealed class ReadJsonBenchmarkReportsTests : IDisposable
 
 
         // Assert
-        act.Benchmarks.ShouldBeNull();
+        act.Benchmarks.Should().BeNull();
     }
 
     [Fact]
@@ -125,31 +125,31 @@ public sealed class ReadJsonBenchmarkReportsTests : IDisposable
         // Assert
         foreach(var benchmark in act.Benchmarks ?? [])
         {
-            benchmark.Header.ShouldNotBeNull();
-            benchmark.Header.FilePath.ShouldBe(act.FilePath);
-            benchmark.Header.FileName.ShouldBe(act.FileName);
-            benchmark.Header.Title.ShouldBe(act.Title);
+            benchmark.Header.Should().NotBeNull();
+            benchmark.Header!.FilePath.Should().Be(act.FilePath);
+            benchmark.Header.FileName.Should().Be(act.FileName);
+            benchmark.Header.Title.Should().Be(act.Title);
 
-            benchmark.Header.HostEnvironmentInfo.ShouldNotBeNull();
-            benchmark.Header.HostEnvironmentInfo.BenchmarkDotNetCaption.ShouldBe(act.HostEnvironmentInfo?.BenchmarkDotNetCaption);
-            benchmark.Header.HostEnvironmentInfo.BenchmarkDotNetVersion.ShouldBe(act.HostEnvironmentInfo?.BenchmarkDotNetVersion);
-            benchmark.Header.HostEnvironmentInfo.OsVersion.ShouldBe(act.HostEnvironmentInfo?.OsVersion);
-            benchmark.Header.HostEnvironmentInfo.ProcessorName.ShouldBe(act.HostEnvironmentInfo?.ProcessorName);
-            benchmark.Header.HostEnvironmentInfo.PhysicalProcessorCount.ShouldBe(act.HostEnvironmentInfo?.PhysicalProcessorCount);
-            benchmark.Header.HostEnvironmentInfo.PhysicalCoreCount.ShouldBe(act.HostEnvironmentInfo?.PhysicalCoreCount);
-            benchmark.Header.HostEnvironmentInfo.LogicalCoreCount.ShouldBe(act.HostEnvironmentInfo?.LogicalCoreCount);
-            benchmark.Header.HostEnvironmentInfo.RuntimeVersion.ShouldBe(act.HostEnvironmentInfo?.RuntimeVersion);
-            benchmark.Header.HostEnvironmentInfo.Architecture.ShouldBe(act.HostEnvironmentInfo?.Architecture);
-            benchmark.Header.HostEnvironmentInfo.HasAttachedDebugger.ShouldBe(act.HostEnvironmentInfo?.HasAttachedDebugger);
-            benchmark.Header.HostEnvironmentInfo.HasRyuJit.ShouldBe(act.HostEnvironmentInfo?.HasRyuJit);
-            benchmark.Header.HostEnvironmentInfo.Configuration.ShouldBe(act.HostEnvironmentInfo?.Configuration);
-            benchmark.Header.HostEnvironmentInfo.JitModules.ShouldBe(act.HostEnvironmentInfo?.JitModules);
-            benchmark.Header.HostEnvironmentInfo.DotNetCliVersion.ShouldBe(act.HostEnvironmentInfo?.DotNetCliVersion);
+            benchmark.Header.HostEnvironmentInfo.Should().NotBeNull();
+            benchmark.Header.HostEnvironmentInfo!.BenchmarkDotNetCaption.Should().Be(act.HostEnvironmentInfo?.BenchmarkDotNetCaption);
+            benchmark.Header.HostEnvironmentInfo.BenchmarkDotNetVersion.Should().Be(act.HostEnvironmentInfo?.BenchmarkDotNetVersion);
+            benchmark.Header.HostEnvironmentInfo.OsVersion.Should().Be(act.HostEnvironmentInfo?.OsVersion);
+            benchmark.Header.HostEnvironmentInfo.ProcessorName.Should().Be(act.HostEnvironmentInfo?.ProcessorName);
+            benchmark.Header.HostEnvironmentInfo.PhysicalProcessorCount.Should().Be(act.HostEnvironmentInfo?.PhysicalProcessorCount);
+            benchmark.Header.HostEnvironmentInfo.PhysicalCoreCount.Should().Be(act.HostEnvironmentInfo?.PhysicalCoreCount);
+            benchmark.Header.HostEnvironmentInfo.LogicalCoreCount.Should().Be(act.HostEnvironmentInfo?.LogicalCoreCount);
+            benchmark.Header.HostEnvironmentInfo.RuntimeVersion.Should().Be(act.HostEnvironmentInfo?.RuntimeVersion);
+            benchmark.Header.HostEnvironmentInfo.Architecture.Should().Be(act.HostEnvironmentInfo?.Architecture);
+            benchmark.Header.HostEnvironmentInfo.HasAttachedDebugger.Should().Be(act.HostEnvironmentInfo?.HasAttachedDebugger);
+            benchmark.Header.HostEnvironmentInfo.HasRyuJit.Should().Be(act.HostEnvironmentInfo?.HasRyuJit);
+            benchmark.Header.HostEnvironmentInfo.Configuration.Should().Be(act.HostEnvironmentInfo?.Configuration);
+            benchmark.Header.HostEnvironmentInfo.JitModules.Should().Be(act.HostEnvironmentInfo?.JitModules);
+            benchmark.Header.HostEnvironmentInfo.DotNetCliVersion.Should().Be(act.HostEnvironmentInfo?.DotNetCliVersion);
 
-            benchmark.Header.HostEnvironmentInfo.ChronometerFrequency.ShouldNotBeNull();
-            ((int?)benchmark.Header.HostEnvironmentInfo.ChronometerFrequency.Hertz).ShouldBe(act.HostEnvironmentInfo?.ChronometerFrequency?.Hertz);
+            benchmark.Header.HostEnvironmentInfo.ChronometerFrequency.Should().NotBeNull();
+            ((int?)benchmark.Header.HostEnvironmentInfo.ChronometerFrequency!.Hertz).Should().Be(act.HostEnvironmentInfo?.ChronometerFrequency?.Hertz);
 
-            benchmark.Header.HostEnvironmentInfo.HardwareTimerKind.ShouldBe(act.HostEnvironmentInfo?.HardwareTimerKind);
+            benchmark.Header.HostEnvironmentInfo.HardwareTimerKind.Should().Be(act.HostEnvironmentInfo?.HardwareTimerKind);
         }
     }
 }

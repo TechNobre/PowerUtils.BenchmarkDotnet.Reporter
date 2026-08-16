@@ -213,7 +213,7 @@ Code formatting conventions are enforced by `.editorconfig` (UTF-8, 4-space inde
 
 - Use **xUnit** for unit tests.
 - Use **NSubstitute** for mocking dependencies in unit tests.
-- Use **Shouldly** for assertions in unit tests.
+- Use **AwesomeAssertions** for assertions in unit tests.
 - Follow the AAA (Arrange-Act-Assert) pattern in unit tests.
 - Use descriptive test method names that clearly indicate the scenario being tested and the expected outcome. Example `When_Json_Only_Contains_Two_Benchmark_Should_Return_Two_Record()`
 - Use a CamelCase naming convention for test methods, starting with `When_*_Should_*` or `Given_*_Should_*` to describe the context, followed by the expected behavior.

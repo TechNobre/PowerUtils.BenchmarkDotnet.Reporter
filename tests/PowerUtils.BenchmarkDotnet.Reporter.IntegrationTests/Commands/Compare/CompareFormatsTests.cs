@@ -21,14 +21,14 @@ public sealed class CompareFormatsTests
 
 
         // Assert
-        result.ExitCode.ShouldBe(0);
+        result.ExitCode.Should().Be(0);
 
         var reportPath = output.CombinePath("benchmark-comparison-report.md");
-        File.Exists(reportPath).ShouldBeTrue();
+        File.Exists(reportPath).Should().BeTrue();
 
         var content = await File.ReadAllTextAsync(reportPath);
-        content.ShouldContain("# BENCHMARK COMPARISON REPORT");
-        content.ShouldContain("StringConcat");
+        content.Should().Contain("# BENCHMARK COMPARISON REPORT");
+        content.Should().Contain("StringConcat");
     }
 
     [Fact]
@@ -46,14 +46,14 @@ public sealed class CompareFormatsTests
 
 
         // Assert
-        result.ExitCode.ShouldBe(0);
+        result.ExitCode.Should().Be(0);
 
         var reportPath = output.CombinePath("benchmark-comparison-report.json");
-        File.Exists(reportPath).ShouldBeTrue();
+        File.Exists(reportPath).Should().BeTrue();
 
         var content = await File.ReadAllTextAsync(reportPath);
-        content.ShouldContain("\"Comparisons\"");
-        content.ShouldContain("StringConcat");
+        content.Should().Contain("\"Comparisons\"");
+        content.Should().Contain("StringConcat");
     }
 
     [Fact]
@@ -71,13 +71,13 @@ public sealed class CompareFormatsTests
 
 
         // Assert
-        result.ExitCode.ShouldBe(0);
+        result.ExitCode.Should().Be(0);
 
         var hitsPath = output.CombinePath("benchmark-comparison-hits.txt");
-        File.Exists(hitsPath).ShouldBeTrue();
+        File.Exists(hitsPath).Should().BeTrue();
 
         var content = await File.ReadAllTextAsync(hitsPath);
-        content.ShouldContain("Mean threshold hit for 'Benchmark.StringConcat'");
+        content.Should().Contain("Mean threshold hit for 'Benchmark.StringConcat'");
     }
 
     [Fact]
@@ -95,10 +95,10 @@ public sealed class CompareFormatsTests
 
 
         // Assert
-        result.ExitCode.ShouldBe(0);
+        result.ExitCode.Should().Be(0);
 
         var hitsPath = output.CombinePath("benchmark-comparison-hits.txt");
-        File.Exists(hitsPath).ShouldBeFalse();
+        File.Exists(hitsPath).Should().BeFalse();
     }
 
     [Fact]
@@ -117,8 +117,8 @@ public sealed class CompareFormatsTests
 
 
         // Assert
-        result.ExitCode.ShouldBe(0);
-        File.Exists(output.CombinePath("benchmark-comparison-report.md")).ShouldBeTrue();
-        File.Exists(output.CombinePath("benchmark-comparison-report.json")).ShouldBeTrue();
+        result.ExitCode.Should().Be(0);
+        File.Exists(output.CombinePath("benchmark-comparison-report.md")).Should().BeTrue();
+        File.Exists(output.CombinePath("benchmark-comparison-report.json")).Should().BeTrue();
     }
 }
