@@ -170,5 +170,5 @@ jobs:
           /d:sonar.externalIssuesReportPaths="${{ github.workspace }}/mutations/reports/mutation-sonar.json" \
           /s:"$(pwd)/SonarQube.Analysis.xml"
         dotnet build -c Release --no-incremental
-        dotnet test -c Release --no-restore --no-build --results-directory "${{ github.workspace }}/coverage-results" -- --report-xunit-trx --coverage --coverage-output-format xml
+        dotnet test -c Release --no-restore --no-build --results-directory "${{ github.workspace }}/coverage-results" -- --report-trx --coverage --coverage-output-format xml
         ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="$SONAR_TOKEN"
