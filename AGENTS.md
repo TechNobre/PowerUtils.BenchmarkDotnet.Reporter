@@ -90,7 +90,7 @@ dotnet run --project src -- compare -b <baseline.json> -t <target.json>
 dotnet test
 
 # Run tests with coverage
-dotnet test --collect:"XPlat Code Coverage"
+dotnet test -- --coverage --coverage-output-format cobertura
 
 # Run a single test class or method
 dotnet test --filter "FullyQualifiedName~<TestClassName>"
@@ -99,7 +99,7 @@ dotnet test --filter "FullyQualifiedName~<TestClassName>"
 dotnet tool restore
 dotnet restore
 dotnet build --no-restore
-dotnet stryker -tp tests/PowerUtils.BenchmarkDotnet.Reporter.Tests/PowerUtils.BenchmarkDotnet.Reporter.Tests.csproj -p PowerUtils.BenchmarkDotnet.Reporter.csproj --reporter json --reporter cleartext --reporter html -o
+dotnet stryker -tp tests/PowerUtils.BenchmarkDotnet.Reporter.Tests/PowerUtils.BenchmarkDotnet.Reporter.Tests.csproj -p PowerUtils.BenchmarkDotnet.Reporter.csproj --test-runner mtp --reporter json --reporter cleartext --reporter html -o
 
 # Or
 ./stryker.bat

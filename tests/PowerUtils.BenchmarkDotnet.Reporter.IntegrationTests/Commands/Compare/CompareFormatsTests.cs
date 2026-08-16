@@ -26,7 +26,7 @@ public sealed class CompareFormatsTests
         var reportPath = output.CombinePath("benchmark-comparison-report.md");
         File.Exists(reportPath).Should().BeTrue();
 
-        var content = await File.ReadAllTextAsync(reportPath);
+        var content = await File.ReadAllTextAsync(reportPath, TestContext.Current.CancellationToken);
         content.Should().Contain("# BENCHMARK COMPARISON REPORT");
         content.Should().Contain("StringConcat");
     }
@@ -51,7 +51,7 @@ public sealed class CompareFormatsTests
         var reportPath = output.CombinePath("benchmark-comparison-report.json");
         File.Exists(reportPath).Should().BeTrue();
 
-        var content = await File.ReadAllTextAsync(reportPath);
+        var content = await File.ReadAllTextAsync(reportPath, TestContext.Current.CancellationToken);
         content.Should().Contain("\"Comparisons\"");
         content.Should().Contain("StringConcat");
     }
@@ -76,7 +76,7 @@ public sealed class CompareFormatsTests
         var hitsPath = output.CombinePath("benchmark-comparison-hits.txt");
         File.Exists(hitsPath).Should().BeTrue();
 
-        var content = await File.ReadAllTextAsync(hitsPath);
+        var content = await File.ReadAllTextAsync(hitsPath, TestContext.Current.CancellationToken);
         content.Should().Contain("Mean threshold hit for 'Benchmark.StringConcat'");
     }
 
