@@ -53,13 +53,13 @@ public sealed record CompareOptions
 
         option.Validators.Add(static result =>
         {
-            var values = result.Tokens.Select(token => token.Value);
-            foreach(var value in values)
+            var values = result.Tokens
+                .Select(token => token.Value)
+                .Where(value => !ExporterFormats.All.Contains(value));
+
+            foreach (var value in values)
             {
-                if(!ExporterFormats.All.Contains(value))
-                {
-                    result.AddError($"Invalid format '{value}'. Allowed values: {string.Join(", ", ExporterFormats.All)}");
-                }
+                result.AddError($"Invalid format '{value}'. Allowed values: {string.Join(", ", ExporterFormats.All)}");
             }
         });
 
