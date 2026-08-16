@@ -41,7 +41,7 @@ public sealed class EvaluateThresholdsTests
     }
 
     [Fact]
-    public void Should_Register_Thrashold_Values_Above_Setted_PercentsThrashold()
+    public void When_Diffs_Exceed_Percentage_Thresholds_Should_Register_Hits()
     {
         // Arrange
         var report = new ComparerReport();
