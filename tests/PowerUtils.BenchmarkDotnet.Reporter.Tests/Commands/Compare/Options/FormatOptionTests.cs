@@ -43,12 +43,9 @@ public sealed class FormatOptionTests
     public void When_Format_Is_Valid_Shouldnt_Have_Validation_Error(string format)
     {
         // Arrange
-        var command = "compare";
         var option = "--format";
 
-        //var toolCommands = new ToolCommands(_provider);
         var formatsOption = _command.Options.Single(o => o.Name == option);
-        var validation = formatsOption.Validators.Single();
 
 
         // Act
@@ -66,15 +63,13 @@ public sealed class FormatOptionTests
     public void When_Format_Is_Invalid_Should_Have_Validation_Error(string format)
     {
         // Arrange
-        var command = "compare";
         var option = "--format";
 
         var formatsOption = _command.Options.Single(o => o.Name == option);
-        var validation = formatsOption.Validators.Single();
 
 
         // Act
-        var parseResult = _command.Parse($"{command} {option} {format}");
+        var parseResult = _command.Parse($"{option} {format}");
         var firstOptionResult = parseResult.GetResult(formatsOption);
 
         // Assert
@@ -89,15 +84,13 @@ public sealed class FormatOptionTests
     public void When_Format_Isnt_Defined_Should_Have_Validation_Error(string? format)
     {
         // Arrange
-        var command = "compare";
         var option = "--format";
 
         var formatsOption = _command.Options.Single(o => o.Name == option);
-        var validation = formatsOption.Validators.Single();
 
 
         // Act
-        var parseResult = _command.Parse($"{command} {option} {format}");
+        var parseResult = _command.Parse($"{option} {format}");
         var firstOptionResult = parseResult.GetResult(formatsOption);
 
         // Assert
