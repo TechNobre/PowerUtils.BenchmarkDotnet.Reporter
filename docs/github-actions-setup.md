@@ -167,7 +167,7 @@ jobs:
     ...
 ```
 
-> In the example above, the `Run benchmarks compare` step will only execute if the cache was successfully restored. The tool is installed unconditionally since it might be needed for other purposes or future runs.
+> In the example above, both the `Install PowerUtils.BenchmarkDotnet.Reporter` and `Run benchmarks compare` steps are conditional on a successful cache restore. On the first run there is no cache yet, so both steps are skipped; subsequent runs restore from cache and execute normally.
 
 
 ### Tool Installation

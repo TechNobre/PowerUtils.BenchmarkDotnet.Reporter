@@ -98,7 +98,7 @@ dotnet test --filter "FullyQualifiedName~<TestClassName>"
 # Run mutation tests
 dotnet tool restore
 dotnet restore
-dotnet dotnet build --no-restore
+dotnet build --no-restore
 dotnet stryker -tp tests/PowerUtils.BenchmarkDotnet.Reporter.Tests/PowerUtils.BenchmarkDotnet.Reporter.Tests.csproj -p PowerUtils.BenchmarkDotnet.Reporter.csproj --reporter json --reporter cleartext --reporter html -o
 
 # Or
@@ -115,8 +115,7 @@ src/
   Commands/
     ComparerCommand.cs  - Core comparison logic: reads reports, matches by FullName, computes MetricComparison for each benchmark, applies thresholds, dispatches to exporters
   Models/
-    FullJsonResport.cs  - Deserialized BenchmarkDotNet JSON schema (root)
-    BenchmarkResport.cs - Deserialized single-benchmark entry (incl. host environment)
+    FullJsonResport.cs  - Deserialized BenchmarkDotNet JSON schema (root and per-benchmark entry models)
     ComparerReport.cs   - Output model: Warnings, Comparisons, HitThresholds
     MetricComparison.cs - Computes Diff/DiffPercentage/Status for a single metric
     ComparisonStatus.cs - Enum: Better | Worse | Equal | New | Removed
