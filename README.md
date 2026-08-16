@@ -67,7 +67,7 @@ dotnet tool install --global PowerUtils.BenchmarkDotnet.Reporter
 dotnet tool update PowerUtils.BenchmarkDotnet.Reporter
 ```
 
-**Update Tool**
+**Globally**
 ```bash
 dotnet tool update --global PowerUtils.BenchmarkDotnet.Reporter
 ```
@@ -199,7 +199,7 @@ pbreporter compare -b baseline-full.json -t target-full.json
 * (`-ta`, `--threshold-allocation`) `<threshold-allocation>`: Throw an error when the allocation threshold is met. Examples: 5%, 10b, 10kb, 100mb, 1gb.
 * (`-f`, `--format`) `<console|hit-txt|json|markdown>`: Output format for the report. **[default: console]**
 * (`-o`, `--output`) `<output>`: Output directory to export the diff report. Default is current directory. **[default: ./BenchmarkReporter]**
-* (`-fw`, `--fail-on-warnings`): Exit with error code when any threshold is hit during comparison. **[default: disabled]**
+* (`-fw`, `--fail-on-warnings`): Exit with error code when any warnings are generated during comparison (e.g., mismatched host environments). **[default: disabled]**
 * (`-ft`, `--fail-on-threshold-hit`): Exit with error code when any threshold is hit during comparison. **[default: disabled]**
 * (`-?`, `-h`, `--help`): Show help and usage information
 
@@ -271,6 +271,20 @@ pbreporter compare -b baseline-full.json -t target-full.json -f markdown
 pbreporter compare -b baseline-full.json -t target-full.json -f json -f markdown -f console
 ```
 
+##### Output Metrics
+
+The comparison report includes the following metrics for each benchmark:
+
+| Metric | Description |
+|--------|-------------|
+| **Mean** | Execution time diff (nanoseconds, scaled for display) |
+| **Gen0** | Gen0 garbage collections per 1,000 operations |
+| **Gen1** | Gen1 garbage collections per 1,000 operations |
+| **Gen2** | Gen2 garbage collections per 1,000 operations |
+| **Allocated** | Memory allocation diff (bytes, scaled for display) |
+
+> Note: GC collection columns (Gen0, Gen1, Gen2) are only shown when at least one benchmark in the report has non-zero GC data. The `json` format always includes `Gen0Collections`, `Gen1Collections`, and `Gen2Collections` fields in each comparison object.
+
 ##### Error Handling Options
 
 The tool provides options to control exit codes for CI/CD integration and automated quality gates.
@@ -279,25 +293,25 @@ The tool provides options to control exit codes for CI/CD integration and automa
 ```bash
 pbreporter compare -b baseline-full.json -t target-full.json -fw
 ```
-> Note: Exits with code 1 if any warnings are generated during comparison (e.g., environment differences between baseline and target).
+> Note: Exits with code 2 if any warnings are generated during comparison (e.g., environment differences between baseline and target).
 
 **Fail on threshold hits**
 ```bash
 pbreporter compare -b baseline-full.json -t target-full.json -tm 5% -ta 10% -ft
 ```
-> Note: Exits with code 2 if any performance thresholds are exceeded during comparison.
+> Note: Exits with code 3 if any performance thresholds are exceeded during comparison.
 
 **Both error handling options**
 ```bash
 pbreporter compare -b baseline-full.json -t target-full.json -tm 5% -fw -ft
 ```
-> Note: If both conditions are met, warnings take priority and the tool exits with code 1.
+> Note: If both conditions are met, warnings take priority and the tool exits with code 2.
 
 ###### Exit Codes
 
 * **0**: Success - No issues detected
-* **1**: Warnings detected (when `--fail-on-warnings` is enabled)
-* **2**: Performance thresholds exceeded (when `--fail-on-threshold-hit` is enabled)
+* **2**: Warnings detected (when `--fail-on-warnings` is enabled)
+* **3**: Performance thresholds exceeded (when `--fail-on-threshold-hit` is enabled)
 
 
 ## GitHub Actions Setup
