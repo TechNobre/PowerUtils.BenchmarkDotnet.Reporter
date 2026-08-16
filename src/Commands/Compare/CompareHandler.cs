@@ -59,7 +59,7 @@ public sealed class CompareHandler(
         {
             // Generate the final report using the specified exporter
             _provider
-                .GetRequiredKeyedService<IExporter>(format.ToLower())
+                .GetRequiredKeyedService<IExporter>(format.ToLowerInvariant())
                 .Generate(report, options.Output);
         }
 

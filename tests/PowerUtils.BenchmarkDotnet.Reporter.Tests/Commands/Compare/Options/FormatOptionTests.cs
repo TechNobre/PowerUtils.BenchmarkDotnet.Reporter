@@ -52,7 +52,7 @@ public sealed class FormatOptionTests
 
 
         // Act
-        var parseResult = _command.Parse($"{command} {option} {format}");
+        var parseResult = _command.Parse($"{option} {format}");
         var firstOptionResult = parseResult.GetResult(formatsOption);
 
         // Assert
