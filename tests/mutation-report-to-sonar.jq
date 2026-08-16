@@ -2,9 +2,38 @@
 
 .framework.name as $frameworkName
 | .projectRoot as $projectRoot
+| ($frameworkName // "Mutation Testing") as $engineId
 | .files
 | to_entries
 | {
+    rules: [
+        {
+            id: "MutantSurvived",
+            name: "Surviving mutant",
+            description: "A mutant survived after running the tests, which means the tests do not detect the introduced change.",
+            engineId: $engineId,
+            cleanCodeAttribute: "TESTED",
+            impacts: [
+                {
+                    softwareQuality: "MAINTAINABILITY",
+                    severity: "MEDIUM"
+                }
+            ]
+        },
+        {
+            id: "MutantNoCoverage",
+            name: "Uncovered mutant",
+            description: "A mutant was not covered by any of the tests.",
+            engineId: $engineId,
+            cleanCodeAttribute: "TESTED",
+            impacts: [
+                {
+                    softwareQuality: "MAINTAINABILITY",
+                    severity: "LOW"
+                }
+            ]
+        }
+    ],
     issues: map(
         .value.mutants[] as $mutants
         | del(.value) as $file
@@ -18,8 +47,8 @@
             end
         ) as $mutation
         | {
-            engineId: ($frameworkName // "Mutation Testing"),
             ruleId: ("Mutant" + .status),
+            effortMinutes: 10,
             primaryLocation: {
                 message: (
                     if .status == "NoCoverage" then
@@ -41,10 +70,7 @@
                     startColumn: (.location.start.column - 1),
                     endColumn: (.location.end.column - 1)
                 }
-            },
-            type: "CODE_SMELL",
-            severity: "MAJOR",
-            effortMinutes: 10
+            }
         }
     )
 }
