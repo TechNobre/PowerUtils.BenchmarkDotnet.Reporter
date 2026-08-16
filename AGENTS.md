@@ -163,7 +163,7 @@ Commits are enforced by a git hook (auto-copied to `.git/hooks/` on build).
 
 Follow the conventions in
 - [@CONTRIBUTING.md](CONTRIBUTING.md)
-- [@.agents/skills/git-commit/SKILL.md](.agents/skills/git-commit/SKILL.md)
+- [@.claude/skills/git-commit/SKILL.md](.claude/skills/git-commit/SKILL.md)
 
 
 ## Code Style
