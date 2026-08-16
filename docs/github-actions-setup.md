@@ -167,7 +167,7 @@ jobs:
     ...
 ```
 
-> In the example above, both the `Install PowerUtils.BenchmarkDotnet.Reporter` and `Run benchmarks compare` steps are conditional on a successful cache restore. On the first run there is no cache yet, so both steps are skipped; subsequent runs restore from cache and execute normally.
+> In the example above, both the `Install PowerUtils.BenchmarkDotnet.Reporter` and `Run benchmarks compare` steps are conditional on a successful cache restore. When there is no cache match (e.g., first run or a cache miss), both steps are skipped; when a cache entry is restored, they execute normally.
 
 
 ### Tool Installation
