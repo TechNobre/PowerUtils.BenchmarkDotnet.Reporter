@@ -9,7 +9,6 @@
     <AssemblyName>PowerUtils.BenchmarkDotnet.Reporter.IntegrationTests</AssemblyName>
 
     <IsPackable>false</IsPackable>
-
     <Nullable>enable</Nullable>
   </PropertyGroup>
 

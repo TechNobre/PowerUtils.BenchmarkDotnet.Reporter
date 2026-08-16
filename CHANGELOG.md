@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.5.1...v1.6.0) (2026-08-16)
+
+
+### Features
+
+* **skills:** add skill to dotnet vulnerabilities manager ([76d44e8](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/commit/76d44e804f0bf7d9d32bd54b20f22a8eb3cde384))
+
 ## [1.5.1](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.5.0...v1.5.1) (2026-03-06)
 
 
