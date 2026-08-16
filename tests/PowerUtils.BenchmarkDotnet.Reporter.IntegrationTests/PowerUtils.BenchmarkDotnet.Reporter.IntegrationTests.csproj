@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
 
-    <RootNamespace>PowerUtils.BenchmarkDotnet.Reporter.Tests</RootNamespace>
-    <AssemblyName>PowerUtils.BenchmarkDotnet.Reporter.Tests</AssemblyName>
+    <RootNamespace>PowerUtils.BenchmarkDotnet.Reporter.IntegrationTests</RootNamespace>
+    <AssemblyName>PowerUtils.BenchmarkDotnet.Reporter.IntegrationTests</AssemblyName>
 
     <IsPackable>false</IsPackable>
 
@@ -17,18 +17,9 @@
     <DefaultItemExcludes>$(DefaultItemExcludes);coverage.*opencover.xml</DefaultItemExcludes>
   </PropertyGroup>
 
-  <!-- Skipped on git worktrees, where '.git' is a file instead of a directory -->
-  <Target Name="CopyHook" AfterTargets="AfterBuild" Condition="'$(GITHUB_ACTIONS)' != 'true' AND Exists('$(MSBuildThisFileDirectory)../../.git/hooks')">
-    <ItemGroup>
-      <CommitHookFile Include="../../.github/hooks/commit-msg" />
-    </ItemGroup>
-    <Copy SourceFiles="@(CommitHookFile)" DestinationFolder="../../.git/hooks" />
-  </Target>
-
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
-    <PackageReference Include="NSubstitute" Version="6.2.0" />
     <PackageReference Include="Shouldly" Version="4.3.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.console" Version="2.9.3">
@@ -58,13 +49,11 @@
   <ItemGroup>
     <Using Include="Xunit" />
     <Using Include="Shouldly" />
-    <Using Include="NSubstitute" />
   </ItemGroup>
 
 
   <ItemGroup>
     <None Include="..\test-data\**\*.*" Link="test-data\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="Always" />
   </ItemGroup>
-
 
 </Project>
