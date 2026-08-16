@@ -277,11 +277,11 @@ The comparison report includes the following metrics for each benchmark:
 
 | Metric | Description |
 |--------|-------------|
-| **Mean** | Execution time diff (nanoseconds, scaled for display) |
-| **Gen0** | Gen0 garbage collections per 1,000 operations |
-| **Gen1** | Gen1 garbage collections per 1,000 operations |
-| **Gen2** | Gen2 garbage collections per 1,000 operations |
-| **Allocated** | Memory allocation diff (bytes, scaled for display) |
+| **Mean** | Mean execution time per operation (baseline/target), scaled for display; % change shown when available |
+| **Gen0** | Gen0 collections per 1,000 operations (baseline/target; % change shown when available) |
+| **Gen1** | Gen1 collections per 1,000 operations (baseline/target; % change shown when available) |
+| **Gen2** | Gen2 collections per 1,000 operations (baseline/target; % change shown when available) |
+| **Allocated** | Bytes allocated per operation (baseline/target), scaled for display; % change shown when available |
 
 > Note: GC collection columns (Gen0, Gen1, Gen2) are only shown when at least one benchmark in the report has non-zero GC data. The `json` format always includes `Gen0Collections`, `Gen1Collections`, and `Gen2Collections` fields in each comparison object.
 
