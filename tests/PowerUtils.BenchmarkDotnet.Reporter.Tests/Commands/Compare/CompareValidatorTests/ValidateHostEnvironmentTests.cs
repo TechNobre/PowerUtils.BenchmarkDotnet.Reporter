@@ -19,7 +19,7 @@ public sealed class ValidateHostEnvironmentTests
 
 
         // Assert
-        result.ShouldBeEmpty();
+        result.Should().BeEmpty();
     }
 
     [Fact]
@@ -36,7 +36,7 @@ public sealed class ValidateHostEnvironmentTests
 
 
         // Assert
-        result.ShouldBeEmpty();
+        result.Should().BeEmpty();
     }
 
     [Fact]
@@ -53,7 +53,7 @@ public sealed class ValidateHostEnvironmentTests
 
 
         // Assert
-        result.ShouldBeEmpty();
+        result.Should().BeEmpty();
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public sealed class ValidateHostEnvironmentTests
 
 
         // Assert
-        result.ShouldBeEmpty();
+        result.Should().BeEmpty();
     }
 
     [Fact]
@@ -87,8 +87,8 @@ public sealed class ValidateHostEnvironmentTests
 
 
         // Assert
-        result.Count.ShouldBe(1);
-        result[0].ShouldContain("OS Version is different");
+        result.Count.Should().Be(1);
+        result[0].Should().Contain("OS Version is different");
     }
 
     [Fact]
@@ -105,8 +105,8 @@ public sealed class ValidateHostEnvironmentTests
 
 
         // Assert
-        result.Count.ShouldBe(1);
-        result[0].ShouldContain("Processor Name is different");
+        result.Count.Should().Be(1);
+        result[0].Should().Contain("Processor Name is different");
     }
 
     [Fact]
@@ -123,8 +123,8 @@ public sealed class ValidateHostEnvironmentTests
 
 
         // Assert
-        result.Count.ShouldBe(1);
-        result[0].ShouldContain("Physical Processor Count is different");
+        result.Count.Should().Be(1);
+        result[0].Should().Contain("Physical Processor Count is different");
     }
 
     [Fact]
@@ -141,8 +141,8 @@ public sealed class ValidateHostEnvironmentTests
 
 
         // Assert
-        result.Count.ShouldBe(1);
-        result[0].ShouldContain("Physical Core Count is different");
+        result.Count.Should().Be(1);
+        result[0].Should().Contain("Physical Core Count is different");
     }
 
     [Fact]
@@ -159,8 +159,8 @@ public sealed class ValidateHostEnvironmentTests
 
 
         // Assert
-        result.Count.ShouldBe(1);
-        result[0].ShouldContain("Logical Core Count is different");
+        result.Count.Should().Be(1);
+        result[0].Should().Contain("Logical Core Count is different");
     }
 
     [Fact]
@@ -177,8 +177,8 @@ public sealed class ValidateHostEnvironmentTests
 
 
         // Assert
-        result.Count.ShouldBe(1);
-        result[0].ShouldContain("Runtime Version is different");
+        result.Count.Should().Be(1);
+        result[0].Should().Contain("Runtime Version is different");
     }
 
     [Fact]
@@ -195,8 +195,8 @@ public sealed class ValidateHostEnvironmentTests
 
 
         // Assert
-        result.Count.ShouldBe(1);
-        result[0].ShouldContain("Architecture is different");
+        result.Count.Should().Be(1);
+        result[0].Should().Contain("Architecture is different");
     }
 
     [Fact]
@@ -213,8 +213,8 @@ public sealed class ValidateHostEnvironmentTests
 
 
         // Assert
-        result.Count.ShouldBe(1);
-        result[0].ShouldContain("DotNet CLI Version is different");
+        result.Count.Should().Be(1);
+        result[0].Should().Contain("DotNet CLI Version is different");
     }
 
     [Fact]
@@ -231,8 +231,8 @@ public sealed class ValidateHostEnvironmentTests
 
 
         // Assert
-        result.Count.ShouldBe(1);
-        result[0].ShouldContain("Chronometer Frequency is different");
+        result.Count.Should().Be(1);
+        result[0].Should().Contain("Chronometer Frequency is different");
     }
 
     [Fact]
@@ -249,8 +249,8 @@ public sealed class ValidateHostEnvironmentTests
 
 
         // Assert
-        result.Count.ShouldBe(1);
-        result[0].ShouldContain("The baseline report wasn't executed in RELEASE mode");
+        result.Count.Should().Be(1);
+        result[0].Should().Contain("The baseline report wasn't executed in RELEASE mode");
     }
 
     [Fact]
@@ -267,8 +267,8 @@ public sealed class ValidateHostEnvironmentTests
 
 
         // Assert
-        result.Count.ShouldBe(1);
-        result[0].ShouldContain("The target report wasn't executed in RELEASE mode");
+        result.Count.Should().Be(1);
+        result[0].Should().Contain("The target report wasn't executed in RELEASE mode");
     }
 
     private static BenchmarkReport _createBenchmarkReport(

@@ -32,11 +32,11 @@ public sealed class MarkdownExporterTests
 
 
         // Assert
-        _output[0].ShouldBe("# BENCHMARK COMPARISON REPORT");
-        _output[1].ShouldBe("");
-        _output[2].ShouldBe("## 📊 RESULTS:");
-        _output[3].ShouldBe("");
-        _output[4].ShouldBe("    NO COMPARISONS FOUND.");
+        _output[0].Should().Be("# BENCHMARK COMPARISON REPORT");
+        _output[1].Should().Be("");
+        _output[2].Should().Be("## 📊 RESULTS:");
+        _output[3].Should().Be("");
+        _output[4].Should().Be("    NO COMPARISONS FOUND.");
     }
 
     [Fact]
@@ -57,17 +57,17 @@ public sealed class MarkdownExporterTests
 
 
         // Assert
-        _output[0].ShouldBe("# BENCHMARK COMPARISON REPORT");
-        _output[1].ShouldBe("");
-        _output[2].ShouldBe("## ⚠️ WARNINGS:");
-        _output[3].ShouldBe("");
-        _output[4].ShouldBe("    * Warning 1");
-        _output[5].ShouldBe("    * Warning 2");
-        _output[6].ShouldBe("");
-        _output[7].ShouldBe("");
-        _output[8].ShouldBe("## 📊 RESULTS:");
-        _output[9].ShouldBe("");
-        _output[10].ShouldBe("    NO COMPARISONS FOUND.");
+        _output[0].Should().Be("# BENCHMARK COMPARISON REPORT");
+        _output[1].Should().Be("");
+        _output[2].Should().Be("## ⚠️ WARNINGS:");
+        _output[3].Should().Be("");
+        _output[4].Should().Be("    * Warning 1");
+        _output[5].Should().Be("    * Warning 2");
+        _output[6].Should().Be("");
+        _output[7].Should().Be("");
+        _output[8].Should().Be("## 📊 RESULTS:");
+        _output[9].Should().Be("");
+        _output[10].Should().Be("    NO COMPARISONS FOUND.");
     }
 
     [Fact]
@@ -91,15 +91,15 @@ public sealed class MarkdownExporterTests
 
 
         // Assert
-        _output[0].ShouldBe("# BENCHMARK COMPARISON REPORT");
-        _output[1].ShouldBe("");
-        _output[2].ShouldBe("## 📊 RESULTS:");
-        _output[3].ShouldBe("");
-        _output[4].ShouldBe("     Report   | Type | Method |  Mean | Allocated");
-        _output[5].ShouldBe("     -------- | ---- | ------ | -----:| ---------:");
-        _output[6].ShouldBe("     Baseline | Bmk  | Name   | 12 ns |      20 B");
-        _output[7].ShouldBe("     Target   |      |        | 12 ns |      20 B");
-        _output[8].ShouldBe("");
+        _output[0].Should().Be("# BENCHMARK COMPARISON REPORT");
+        _output[1].Should().Be("");
+        _output[2].Should().Be("## 📊 RESULTS:");
+        _output[3].Should().Be("");
+        _output[4].Should().Be("     Report   | Type | Method |  Mean | Allocated");
+        _output[5].Should().Be("     -------- | ---- | ------ | -----:| ---------:");
+        _output[6].Should().Be("     Baseline | Bmk  | Name   | 12 ns |      20 B");
+        _output[7].Should().Be("     Target   |      |        | 12 ns |      20 B");
+        _output[8].Should().Be("");
     }
 
     [Fact]
@@ -132,17 +132,17 @@ public sealed class MarkdownExporterTests
 
 
         // Assert
-        _output[0].ShouldBe("# BENCHMARK COMPARISON REPORT");
-        _output[1].ShouldBe("");
-        _output[2].ShouldBe("## 📊 RESULTS:");
-        _output[3].ShouldBe("");
-        _output[4].ShouldBe("     Report   | Type | Method  |  Mean | Allocated");
-        _output[5].ShouldBe("     -------- | ---- | ------- | -----:| ---------:");
-        _output[6].ShouldBe("     Baseline | Bmk  | Method1 | 43 ns |     122 B");
-        _output[7].ShouldBe("     Target   |      |         | 43 ns |     122 B");
-        _output[8].ShouldBe("     Baseline | Bmk2 | Method2 | 52 ns |      21 B");
-        _output[9].ShouldBe("     Target   |      |         | 52 ns |      21 B");
-        _output[10].ShouldBe("");
+        _output[0].Should().Be("# BENCHMARK COMPARISON REPORT");
+        _output[1].Should().Be("");
+        _output[2].Should().Be("## 📊 RESULTS:");
+        _output[3].Should().Be("");
+        _output[4].Should().Be("     Report   | Type | Method  |  Mean | Allocated");
+        _output[5].Should().Be("     -------- | ---- | ------- | -----:| ---------:");
+        _output[6].Should().Be("     Baseline | Bmk  | Method1 | 43 ns |     122 B");
+        _output[7].Should().Be("     Target   |      |         | 43 ns |     122 B");
+        _output[8].Should().Be("     Baseline | Bmk2 | Method2 | 52 ns |      21 B");
+        _output[9].Should().Be("     Target   |      |         | 52 ns |      21 B");
+        _output[10].Should().Be("");
     }
 
     [Fact]
@@ -166,15 +166,15 @@ public sealed class MarkdownExporterTests
 
 
         // Assert
-        _output[0].ShouldBe("# BENCHMARK COMPARISON REPORT");
-        _output[1].ShouldBe("");
-        _output[2].ShouldBe("## 📊 RESULTS:");
-        _output[3].ShouldBe("");
-        _output[4].ShouldBe("     Report   | Type | Method |  Mean | Allocated");
-        _output[5].ShouldBe("     -------- | ---- | ------ | -----:| ---------:");
-        _output[6].ShouldBe("     Baseline | Bmk3 | xpto   |       |          ");
-        _output[7].ShouldBe("     Target   |      | [NEW]  | 12 ns |      37 B");
-        _output[8].ShouldBe("");
+        _output[0].Should().Be("# BENCHMARK COMPARISON REPORT");
+        _output[1].Should().Be("");
+        _output[2].Should().Be("## 📊 RESULTS:");
+        _output[3].Should().Be("");
+        _output[4].Should().Be("     Report   | Type | Method |  Mean | Allocated");
+        _output[5].Should().Be("     -------- | ---- | ------ | -----:| ---------:");
+        _output[6].Should().Be("     Baseline | Bmk3 | xpto   |       |          ");
+        _output[7].Should().Be("     Target   |      | [NEW]  | 12 ns |      37 B");
+        _output[8].Should().Be("");
     }
 
     [Fact]
@@ -198,15 +198,15 @@ public sealed class MarkdownExporterTests
 
 
         // Assert
-        _output[0].ShouldBe("# BENCHMARK COMPARISON REPORT");
-        _output[1].ShouldBe("");
-        _output[2].ShouldBe("## 📊 RESULTS:");
-        _output[3].ShouldBe("");
-        _output[4].ShouldBe("     Report   | Type | Method    |  Mean | Allocated");
-        _output[5].ShouldBe("     -------- | ---- | --------- | -----:| ---------:");
-        _output[6].ShouldBe("     Baseline | Bmk5 | wdcs      | 12 ns |      20 B");
-        _output[7].ShouldBe("     Target   |      | [REMOVED] |       |          ");
-        _output[8].ShouldBe("");
+        _output[0].Should().Be("# BENCHMARK COMPARISON REPORT");
+        _output[1].Should().Be("");
+        _output[2].Should().Be("## 📊 RESULTS:");
+        _output[3].Should().Be("");
+        _output[4].Should().Be("     Report   | Type | Method    |  Mean | Allocated");
+        _output[5].Should().Be("     -------- | ---- | --------- | -----:| ---------:");
+        _output[6].Should().Be("     Baseline | Bmk5 | wdcs      | 12 ns |      20 B");
+        _output[7].Should().Be("     Target   |      | [REMOVED] |       |          ");
+        _output[8].Should().Be("");
     }
 
     [Theory]
@@ -238,7 +238,7 @@ public sealed class MarkdownExporterTests
             .Split('|')[2]
             .Trim(' ', '[', ']');
 
-        methodColumn.ShouldBe(expected);
+        methodColumn.Should().Be(expected);
     }
 
     [Fact]
@@ -255,17 +255,17 @@ public sealed class MarkdownExporterTests
 
 
         // Assert
-        _output[0].ShouldBe("# BENCHMARK COMPARISON REPORT");
-        _output[1].ShouldBe("");
-        _output[2].ShouldBe("## 📊 RESULTS:");
-        _output[3].ShouldBe("");
-        _output[4].ShouldBe("    NO COMPARISONS FOUND.");
-        _output[5].ShouldBe("");
-        _output[6].ShouldBe("## 🚨 THRESHOLD VIOLATIONS:");
-        _output[7].ShouldBe("");
-        _output[8].ShouldBe("    * Hit Threshold 1;");
-        _output[9].ShouldBe("    * Hit Threshold 2;");
-        _output[10].ShouldBe("");
+        _output[0].Should().Be("# BENCHMARK COMPARISON REPORT");
+        _output[1].Should().Be("");
+        _output[2].Should().Be("## 📊 RESULTS:");
+        _output[3].Should().Be("");
+        _output[4].Should().Be("    NO COMPARISONS FOUND.");
+        _output[5].Should().Be("");
+        _output[6].Should().Be("## 🚨 THRESHOLD VIOLATIONS:");
+        _output[7].Should().Be("");
+        _output[8].Should().Be("    * Hit Threshold 1;");
+        _output[9].Should().Be("    * Hit Threshold 2;");
+        _output[10].Should().Be("");
     }
 
     [Fact]
@@ -285,7 +285,7 @@ public sealed class MarkdownExporterTests
 
 
         // Assert
-        File.Exists(expectedFileName).ShouldBeTrue();
+        File.Exists(expectedFileName).Should().BeTrue();
     }
 
     [Fact]
@@ -319,17 +319,17 @@ public sealed class MarkdownExporterTests
 
 
         // Assert
-        _output[0].ShouldBe("# BENCHMARK COMPARISON REPORT");
-        _output[1].ShouldBe("");
-        _output[2].ShouldBe("## 📊 RESULTS:");
-        _output[3].ShouldBe("");
-        _output[4].ShouldBe("     Report   | Type | Method  |  Mean |       Gen0 | Allocated");
-        _output[5].ShouldBe("     -------- | ---- | ------- | -----:| ----------:| ---------:");
-        _output[6].ShouldBe("     Baseline | Bmk1 | Method1 | 43 ns |            |     122 B");
-        _output[7].ShouldBe("     Target   |      |         | 43 ns |            |     122 B");
-        _output[8].ShouldBe("     Baseline | Bmk2 | Method2 | 52 ns |       2000 |      21 B");
-        _output[9].ShouldBe("     Target   |      |         | 52 ns | 2 (-99.9%) |      21 B");
-        _output[10].ShouldBe("");
+        _output[0].Should().Be("# BENCHMARK COMPARISON REPORT");
+        _output[1].Should().Be("");
+        _output[2].Should().Be("## 📊 RESULTS:");
+        _output[3].Should().Be("");
+        _output[4].Should().Be("     Report   | Type | Method  |  Mean |       Gen0 | Allocated");
+        _output[5].Should().Be("     -------- | ---- | ------- | -----:| ----------:| ---------:");
+        _output[6].Should().Be("     Baseline | Bmk1 | Method1 | 43 ns |            |     122 B");
+        _output[7].Should().Be("     Target   |      |         | 43 ns |            |     122 B");
+        _output[8].Should().Be("     Baseline | Bmk2 | Method2 | 52 ns |       2000 |      21 B");
+        _output[9].Should().Be("     Target   |      |         | 52 ns | 2 (-99.9%) |      21 B");
+        _output[10].Should().Be("");
     }
 
     [Fact]
@@ -363,17 +363,17 @@ public sealed class MarkdownExporterTests
 
 
         // Assert
-        _output[0].ShouldBe("# BENCHMARK COMPARISON REPORT");
-        _output[1].ShouldBe("");
-        _output[2].ShouldBe("## 📊 RESULTS:");
-        _output[3].ShouldBe("");
-        _output[4].ShouldBe("     Report   | Type | Method  |  Mean |     Gen1 | Allocated");
-        _output[5].ShouldBe("     -------- | ---- | ------- | -----:| --------:| ---------:");
-        _output[6].ShouldBe("     Baseline | Bmk1 | Method1 | 43 ns |          |     122 B");
-        _output[7].ShouldBe("     Target   |      |         | 43 ns |          |     122 B");
-        _output[8].ShouldBe("     Baseline | Bmk2 | Method2 | 52 ns |      100 |      21 B");
-        _output[9].ShouldBe("     Target   |      |         | 52 ns | 109 (9%) |      21 B");
-        _output[10].ShouldBe("");
+        _output[0].Should().Be("# BENCHMARK COMPARISON REPORT");
+        _output[1].Should().Be("");
+        _output[2].Should().Be("## 📊 RESULTS:");
+        _output[3].Should().Be("");
+        _output[4].Should().Be("     Report   | Type | Method  |  Mean |     Gen1 | Allocated");
+        _output[5].Should().Be("     -------- | ---- | ------- | -----:| --------:| ---------:");
+        _output[6].Should().Be("     Baseline | Bmk1 | Method1 | 43 ns |          |     122 B");
+        _output[7].Should().Be("     Target   |      |         | 43 ns |          |     122 B");
+        _output[8].Should().Be("     Baseline | Bmk2 | Method2 | 52 ns |      100 |      21 B");
+        _output[9].Should().Be("     Target   |      |         | 52 ns | 109 (9%) |      21 B");
+        _output[10].Should().Be("");
     }
 
     [Fact]
@@ -407,17 +407,17 @@ public sealed class MarkdownExporterTests
 
 
         // Assert
-        _output[0].ShouldBe("# BENCHMARK COMPARISON REPORT");
-        _output[1].ShouldBe("");
-        _output[2].ShouldBe("## 📊 RESULTS:");
-        _output[3].ShouldBe("");
-        _output[4].ShouldBe("     Report   | Type | Method  |  Mean | Gen2 | Allocated");
-        _output[5].ShouldBe("     -------- | ---- | ------- | -----:| ----:| ---------:");
-        _output[6].ShouldBe("     Baseline | Bmk1 | Method1 | 43 ns |  352 |     122 B");
-        _output[7].ShouldBe("     Target   |      |         | 43 ns |  352 |     122 B");
-        _output[8].ShouldBe("     Baseline | Bmk2 | Method2 | 52 ns |      |      21 B");
-        _output[9].ShouldBe("     Target   |      |         | 52 ns |      |      21 B");
-        _output[10].ShouldBe("");
+        _output[0].Should().Be("# BENCHMARK COMPARISON REPORT");
+        _output[1].Should().Be("");
+        _output[2].Should().Be("## 📊 RESULTS:");
+        _output[3].Should().Be("");
+        _output[4].Should().Be("     Report   | Type | Method  |  Mean | Gen2 | Allocated");
+        _output[5].Should().Be("     -------- | ---- | ------- | -----:| ----:| ---------:");
+        _output[6].Should().Be("     Baseline | Bmk1 | Method1 | 43 ns |  352 |     122 B");
+        _output[7].Should().Be("     Target   |      |         | 43 ns |  352 |     122 B");
+        _output[8].Should().Be("     Baseline | Bmk2 | Method2 | 52 ns |      |      21 B");
+        _output[9].Should().Be("     Target   |      |         | 52 ns |      |      21 B");
+        _output[10].Should().Be("");
     }
 
     [Fact]
@@ -444,14 +444,14 @@ public sealed class MarkdownExporterTests
 
 
         // Assert
-        _output[0].ShouldBe("# BENCHMARK COMPARISON REPORT");
-        _output[1].ShouldBe("");
-        _output[2].ShouldBe("## 📊 RESULTS:");
-        _output[3].ShouldBe("");
-        _output[4].ShouldBe("     Report   | Type | Method  |  Mean |       Gen0 | Gen1 |         Gen2 | Allocated");
-        _output[5].ShouldBe("     -------- | ---- | ------- | -----:| ----------:| ----:| ------------:| ---------:");
-        _output[6].ShouldBe("     Baseline | Bmk1 | Method1 | 43 ns |        122 | 2000 |          352 |     122 B");
-        _output[7].ShouldBe("     Target   |      |         | 43 ns | 132 (8.2%) | 2000 | 332 (-5.68%) |     122 B");
-        _output[8].ShouldBe("");
+        _output[0].Should().Be("# BENCHMARK COMPARISON REPORT");
+        _output[1].Should().Be("");
+        _output[2].Should().Be("## 📊 RESULTS:");
+        _output[3].Should().Be("");
+        _output[4].Should().Be("     Report   | Type | Method  |  Mean |       Gen0 | Gen1 |         Gen2 | Allocated");
+        _output[5].Should().Be("     -------- | ---- | ------- | -----:| ----------:| ----:| ------------:| ---------:");
+        _output[6].Should().Be("     Baseline | Bmk1 | Method1 | 43 ns |        122 | 2000 |          352 |     122 B");
+        _output[7].Should().Be("     Target   |      |         | 43 ns | 132 (8.2%) | 2000 | 332 (-5.68%) |     122 B");
+        _output[8].Should().Be("");
     }
 }

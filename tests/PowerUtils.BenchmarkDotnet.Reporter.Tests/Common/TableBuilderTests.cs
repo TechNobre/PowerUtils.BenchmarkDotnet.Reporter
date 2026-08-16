@@ -16,7 +16,7 @@ public sealed class TableBuilderTests
 
 
         // Assert
-        act.ShouldBeEmpty();
+        act.Should().BeEmpty();
     }
 
     [Fact]
@@ -27,12 +27,12 @@ public sealed class TableBuilderTests
 
 
         // Act
-        TableBuilder act() => _builder.AddHeader("Header1", "Header2");
+        Func<TableBuilder> act = () => _builder.AddHeader("Header1", "Header2");
 
 
         // Assert
-        Should.Throw<InvalidOperationException>(act)
-            .Message.ShouldContain("Header has already been added");
+        act.Should().Throw<InvalidOperationException>()
+            .Which.Message.Should().Contain("Header has already been added");
     }
 
     [Fact]
@@ -43,12 +43,12 @@ public sealed class TableBuilderTests
 
 
         // Act
-        TableBuilder act() => _builder.AddHeader("Header1", "Header2");
+        Func<TableBuilder> act = () => _builder.AddHeader("Header1", "Header2");
 
 
         // Assert
-        Should.Throw<InvalidOperationException>(act)
-            .Message.ShouldContain("Rows have already been added, cannot add header now");
+        act.Should().Throw<InvalidOperationException>()
+            .Which.Message.Should().Contain("Rows have already been added, cannot add header now");
     }
 
     [Fact]
@@ -59,12 +59,12 @@ public sealed class TableBuilderTests
 
 
         // Act
-        TableBuilder act() => _builder.AddRow("Row1Col1", "Row1Col2", "Row1Col3");
+        Func<TableBuilder> act = () => _builder.AddRow("Row1Col1", "Row1Col2", "Row1Col3");
 
 
         // Assert
-        Should.Throw<InvalidOperationException>(act)
-            .Message.ShouldContain("Cannot add row with a different number of columns than already defined before");
+        act.Should().Throw<InvalidOperationException>()
+            .Which.Message.Should().Contain("Cannot add row with a different number of columns than already defined before");
     }
 
     [Fact]
@@ -76,7 +76,7 @@ public sealed class TableBuilderTests
 
 
         // Assert
-        act.ShouldBeEmpty();
+        act.Should().BeEmpty();
     }
 
     [Fact]
@@ -88,7 +88,7 @@ public sealed class TableBuilderTests
 
 
         // Assert
-        act.ShouldBeEmpty();
+        act.Should().BeEmpty();
     }
 
     [Fact]
@@ -105,20 +105,20 @@ public sealed class TableBuilderTests
 
 
         // Assert
-        act[0][0].ShouldBe("Header-1     ");
-        act[1][0].ShouldBe("─────────────");
-        act[2][0].ShouldBe("Row11        ");
-        act[3][0].ShouldBe("Row21        ");
+        act[0][0].Should().Be("Header-1     ");
+        act[1][0].Should().Be("─────────────");
+        act[2][0].Should().Be("Row11        ");
+        act[3][0].Should().Be("Row21        ");
 
-        act[0][1].ShouldBe("Header--2     ");
-        act[1][1].ShouldBe("──────────────");
-        act[2][1].ShouldBe("Row12         ");
-        act[3][1].ShouldBe("Row22         ");
+        act[0][1].Should().Be("Header--2     ");
+        act[1][1].Should().Be("──────────────");
+        act[2][1].Should().Be("Row12         ");
+        act[3][1].Should().Be("Row22         ");
 
-        act[0][2].ShouldBe("Header---3");
-        act[1][2].ShouldBe("──────────");
-        act[2][2].ShouldBe("Row13     ");
-        act[3][2].ShouldBe("Row23     ");
+        act[0][2].Should().Be("Header---3");
+        act[1][2].Should().Be("──────────");
+        act[2][2].Should().Be("Row13     ");
+        act[3][2].Should().Be("Row23     ");
     }
 
     [Fact]
@@ -135,20 +135,20 @@ public sealed class TableBuilderTests
 
 
         // Assert
-        act[0][0].ShouldBe("Header-1           ");
-        act[1][0].ShouldBe("───────────────────");
-        act[2][0].ShouldBe("Row*********11     ");
-        act[3][0].ShouldBe("Row21              ");
+        act[0][0].Should().Be("Header-1           ");
+        act[1][0].Should().Be("───────────────────");
+        act[2][0].Should().Be("Row*********11     ");
+        act[3][0].Should().Be("Row21              ");
 
-        act[0][1].ShouldBe("Header--2            ");
-        act[1][1].ShouldBe("─────────────────────");
-        act[2][1].ShouldBe("Row***********12     ");
-        act[3][1].ShouldBe("Row22                ");
+        act[0][1].Should().Be("Header--2            ");
+        act[1][1].Should().Be("─────────────────────");
+        act[2][1].Should().Be("Row***********12     ");
+        act[3][1].Should().Be("Row22                ");
 
-        act[0][2].ShouldBe("Header---3       ");
-        act[1][2].ShouldBe("─────────────────");
-        act[2][2].ShouldBe("Row************13");
-        act[3][2].ShouldBe("Row23            ");
+        act[0][2].Should().Be("Header---3       ");
+        act[1][2].Should().Be("─────────────────");
+        act[2][2].Should().Be("Row************13");
+        act[3][2].Should().Be("Row23            ");
     }
 
     [Fact]
@@ -164,14 +164,14 @@ public sealed class TableBuilderTests
 
 
         // Assert
-        act[0][0].ShouldBe("Row11     ");
-        act[1][0].ShouldBe("Row21     ");
+        act[0][0].Should().Be("Row11     ");
+        act[1][0].Should().Be("Row21     ");
 
-        act[0][1].ShouldBe("Row12     ");
-        act[1][1].ShouldBe("Row22     ");
+        act[0][1].Should().Be("Row12     ");
+        act[1][1].Should().Be("Row22     ");
 
-        act[0][2].ShouldBe("Row13");
-        act[1][2].ShouldBe("Row23");
+        act[0][2].Should().Be("Row13");
+        act[1][2].Should().Be("Row23");
     }
 
     [Fact]
@@ -187,14 +187,14 @@ public sealed class TableBuilderTests
 
 
         // Assert
-        act[0][0].ShouldBe("Row11     ");
-        act[1][0].ShouldBe("Row21     ");
+        act[0][0].Should().Be("Row11     ");
+        act[1][0].Should().Be("Row21     ");
 
-        act[0][1].ShouldBe("          ");
-        act[1][1].ShouldBe("Row22     ");
+        act[0][1].Should().Be("          ");
+        act[1][1].Should().Be("Row22     ");
 
-        act[0][2].ShouldBe("Row13");
-        act[1][2].ShouldBe("     ");
+        act[0][2].Should().Be("Row13");
+        act[1][2].Should().Be("     ");
     }
 
     [Fact]
@@ -209,13 +209,13 @@ public sealed class TableBuilderTests
 
 
         // Assert
-        act[0][0].ShouldBe("Header-1     ");
-        act[1][0].ShouldBe("─────────────");
+        act[0][0].Should().Be("Header-1     ");
+        act[1][0].Should().Be("─────────────");
 
-        act[0][1].ShouldBe("Header--2     ");
-        act[1][1].ShouldBe("──────────────");
+        act[0][1].Should().Be("Header--2     ");
+        act[1][1].Should().Be("──────────────");
 
-        act[0][2].ShouldBe("Header---3");
-        act[1][2].ShouldBe("──────────");
+        act[0][2].Should().Be("Header---3");
+        act[1][2].Should().Be("──────────");
     }
 }

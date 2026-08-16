@@ -18,12 +18,12 @@ public sealed class CompareSuccessTests
 
 
         // Assert
-        result.ExitCode.ShouldBe(0);
-        result.StandardOutput.ShouldContain("BENCHMARK COMPARISON REPORT");
-        result.StandardOutput.ShouldContain("StringConcat");
-        result.StandardOutput.ShouldContain("StringJoin");
-        result.StandardOutput.ShouldContain("-2.77%");
-        result.StandardOutput.ShouldContain("-4.98%");
+        result.ExitCode.Should().Be(0);
+        result.StandardOutput.Should().Contain("BENCHMARK COMPARISON REPORT");
+        result.StandardOutput.Should().Contain("StringConcat");
+        result.StandardOutput.Should().Contain("StringJoin");
+        result.StandardOutput.Should().Contain("-2.77%");
+        result.StandardOutput.Should().Contain("-4.98%");
     }
 
     [Fact]
@@ -39,9 +39,9 @@ public sealed class CompareSuccessTests
 
 
         // Assert
-        result.ExitCode.ShouldBe(0);
-        result.StandardOutput.ShouldContain("GenerateArray");
-        result.StandardOutput.ShouldContain("GenerateString");
+        result.ExitCode.Should().Be(0);
+        result.StandardOutput.Should().Contain("GenerateArray");
+        result.StandardOutput.Should().Contain("GenerateString");
     }
 
     [Fact]
@@ -57,6 +57,6 @@ public sealed class CompareSuccessTests
 
 
         // Assert
-        result.ExitCode.ShouldBe(0);
+        result.ExitCode.Should().Be(0);
     }
 }

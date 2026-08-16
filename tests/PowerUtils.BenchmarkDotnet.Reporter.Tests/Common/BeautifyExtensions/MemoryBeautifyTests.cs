@@ -16,7 +16,7 @@ public static class MemoryBeautifyTests
 
 
         // Assert
-        act.ShouldBeEmpty();
+        act.Should().BeEmpty();
     }
 
     [Theory]
@@ -35,6 +35,6 @@ public static class MemoryBeautifyTests
 
 
         // Assert
-        act.ShouldBe(expected);
+        act.Should().Be(expected);
     }
 }

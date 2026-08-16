@@ -17,7 +17,7 @@ public sealed class MetricComparisonTests
 
 
         // Assert
-        act.ShouldBeNull();
+        act.Should().BeNull();
     }
 
     [Fact]
@@ -33,9 +33,9 @@ public sealed class MetricComparisonTests
 
 
         // Assert
-        act.ShouldNotBeNull();
-        act.Status.ShouldBe(ComparisonStatus.New);
-        act.Target.ShouldBe(target);
+        act.Should().NotBeNull();
+        act.Status.Should().Be(ComparisonStatus.New);
+        act.Target.Should().Be(target);
     }
 
     [Fact]
@@ -51,9 +51,9 @@ public sealed class MetricComparisonTests
 
 
         // Assert
-        act.ShouldNotBeNull();
-        act.Status.ShouldBe(ComparisonStatus.Removed);
-        act.Baseline.ShouldBe(baseline);
+        act.Should().NotBeNull();
+        act.Status.Should().Be(ComparisonStatus.Removed);
+        act.Baseline.Should().Be(baseline);
     }
 
     [Fact]
@@ -69,12 +69,12 @@ public sealed class MetricComparisonTests
 
 
         // Assert
-        act.ShouldNotBeNull();
-        act.Status.ShouldBe(ComparisonStatus.Equal);
-        act.Baseline.ShouldBe(baseline);
-        act.Target.ShouldBe(target);
-        act.Diff.ShouldBe(0);
-        act.DiffPercentage.ShouldBe(0);
+        act.Should().NotBeNull();
+        act.Status.Should().Be(ComparisonStatus.Equal);
+        act.Baseline.Should().Be(baseline);
+        act.Target.Should().Be(target);
+        act.Diff.Should().Be(0);
+        act.DiffPercentage.Should().Be(0);
     }
 
     [Fact]
@@ -90,12 +90,12 @@ public sealed class MetricComparisonTests
 
 
         // Assert
-        act.ShouldNotBeNull();
-        act.Status.ShouldBe(ComparisonStatus.Worse);
-        act.Baseline.ShouldBe(baseline);
-        act.Target.ShouldBe(target);
-        act.Diff.ShouldBe(3);
-        act.DiffPercentage.ShouldBe(25);
+        act.Should().NotBeNull();
+        act.Status.Should().Be(ComparisonStatus.Worse);
+        act.Baseline.Should().Be(baseline);
+        act.Target.Should().Be(target);
+        act.Diff.Should().Be(3);
+        act.DiffPercentage.Should().Be(25);
     }
 
     [Fact]
@@ -111,12 +111,12 @@ public sealed class MetricComparisonTests
 
 
         // Assert
-        act.ShouldNotBeNull();
-        act.Status.ShouldBe(ComparisonStatus.Better);
-        act.Baseline.ShouldBe(baseline);
-        act.Target.ShouldBe(target);
-        act.Diff.ShouldBe(-3);
-        act.DiffPercentage.ShouldBe(-20);
+        act.Should().NotBeNull();
+        act.Status.Should().Be(ComparisonStatus.Better);
+        act.Baseline.Should().Be(baseline);
+        act.Target.Should().Be(target);
+        act.Diff.Should().Be(-3);
+        act.DiffPercentage.Should().Be(-20);
     }
 
     [Fact]
@@ -132,12 +132,12 @@ public sealed class MetricComparisonTests
 
 
         // Assert
-        act.ShouldNotBeNull();
-        act.Status.ShouldBe(ComparisonStatus.Equal);
-        act.Baseline.ShouldBe(baseline);
-        act.Target.ShouldBe(target);
-        act.Diff.ShouldBe(0);
-        act.DiffPercentage.ShouldBeNull();
+        act.Should().NotBeNull();
+        act.Status.Should().Be(ComparisonStatus.Equal);
+        act.Baseline.Should().Be(baseline);
+        act.Target.Should().Be(target);
+        act.Diff.Should().Be(0);
+        act.DiffPercentage.Should().BeNull();
     }
 
     [Fact]
@@ -151,8 +151,8 @@ public sealed class MetricComparisonTests
         var result = MetricComparison.CalculateExecutionTime(baseline, target);
 
         // Assert
-        result.ShouldNotBeNull();
-        result.Unit.ShouldBe("ns");
+        result.Should().NotBeNull();
+        result.Unit.Should().Be("ns");
     }
 
     [Fact]
@@ -166,8 +166,8 @@ public sealed class MetricComparisonTests
         var result = MetricComparison.CalculateMemoryUsage(baseline, target);
 
         // Assert
-        result.ShouldNotBeNull();
-        result.Unit.ShouldBe("B");
+        result.Should().NotBeNull();
+        result.Unit.Should().Be("B");
     }
 
 
@@ -190,13 +190,13 @@ public sealed class MetricComparisonTests
 
 
         // Assert
-        result.ShouldNotBeNull();
-        result.Unit.ShouldBeNull();
-        result.Status.ShouldBe(ComparisonStatus.Worse);
-        result.Baseline.ShouldBe(100_000);
-        result.Target.ShouldBe(1_000_000);
-        result.Diff.ShouldBe(900_000);
-        result.DiffPercentage.ShouldBe(900);
+        result.Should().NotBeNull();
+        result.Unit.Should().BeNull();
+        result.Status.Should().Be(ComparisonStatus.Worse);
+        result.Baseline.Should().Be(100_000);
+        result.Target.Should().Be(1_000_000);
+        result.Diff.Should().Be(900_000);
+        result.DiffPercentage.Should().Be(900);
     }
 
     [Fact]
@@ -218,12 +218,12 @@ public sealed class MetricComparisonTests
 
 
         // Assert
-        result.ShouldNotBeNull();
-        result.Status.ShouldBe(ComparisonStatus.New);
-        result.Baseline.ShouldBeNull();
-        result.Target.ShouldBe(500);
-        result.Diff.ShouldBeNull();
-        result.DiffPercentage.ShouldBeNull();
+        result.Should().NotBeNull();
+        result.Status.Should().Be(ComparisonStatus.New);
+        result.Baseline.Should().BeNull();
+        result.Target.Should().Be(500);
+        result.Diff.Should().BeNull();
+        result.DiffPercentage.Should().BeNull();
     }
 
     [Theory]
@@ -246,12 +246,12 @@ public sealed class MetricComparisonTests
 
 
         // Assert
-        result.ShouldNotBeNull();
-        result.Status.ShouldBe(ComparisonStatus.New);
-        result.Baseline.ShouldBeNull();
-        result.Target.ShouldBe(82_700);
-        result.Diff.ShouldBeNull();
-        result.DiffPercentage.ShouldBeNull();
+        result.Should().NotBeNull();
+        result.Status.Should().Be(ComparisonStatus.New);
+        result.Baseline.Should().BeNull();
+        result.Target.Should().Be(82_700);
+        result.Diff.Should().BeNull();
+        result.DiffPercentage.Should().BeNull();
     }
 
     [Theory]
@@ -274,12 +274,12 @@ public sealed class MetricComparisonTests
 
 
         // Assert
-        result.ShouldNotBeNull();
-        result.Status.ShouldBe(ComparisonStatus.New);
-        result.Baseline.ShouldBeNull();
-        result.Target.ShouldBe(82_700);
-        result.Diff.ShouldBeNull();
-        result.DiffPercentage.ShouldBeNull();
+        result.Should().NotBeNull();
+        result.Status.Should().Be(ComparisonStatus.New);
+        result.Baseline.Should().BeNull();
+        result.Target.Should().Be(82_700);
+        result.Diff.Should().BeNull();
+        result.DiffPercentage.Should().BeNull();
     }
 
     [Fact]
@@ -301,12 +301,12 @@ public sealed class MetricComparisonTests
 
 
         // Assert
-        result.ShouldNotBeNull();
-        result.Status.ShouldBe(ComparisonStatus.Removed);
-        result.Baseline.ShouldBe(100_000);
-        result.Target.ShouldBeNull();
-        result.Diff.ShouldBeNull();
-        result.DiffPercentage.ShouldBeNull();
+        result.Should().NotBeNull();
+        result.Status.Should().Be(ComparisonStatus.Removed);
+        result.Baseline.Should().Be(100_000);
+        result.Target.Should().BeNull();
+        result.Diff.Should().BeNull();
+        result.DiffPercentage.Should().BeNull();
     }
 
     [Theory]
@@ -329,12 +329,12 @@ public sealed class MetricComparisonTests
 
 
         // Assert
-        result.ShouldNotBeNull();
-        result.Status.ShouldBe(ComparisonStatus.Removed);
-        result.Baseline.ShouldBe(9_000);
-        result.Target.ShouldBeNull();
-        result.Diff.ShouldBeNull();
-        result.DiffPercentage.ShouldBeNull();
+        result.Should().NotBeNull();
+        result.Status.Should().Be(ComparisonStatus.Removed);
+        result.Baseline.Should().Be(9_000);
+        result.Target.Should().BeNull();
+        result.Diff.Should().BeNull();
+        result.DiffPercentage.Should().BeNull();
     }
 
     [Theory]
@@ -357,11 +357,11 @@ public sealed class MetricComparisonTests
 
 
         // Assert
-        result.ShouldNotBeNull();
-        result.Status.ShouldBe(ComparisonStatus.Removed);
-        result.Baseline.ShouldBe(9_000);
-        result.Target.ShouldBeNull();
-        result.Diff.ShouldBeNull();
-        result.DiffPercentage.ShouldBeNull();
+        result.Should().NotBeNull();
+        result.Status.Should().Be(ComparisonStatus.Removed);
+        result.Baseline.Should().Be(9_000);
+        result.Target.Should().BeNull();
+        result.Diff.Should().BeNull();
+        result.DiffPercentage.Should().BeNull();
     }
 }

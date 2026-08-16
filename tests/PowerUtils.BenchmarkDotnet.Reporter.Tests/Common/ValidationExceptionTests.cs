@@ -17,7 +17,7 @@ public sealed class ValidationExceptionTests
 
 
         // Assert
-        act.Message.ShouldBe(message);
+        act.Message.Should().Be(message);
     }
 
     [Fact]
@@ -37,7 +37,7 @@ public sealed class ValidationExceptionTests
 
 
         // Assert
-        act.Message.ShouldBe("First error | Second error | Third error");
+        act.Message.Should().Be("First error | Second error | Third error");
     }
 
     [Fact]
@@ -52,6 +52,6 @@ public sealed class ValidationExceptionTests
 
 
         // Assert
-        act.Message.ShouldBeEmpty();
+        act.Message.Should().BeEmpty();
     }
 }

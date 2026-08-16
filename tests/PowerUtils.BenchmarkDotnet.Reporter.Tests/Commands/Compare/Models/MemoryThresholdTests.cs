@@ -23,8 +23,8 @@ public sealed class MemoryThresholdTests
 
 
         // Assert
-        threshold.Value.ShouldBe(expectedValue);
-        threshold.IsPercentage.ShouldBe(expectedIsPercentage);
+        threshold.Value.Should().Be(expectedValue);
+        threshold.IsPercentage.Should().Be(expectedIsPercentage);
     }
 
     [Fact]
@@ -39,7 +39,7 @@ public sealed class MemoryThresholdTests
 
 
         // Assert
-        act.ShouldBe(124000);
+        act.Should().Be(124000);
     }
 
     [Theory]
@@ -60,8 +60,8 @@ public sealed class MemoryThresholdTests
 
 
         // Assert
-        result.ShouldBeFalse();
-        threshold.ShouldBe(default);
+        result.Should().BeFalse();
+        threshold.Should().Be(default(MemoryThreshold));
     }
 
     [Fact]
@@ -76,7 +76,7 @@ public sealed class MemoryThresholdTests
 
 
         // Assert
-        var exception = act.ShouldThrow<FormatException>();
-        exception.Message.ShouldContain(value);
+        var exception = act.Should().Throw<FormatException>();
+        exception.Which.Message.Should().Contain(value);
     }
 }

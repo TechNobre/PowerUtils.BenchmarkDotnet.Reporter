@@ -109,7 +109,7 @@ public sealed class CompareHandlerTests
         _exporter
             .Received()
             .Generate(Arg.Is<ComparerReport>(i => i.Warnings.Count == 1), Arg.Any<string>());
-        act.ShouldBe(Constants.ExitCodes.SUCCESS);
+        act.Should().Be(Constants.ExitCodes.SUCCESS);
     }
 
     [Fact]
@@ -141,7 +141,7 @@ public sealed class CompareHandlerTests
                 i => i.Warnings.Count == 1 &&
                 i.Warnings.Contains(expectedMessage)),
             Arg.Any<string>());
-        act.ShouldBe(Constants.ExitCodes.WARNING);
+        act.Should().Be(Constants.ExitCodes.WARNING);
     }
 
     [Fact]
@@ -164,7 +164,7 @@ public sealed class CompareHandlerTests
 
 
         // Assert
-        act.ShouldBe(Constants.ExitCodes.SUCCESS);
+        act.Should().Be(Constants.ExitCodes.SUCCESS);
     }
 
     [Fact]
@@ -181,7 +181,7 @@ public sealed class CompareHandlerTests
 
 
         // Assert
-        act.ShouldBe(Constants.ExitCodes.SUCCESS);
+        act.Should().Be(Constants.ExitCodes.SUCCESS);
     }
 
     [Fact]
@@ -775,7 +775,7 @@ public sealed class CompareHandlerTests
         _exporter
             .Received()
             .Generate(Arg.Is<ComparerReport>(i => i.HitThresholds.Count > 0), Arg.Any<string>());
-        act.ShouldBe(Constants.ExitCodes.SUCCESS);
+        act.Should().Be(Constants.ExitCodes.SUCCESS);
     }
 
     [Fact]
@@ -803,6 +803,6 @@ public sealed class CompareHandlerTests
             .Generate(
                 Arg.Is<ComparerReport>(i => i.HitThresholds.Count > 0),
                 Arg.Any<string>());
-        act.ShouldBe(Constants.ExitCodes.THRESHOLD_HIT);
+        act.Should().Be(Constants.ExitCodes.THRESHOLD_HIT);
     }
 }

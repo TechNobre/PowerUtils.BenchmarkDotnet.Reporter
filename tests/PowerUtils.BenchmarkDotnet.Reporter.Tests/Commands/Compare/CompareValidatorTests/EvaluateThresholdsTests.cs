@@ -18,11 +18,11 @@ public sealed class EvaluateThresholdsTests
 
 
         // Act
-        void act() => _validator.EvaluateThresholds(report, "invalid", null);
+        Action act = () => _validator.EvaluateThresholds(report, "invalid", null);
 
 
         // Assert
-        Should.Throw<FormatException>(act);
+        act.Should().Throw<FormatException>();
     }
 
     [Fact]
@@ -33,11 +33,11 @@ public sealed class EvaluateThresholdsTests
 
 
         // Act
-        void act() => _validator.EvaluateThresholds(report, null, "invalid");
+        Action act = () => _validator.EvaluateThresholds(report, null, "invalid");
 
 
         // Assert
-        Should.Throw<FormatException>(act);
+        act.Should().Throw<FormatException>();
     }
 
     [Fact]
@@ -68,8 +68,8 @@ public sealed class EvaluateThresholdsTests
 
 
         // Assert
-        report.HitThresholds.ShouldContain("Mean threshold hit for 'test hit'");
-        report.HitThresholds.ShouldContain("Allocation threshold hit for 'test hit'");
+        report.HitThresholds.Should().Contain("Mean threshold hit for 'test hit'");
+        report.HitThresholds.Should().Contain("Allocation threshold hit for 'test hit'");
     }
 
     [Fact]
@@ -92,8 +92,8 @@ public sealed class EvaluateThresholdsTests
 
 
         // Assert
-        report.HitThresholds.ShouldContain("Mean threshold hit for 'test hit'");
-        report.HitThresholds.ShouldContain("Allocation threshold hit for 'test hit'");
+        report.HitThresholds.Should().Contain("Mean threshold hit for 'test hit'");
+        report.HitThresholds.Should().Contain("Allocation threshold hit for 'test hit'");
     }
 
     [Fact]
@@ -115,7 +115,7 @@ public sealed class EvaluateThresholdsTests
 
 
         // Assert
-        report.HitThresholds.ShouldBeEmpty();
+        report.HitThresholds.Should().BeEmpty();
     }
 
     [Fact]
@@ -137,7 +137,7 @@ public sealed class EvaluateThresholdsTests
 
 
         // Assert
-        report.HitThresholds.ShouldBeEmpty();
+        report.HitThresholds.Should().BeEmpty();
     }
 
     [Fact]
@@ -161,7 +161,7 @@ public sealed class EvaluateThresholdsTests
 
 
         // Assert
-        report.HitThresholds.ShouldBeEmpty();
+        report.HitThresholds.Should().BeEmpty();
     }
 
     [Fact]
@@ -185,6 +185,6 @@ public sealed class EvaluateThresholdsTests
 
 
         // Assert
-        report.HitThresholds.ShouldBeEmpty();
+        report.HitThresholds.Should().BeEmpty();
     }
 }

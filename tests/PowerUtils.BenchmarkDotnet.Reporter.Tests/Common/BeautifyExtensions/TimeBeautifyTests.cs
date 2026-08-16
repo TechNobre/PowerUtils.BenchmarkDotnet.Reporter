@@ -16,7 +16,7 @@ public static class TimeBeautifyTests
 
 
         // Assert
-        act.ShouldBeEmpty();
+        act.Should().BeEmpty();
     }
 
     [Theory]
@@ -41,6 +41,6 @@ public static class TimeBeautifyTests
 
 
         // Assert
-        act.ShouldBe(expected);
+        act.Should().Be(expected);
     }
 }
