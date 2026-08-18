@@ -1,5 +1,5 @@
-using System;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models;
+using PowerUtils.BenchmarkDotnet.Reporter.Common;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Commands.Compare.Models;
 
@@ -65,7 +65,7 @@ public sealed class MemoryThresholdTests
     }
 
     [Fact]
-    public void Parse_With_Invalid_Value_Should_Throw_FormatException()
+    public void Parse_With_Invalid_Value_Should_Throw_DomainException()
     {
         // Arrange
         var value = "invalid";
@@ -76,7 +76,7 @@ public sealed class MemoryThresholdTests
 
 
         // Assert
-        var exception = act.Should().Throw<FormatException>();
+        var exception = act.Should().Throw<DomainException>();
         exception.Which.Message.Should().Contain(value);
     }
 }

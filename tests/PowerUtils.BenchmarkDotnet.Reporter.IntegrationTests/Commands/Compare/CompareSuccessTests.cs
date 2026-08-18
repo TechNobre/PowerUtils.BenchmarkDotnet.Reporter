@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using PowerUtils.BenchmarkDotnet.Reporter.Common;
 using PowerUtils.BenchmarkDotnet.Reporter.IntegrationTests.Helpers;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.IntegrationTests.Commands.Compare;
@@ -18,7 +19,7 @@ public sealed class CompareSuccessTests
 
 
         // Assert
-        result.ExitCode.Should().Be(0);
+        result.ExitCode.Should().Be(Constants.ExitCodes.SUCCESS);
         result.StandardOutput.Should().Contain("BENCHMARK COMPARISON REPORT");
         result.StandardOutput.Should().Contain("StringConcat");
         result.StandardOutput.Should().Contain("StringJoin");
@@ -39,7 +40,7 @@ public sealed class CompareSuccessTests
 
 
         // Assert
-        result.ExitCode.Should().Be(0);
+        result.ExitCode.Should().Be(Constants.ExitCodes.SUCCESS);
         result.StandardOutput.Should().Contain("GenerateArray");
         result.StandardOutput.Should().Contain("GenerateString");
     }
@@ -57,6 +58,6 @@ public sealed class CompareSuccessTests
 
 
         // Assert
-        result.ExitCode.Should().Be(0);
+        result.ExitCode.Should().Be(Constants.ExitCodes.SUCCESS);
     }
 }

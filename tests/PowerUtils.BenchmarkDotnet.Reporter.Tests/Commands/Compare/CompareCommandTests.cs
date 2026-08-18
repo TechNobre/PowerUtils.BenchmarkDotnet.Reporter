@@ -29,10 +29,10 @@ public sealed class CompareCommandTests
     }
 
     [Fact]
-    public void Command_ShouldHave_8Options()
+    public void Command_ShouldHave_9Options()
     {
         // Arrange & Act & Assert
-        _command.Options.Count.Should().Be(8);
+        _command.Options.Count.Should().Be(9);
     }
 
     [Fact]

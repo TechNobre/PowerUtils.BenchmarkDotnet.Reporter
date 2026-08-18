@@ -1,4 +1,4 @@
-using System;
+using PowerUtils.BenchmarkDotnet.Reporter.Common;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models;
 
@@ -79,7 +79,7 @@ public readonly struct TimeThreshold
         {
             return threshold;
         }
-        throw new FormatException($"The value '{value}' is not a valid threshold.");
+        throw new DomainException($"The value '{value}' is not a valid threshold.");
     }
 
     public static implicit operator decimal(TimeThreshold threshold) => threshold.Value;

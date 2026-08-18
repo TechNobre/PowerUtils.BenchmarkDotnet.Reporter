@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models;
 using PowerUtils.BenchmarkDotnet.Reporter.Common;
 using static PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models.ComparerReport;
@@ -9,7 +10,7 @@ namespace PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare;
 public interface ICompareValidator
 {
     List<string> ValidateHostEnvironment(BenchmarkReport? baseline, BenchmarkReport? target);
-    void EvaluateThresholds(ComparerReport report, string? meanThreshold, string? allocationThreshold);
+    void EvaluateThresholds(ComparerReport report, IReadOnlyList<KeyValuePair<string, string>> meanThresholds, IReadOnlyList<KeyValuePair<string, string>> allocationThresholds);
 }
 
 public sealed class CompareValidator : ICompareValidator
@@ -76,41 +77,74 @@ public sealed class CompareValidator : ICompareValidator
     }
 
 
-    public void EvaluateThresholds(ComparerReport report, string? meanThreshold, string? allocationThreshold)
-    {
-        if(!string.IsNullOrWhiteSpace(meanThreshold))
-        {
-            var threshold = TimeThreshold.Parse(meanThreshold);
-            _evaluate(report, threshold.Value, threshold.IsPercentage, "Mean", c => c.Mean);
-        }
+    private readonly record struct ResolvedThreshold(decimal Value, bool IsPercentage, string Pattern);
 
-        if(!string.IsNullOrWhiteSpace(allocationThreshold))
+
+    public void EvaluateThresholds(ComparerReport report, IReadOnlyList<KeyValuePair<string, string>> meanThresholds, IReadOnlyList<KeyValuePair<string, string>> allocationThresholds)
+    {
+        _evaluate(report, meanThresholds, "Mean", c => c.Mean, value =>
         {
-            var threshold = MemoryThreshold.Parse(allocationThreshold);
-            _evaluate(report, threshold.Value, threshold.IsPercentage, "Allocation", c => c.Allocated);
-        }
+            var threshold = TimeThreshold.Parse(value);
+            return (threshold.Value, threshold.IsPercentage);
+        });
+
+        _evaluate(report, allocationThresholds, "Allocation", c => c.Allocated, value =>
+        {
+            var threshold = MemoryThreshold.Parse(value);
+            return (threshold.Value, threshold.IsPercentage);
+        });
 
 
         static void _evaluate(
             ComparerReport report,
-            decimal thresholdValue,
-            bool isPercentage,
+            IReadOnlyList<KeyValuePair<string, string>> rules,
             string label,
-            Func<Comparison, MetricComparison?> metricSelector)
+            Func<Comparison, MetricComparison?> metricSelector,
+            Func<string, (decimal Value, bool IsPercentage)> parse)
         {
+            if(rules.Count == 0)
+            {
+                return;
+            }
+
+            // Parse eagerly so malformed threshold syntax fails fast, even when no comparison matches it.
+            var resolved = rules
+                .Select(rule =>
+                {
+                    var parsed = parse(rule.Value);
+                    return new ResolvedThreshold(parsed.Value, parsed.IsPercentage, rule.Key);
+                })
+                .ToList();
+
             foreach(var comparison in report.Comparisons)
             {
+                var best = resolved
+                    .Where(rule => NamespacesUtils.IsMatch(rule.Pattern, comparison.FullName))
+                    .OrderByDescending(rule => NamespacesUtils.GetSpecificity(rule.Pattern))
+                    .Select(rule => (ResolvedThreshold?)rule)
+                    .FirstOrDefault();
+
+                if(best is null)
+                {
+                    continue;
+                }
+
                 var metric = metricSelector(comparison);
 
                 // If the threshold is a percentage, the validation is done against the percentage difference;
                 // otherwise it's validated against the absolute difference
-                var exceeded = isPercentage
-                    ? metric?.DiffPercentage > thresholdValue
-                    : metric?.Diff > thresholdValue;
+                var exceeded = best.Value.IsPercentage
+                    ? metric?.DiffPercentage > best.Value.Value
+                    : metric?.Diff > best.Value.Value;
 
                 if(exceeded)
                 {
-                    report.HitThresholds.Add($"{label} threshold hit for '{comparison.FullName}'");
+                    // The '*' pattern is the implicit catch-all (a bare, unscoped threshold value), so it's omitted from the message.
+                    var ruleSuffix = best.Value.Pattern == NamespacesUtils.WILDCARD.ToString()
+                        ? ""
+                        : $" (rule: {best.Value.Pattern})";
+
+                    report.HitThresholds.Add($"{label} threshold hit for '{comparison.FullName}'{ruleSuffix}");
                 }
             }
         }

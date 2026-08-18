@@ -21,6 +21,14 @@ public sealed class CompareHandler(
 
     public int Execute(CompareOptions options)
     {
+        if(string.IsNullOrWhiteSpace(options.Baseline))
+            throw new DomainException(
+                "The baseline path is required. Set it via --baseline (-b), the PBREPORTER_COMPARE__BASELINE environment variable, or the config file.");
+
+        if(string.IsNullOrWhiteSpace(options.Target))
+            throw new DomainException(
+                "The target path is required. Set it via --target (-t), the PBREPORTER_COMPARE__TARGET environment variable, or the config file.");
+
         var baselineBenchmarks = _readBenchmarks(options.Baseline);
         var targetBenchmarks = _readBenchmarks(options.Target);
 

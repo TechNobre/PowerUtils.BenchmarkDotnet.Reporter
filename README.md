@@ -30,11 +30,8 @@
   - [Run the tool](#run-the-tool)
   - [Commands](#commands)
     - [`compare`](#compare)
-      - [Options:](#options)
-        - [Threshold Units](#threshold-units)
-      - [Example of usage:](#example-of-usage)
-      - [Error Handling Options](#error-handling-options)
-        - [Exit Codes](#exit-codes)
+- [Configuration](#configuration)
+- [Documentation](#documentation)
 - [GitHub Actions Setup](#github-actions-setup)
 - [Acknowledgments](#acknowledgments)
 - [Contribution](#contribution)
@@ -191,127 +188,25 @@ Compares two benchmark reports and generates a report with the differences.
 pbreporter compare -b baseline-full.json -t target-full.json
 ```
 
-##### Options:
+For the full option reference, threshold syntax, usage examples, output metrics, and exit codes,
+see the [`compare` Command Reference](docs/commands/compare.md).
 
-* (`-b`, `--baseline`) `<baseline>`: Path to the folder or file with Baseline report. **[Required]**
-* (`-t`, `--target`) `<target>`: Path to the folder or file with target reports. **[Required]**
-* (`-tm`, `--threshold-mean`) `<threshold-mean>`: Throw an error when the mean threshold is met. Examples: 5%, 10ms, 10us, 100ns, 1s.
-* (`-ta`, `--threshold-allocation`) `<threshold-allocation>`: Throw an error when the allocation threshold is met. Examples: 5%, 10b, 10kb, 100mb, 1gb.
-* (`-f`, `--format`) `<console|hit-txt|json|markdown>`: Output format for the report. **[default: console]**
-* (`-o`, `--output`) `<output>`: Output directory to export the diff report. Default is current directory. **[default: ./BenchmarkReporter]**
-* (`-fw`, `--fail-on-warnings`): Exit with error code when any warnings are generated during comparison (e.g., mismatched host environments). **[default: disabled]**
-* (`-ft`, `--fail-on-threshold-hit`): Exit with error code when any threshold is hit during comparison. **[default: disabled]**
-* (`-?`, `-h`, `--help`): Show help and usage information
 
-###### Threshold Units
 
-**Time (`-tm`):**
+## Configuration
 
-| Unit | Description | Example |
-|------|-------------|---------|
-| `ns` | Nanoseconds | `100ns` |
-| `us` | Microseconds | `10us` |
-| `ms` | Milliseconds | `10ms` |
-| `s` | Seconds | `1s` |
-| `%` | Percentage relative to baseline | `5%` |
+Every option on every command - CLI arguments, environment variables, and a YAML config file, follow a single, consistent precedence: **CLI arguments > environment variables > config file**.
+See [Configuration](docs/configuration.md) for the full naming convention, precedence details, and a worked example (including running `compare` with no `-b`/`-t` at all).
 
-**Memory (`-ta`):**
 
-| Unit | Description | Example |
-|------|-------------|---------|
-| `b` | Bytes | `10b` |
-| `kb` | Kilobytes | `10kb` |
-| `mb` | Megabytes | `10mb` |
-| `gb` | Gigabytes | `1gb` |
-| `%` | Percentage relative to baseline | `5%` |
 
-##### Example of usage:
+## Documentation
 
-**Simple usage**
-```bash
-pbreporter compare -b baseline-full.json -t target-full.json
-```
+- [`compare` Command Reference](docs/commands/compare.md) - full options, threshold syntax, usage examples, output metrics, exit codes
+- [Configuration](docs/configuration.md) - environment variables and YAML config file
+- [GitHub Actions Setup Guide](docs/github-actions-setup.md) - CI/CD integration
+- [Test Data Documentation](docs/test-data.md) - sample benchmark reports for contributors
 
-**Passing folder paths**
-```bash
-pbreporter compare -b ./baseline-reports -t ./target-reports
-```
-> Note: You can pass a file path, a folder or mix both. The tool will automatically find the supported report files in the provided paths.
-
-**With output format and directory**
-```bash
-pbreporter compare -b baseline-full.json -t target-full.json -f json -f markdown -o ./out
-```
-
-**With thresholds**
-```bash
-pbreporter compare -b baseline-full.json -t target-full.json -tm 5% -ta 12b
-```
-
-**With thresholds and output threshold report**
-```bash
-pbreporter compare -b baseline-full.json -t target-full.json -tm 5% -f hit-txt
-```
-> Note: The `hit-txt` format will only generate when at least one threshold is hit.
-
-**With console output**
-```bash
-pbreporter compare -b baseline-full.json -t target-full.json -f console
-```
-> Note: The `console` format displays the comparison report directly in the terminal instead of creating a file.
-
-**With Markdown output**
-```bash
-pbreporter compare -b baseline-full.json -t target-full.json -f markdown
-```
-> Note: The `markdown` format is ideal for generating reports to upload to GitHub or other platforms that support Markdown rendering.
-
-**With multiple formats**
-```bash
-pbreporter compare -b baseline-full.json -t target-full.json -f json -f markdown -f console
-```
-
-##### Output Metrics
-
-The comparison report includes the following metrics for each benchmark:
-
-| Metric | Description |
-|--------|-------------|
-| **Mean** | Mean execution time per operation (baseline/target), scaled for display; % change shown when available |
-| **Gen0** | Gen0 collections per 1,000 operations (baseline/target; % change shown when available) |
-| **Gen1** | Gen1 collections per 1,000 operations (baseline/target; % change shown when available) |
-| **Gen2** | Gen2 collections per 1,000 operations (baseline/target; % change shown when available) |
-| **Allocated** | Bytes allocated per operation (baseline/target), scaled for display; % change shown when available |
-
-> Note: GC collection columns (Gen0, Gen1, Gen2) are only shown when at least one benchmark in the report has non-zero GC data. The `json` format always includes `Gen0Collections`, `Gen1Collections`, and `Gen2Collections` fields in each comparison object.
-
-##### Error Handling Options
-
-The tool provides options to control exit codes for CI/CD integration and automated quality gates.
-
-**Fail on warnings**
-```bash
-pbreporter compare -b baseline-full.json -t target-full.json -fw
-```
-> Note: Exits with code 2 if any warnings are generated during comparison (e.g., environment differences between baseline and target).
-
-**Fail on threshold hits**
-```bash
-pbreporter compare -b baseline-full.json -t target-full.json -tm 5% -ta 10% -ft
-```
-> Note: Exits with code 3 if any performance thresholds are exceeded during comparison.
-
-**Both error handling options**
-```bash
-pbreporter compare -b baseline-full.json -t target-full.json -tm 5% -fw -ft
-```
-> Note: If both conditions are met, warnings take priority and the tool exits with code 2.
-
-###### Exit Codes
-
-* **0**: Success - No issues detected
-* **2**: Warnings detected (when `--fail-on-warnings` is enabled)
-* **3**: Performance thresholds exceeded (when `--fail-on-threshold-hit` is enabled)
 
 
 ## GitHub Actions Setup

@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using PowerUtils.BenchmarkDotnet.Reporter.Common;
 
-namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Common.IOHelpersTests;
+namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Common.IOUtilsTests;
 
 public sealed class WriteFileTests : IDisposable
 {
@@ -33,7 +33,7 @@ public sealed class WriteFileTests : IDisposable
 
 
         // Act
-        IOHelpers.WriteFile(path, content);
+        IOUtils.WriteFile(path, content);
 
 
         // Assert
@@ -49,7 +49,7 @@ public sealed class WriteFileTests : IDisposable
 
 
         // Act
-        Action act = () => IOHelpers.WriteFile(path, "Test content");
+        Action act = () => IOUtils.WriteFile(path, "Test content");
 
 
         // Assert

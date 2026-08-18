@@ -1,5 +1,6 @@
 using System.IO;
 using System.Threading.Tasks;
+using PowerUtils.BenchmarkDotnet.Reporter.Common;
 using PowerUtils.BenchmarkDotnet.Reporter.IntegrationTests.Helpers;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.IntegrationTests.Commands.Compare;
@@ -21,7 +22,7 @@ public sealed class CompareFormatsTests
 
 
         // Assert
-        result.ExitCode.Should().Be(0);
+        result.ExitCode.Should().Be(Constants.ExitCodes.SUCCESS);
 
         var reportPath = output.CombinePath("benchmark-comparison-report.md");
         File.Exists(reportPath).Should().BeTrue();
@@ -46,7 +47,7 @@ public sealed class CompareFormatsTests
 
 
         // Assert
-        result.ExitCode.Should().Be(0);
+        result.ExitCode.Should().Be(Constants.ExitCodes.SUCCESS);
 
         var reportPath = output.CombinePath("benchmark-comparison-report.json");
         File.Exists(reportPath).Should().BeTrue();
@@ -71,7 +72,7 @@ public sealed class CompareFormatsTests
 
 
         // Assert
-        result.ExitCode.Should().Be(0);
+        result.ExitCode.Should().Be(Constants.ExitCodes.SUCCESS);
 
         var hitsPath = output.CombinePath("benchmark-comparison-hits.txt");
         File.Exists(hitsPath).Should().BeTrue();
@@ -95,7 +96,7 @@ public sealed class CompareFormatsTests
 
 
         // Assert
-        result.ExitCode.Should().Be(0);
+        result.ExitCode.Should().Be(Constants.ExitCodes.SUCCESS);
 
         var hitsPath = output.CombinePath("benchmark-comparison-hits.txt");
         File.Exists(hitsPath).Should().BeFalse();
@@ -117,7 +118,7 @@ public sealed class CompareFormatsTests
 
 
         // Assert
-        result.ExitCode.Should().Be(0);
+        result.ExitCode.Should().Be(Constants.ExitCodes.SUCCESS);
         File.Exists(output.CombinePath("benchmark-comparison-report.md")).Should().BeTrue();
         File.Exists(output.CombinePath("benchmark-comparison-report.json")).Should().BeTrue();
     }

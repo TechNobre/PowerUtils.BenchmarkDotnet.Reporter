@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using PowerUtils.BenchmarkDotnet.Reporter.Common;
 using PowerUtils.BenchmarkDotnet.Reporter.IntegrationTests.Helpers;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.IntegrationTests.Commands.Compare;
@@ -18,7 +19,7 @@ public sealed class CompareNewRemovedTests
 
 
         // Assert
-        result.ExitCode.Should().Be(0);
+        result.ExitCode.Should().Be(Constants.ExitCodes.SUCCESS);
         result.StandardOutput.Should().Contain("StringConcat");
         result.StandardOutput.Should().Contain("[REMOVED]");
         result.StandardOutput.Should().Contain("MethodTest");
