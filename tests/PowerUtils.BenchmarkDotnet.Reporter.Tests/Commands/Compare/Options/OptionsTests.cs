@@ -32,8 +32,8 @@ public sealed class OptionsTests
         option.ValueType.Should().Be(typeof(string));
         option.Aliases.Count.Should().Be(1);
         option.Aliases.Should().Contain("-b");
-        option.Required.Should().BeTrue();
-        option.Description.Should().Be("Path to the folder or file with Baseline report.");
+        option.Required.Should().BeFalse();
+        option.Description.Should().Be("Path to the folder or file with Baseline report. Can also be set via the PBREPORTER_COMPARE__BASELINE environment variable or the 'baseline' key in the YAML config file; one of these sources must supply a value.");
     }
 
     [Fact]
@@ -47,8 +47,8 @@ public sealed class OptionsTests
         option.ValueType.Should().Be(typeof(string));
         option.Aliases.Count.Should().Be(1);
         option.Aliases.Should().Contain("-t");
-        option.Required.Should().BeTrue();
-        option.Description.Should().Be("Path to the folder or file with target reports.");
+        option.Required.Should().BeFalse();
+        option.Description.Should().Be("Path to the folder or file with target reports. Can also be set via the PBREPORTER_COMPARE__TARGET environment variable or the 'target' key in the YAML config file; one of these sources must supply a value.");
     }
 
     [Fact]
@@ -59,10 +59,10 @@ public sealed class OptionsTests
 
 
         // Assert
-        option.ValueType.Should().Be(typeof(string));
+        option.ValueType.Should().Be(typeof(string[]));
         option.Aliases.Count.Should().Be(1);
         option.Aliases.Should().Contain("-tm");
-        option.Description.Should().Be("Throw an error when the mean threshold is met. Examples: 5%, 10ms, 10us, 100ns, 1s.");
+        option.Description.Should().Be("Throw an error when the mean threshold is met. Examples: 5%, 10ms, 10us, 100ns, 1s. Repeat with 'pattern=value' (e.g. 'MyNamespace.MyClass.*=10ms') to scope a threshold to matching benchmarks; a bare value (no 'pattern=') sets the global threshold.");
     }
 
     [Fact]
@@ -73,10 +73,10 @@ public sealed class OptionsTests
 
 
         // Assert
-        option.ValueType.Should().Be(typeof(string));
+        option.ValueType.Should().Be(typeof(string[]));
         option.Aliases.Count.Should().Be(1);
         option.Aliases.Should().Contain("-ta");
-        option.Description.Should().Be("Throw an error when the allocation threshold is met. Examples: 5%, 10b, 10kb, 100mb, 1gb.");
+        option.Description.Should().Be("Throw an error when the allocation threshold is met. Examples: 5%, 10b, 10kb, 100mb, 1gb. Repeat with 'pattern=value' (e.g. 'MyNamespace.MyClass.*=10kb') to scope a threshold to matching benchmarks; a bare value (no 'pattern=') sets the global threshold.");
     }
 
     [Fact]

@@ -6,6 +6,6 @@ public static class CommonServiceCollectionExtensions
 {
     public static IServiceCollection AddCommon(this IServiceCollection services)
         => services
-            .AddTransient<IOHelpers.FileWriter>(sp =>
-                (path, content) => IOHelpers.WriteFile(path, content));
+            .AddTransient<IOUtils.FileWriter>(sp =>
+                (path, content) => IOUtils.WriteFile(path, content));
 }

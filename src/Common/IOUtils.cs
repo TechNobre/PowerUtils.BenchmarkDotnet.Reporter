@@ -3,7 +3,7 @@ using System.IO;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Common;
 
-public static class IOHelpers
+public static class IOUtils
 {
     public delegate void FileWriter(string path, string content);
     public static void WriteFile(string path, string content)

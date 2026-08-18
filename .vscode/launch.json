@@ -8,13 +8,18 @@
       "preLaunchTask": "build",
       "program": "${workspaceFolder}/src/bin/Debug/net10.0/PBReporter.dll",
       "args": [
+        //"compare",
+        "compare", "-c", "../tests/test-data/config.yml"
+
+        //"compare", "-b", "../tests/test-data/report-01/Benchmark-report-full.json", "-t", "../tests/test-data/report-04/Benchmark-report-full.json", "-tm", "4%", "-tm", "5%", "-tm", "ddd=10%", "-tm", "ddd.*=11%", "-tm", "ddd.fsf=13%"
+
         //"--version"
         //"compare", "-h"
         //"compare", "-f", "console", "-b", "../tests/test-data/report-02/Benchmark-report-full.json", "-t", "../tests/test-data/report-01/Benchmark-report-full.json", "-tm", "4%", "-ta", "5%"
         //"compare", "-f", "console", "-b", "../tests/test-data/report-01/Benchmark-report-full.json", "-t", "../tests/test-data/report-04/Benchmark-report-full.json"
         //"compare", "-f", "console", "-b", "../tests/test-data/report-01/Benchmark-report-full.json", "-t", "../tests/test-data/report-04/Benchmark-report-full.json", "-tm", "4%", "-ta", "5%", "-ft"
 
-        "compare", "-f", "console", "-b", "../tests/test-data/report-01/Benchmark-report-full.json", "-t", "../tests/test-data/report-04/Benchmark-report-full.json",
+        //"compare", "-f", "console", "-b", "../tests/test-data/report-01/Benchmark-report-full.json", "-t", "../tests/test-data/report-04/Benchmark-report-full.json",
         //"compare", "-f", "console", "-b", "../tests/test-data/report-05/Baseline-report-full.json", "-t", "../tests/test-data/report-05/Target-report-full.json",
         //"compare", "-f", "console", "-b", "../tests/test-data/report-01/Benchmark-report-full.json", "-t", "../tests/test-data/report-03",
         //"compare", "-f", "console", "-b", "../tests/test-data/report-20/Demo.Benchmarks.ArrayProcessorBenchmarks-report-full-compressed.json", "-t", "../tests/test-data/report-21/Demo.Benchmarks.ArrayProcessorBenchmarks-report-full-compressed.json",

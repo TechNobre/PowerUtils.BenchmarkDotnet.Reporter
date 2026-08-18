@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare;
+using PowerUtils.BenchmarkDotnet.Reporter.Common;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models;
 using static PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models.ComparerReport;
 
@@ -10,6 +13,15 @@ public sealed class EvaluateThresholdsTests
     private readonly CompareValidator _validator = new();
 
 
+    private static List<KeyValuePair<string, string>> _global(string value)
+        => [new KeyValuePair<string, string>("*", value)];
+
+    private static List<KeyValuePair<string, string>> _rules(params (string Pattern, string Value)[] rules)
+        => Array.ConvertAll(rules, rule => new KeyValuePair<string, string>(rule.Pattern, rule.Value)).ToList();
+
+    private static readonly List<KeyValuePair<string, string>> _none = [];
+
+
     [Fact]
     public void When_Has_Invalid_Mean_Threshold_Should_Throw_Exception()
     {
@@ -18,11 +30,11 @@ public sealed class EvaluateThresholdsTests
 
 
         // Act
-        Action act = () => _validator.EvaluateThresholds(report, "invalid", null);
+        Action act = () => _validator.EvaluateThresholds(report, _global("invalid"), _none);
 
 
         // Assert
-        act.Should().Throw<FormatException>();
+        act.Should().Throw<DomainException>();
     }
 
     [Fact]
@@ -33,11 +45,26 @@ public sealed class EvaluateThresholdsTests
 
 
         // Act
-        Action act = () => _validator.EvaluateThresholds(report, null, "invalid");
+        Action act = () => _validator.EvaluateThresholds(report, _none, _global("invalid"));
 
 
         // Assert
-        act.Should().Throw<FormatException>();
+        act.Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void When_Has_Invalid_Scoped_Mean_Threshold_Should_Throw_Exception()
+    {
+        // Arrange
+        var report = new ComparerReport();
+
+
+        // Act
+        Action act = () => _validator.EvaluateThresholds(report, _rules(("My.Namespace.*", "invalid")), _none);
+
+
+        // Assert
+        act.Should().Throw<DomainException>();
     }
 
     [Fact]
@@ -64,7 +91,7 @@ public sealed class EvaluateThresholdsTests
 
 
         // Act
-        _validator.EvaluateThresholds(report, "10%", "11%");
+        _validator.EvaluateThresholds(report, _global("10%"), _global("11%"));
 
 
         // Assert
@@ -88,7 +115,7 @@ public sealed class EvaluateThresholdsTests
 
 
         // Act
-        _validator.EvaluateThresholds(report, "5ns", "5B");
+        _validator.EvaluateThresholds(report, _global("5ns"), _global("5B"));
 
 
         // Assert
@@ -111,7 +138,7 @@ public sealed class EvaluateThresholdsTests
 
 
         // Act
-        _validator.EvaluateThresholds(report, "10%", null);
+        _validator.EvaluateThresholds(report, _global("10%"), _none);
 
 
         // Assert
@@ -133,7 +160,7 @@ public sealed class EvaluateThresholdsTests
 
 
         // Act
-        _validator.EvaluateThresholds(report, "5ns", null);
+        _validator.EvaluateThresholds(report, _global("5ns"), _none);
 
 
         // Assert
@@ -157,7 +184,7 @@ public sealed class EvaluateThresholdsTests
 
 
         // Act
-        _validator.EvaluateThresholds(report, "5ns", null);
+        _validator.EvaluateThresholds(report, _global("5ns"), _none);
 
 
         // Assert
@@ -181,7 +208,138 @@ public sealed class EvaluateThresholdsTests
 
 
         // Act
-        _validator.EvaluateThresholds(report, "5%", null);
+        _validator.EvaluateThresholds(report, _global("5%"), _none);
+
+
+        // Assert
+        report.HitThresholds.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void When_Scoped_Rule_Matches_Should_Override_Global_Threshold()
+    {
+        // Arrange
+        // Global 50% is loose enough to not hit; the scoped 5% rule for this FullName is tight and should hit instead.
+        var report = new ComparerReport();
+        report.Add(new Comparison
+        {
+            Type = "T",
+            Name = "Method",
+            FullName = "Demo.Benchmarks.ArrayProcessorBenchmarks.Method",
+            Mean = MetricComparison.CalculateExecutionTime(100, 110)
+        });
+
+        var rules = _rules(
+            ("*", "50%"),
+            ("Demo.Benchmarks.ArrayProcessorBenchmarks.*", "5%"));
+
+
+        // Act
+        _validator.EvaluateThresholds(report, rules, _none);
+
+
+        // Assert
+        report.HitThresholds.Should()
+            .Contain("Mean threshold hit for 'Demo.Benchmarks.ArrayProcessorBenchmarks.Method' (rule: Demo.Benchmarks.ArrayProcessorBenchmarks.*)");
+    }
+
+    [Fact]
+    public void When_No_Scoped_Rule_Matches_Should_Fallback_To_Global_Threshold()
+    {
+        // Arrange
+        var report = new ComparerReport();
+        report.Add(new Comparison
+        {
+            Type = "T",
+            Name = "Method",
+            FullName = "Demo.Benchmarks.StringProcessorBenchmarks.Method",
+            Mean = MetricComparison.CalculateExecutionTime(100, 110)
+        });
+
+        var rules = _rules(
+            ("*", "5%"),
+            ("Demo.Benchmarks.ArrayProcessorBenchmarks.*", "50%"));
+
+
+        // Act
+        _validator.EvaluateThresholds(report, rules, _none);
+
+
+        // Assert
+        report.HitThresholds.Should()
+            .Contain("Mean threshold hit for 'Demo.Benchmarks.StringProcessorBenchmarks.Method'");
+    }
+
+    [Fact]
+    public void When_Multiple_Scoped_Rules_Match_Should_Use_Most_Specific()
+    {
+        // Arrange
+        // The exact method rule (2%) is more specific than the class wildcard (50%) and should win, causing a hit.
+        var report = new ComparerReport();
+        report.Add(new Comparison
+        {
+            Type = "T",
+            Name = "Method",
+            FullName = "Demo.Benchmarks.ArrayProcessorBenchmarks.Method",
+            Mean = MetricComparison.CalculateExecutionTime(100, 110)
+        });
+
+        var rules = _rules(
+            ("Demo.Benchmarks.ArrayProcessorBenchmarks.*", "50%"),
+            ("Demo.Benchmarks.ArrayProcessorBenchmarks.Method", "2%"));
+
+
+        // Act
+        _validator.EvaluateThresholds(report, rules, _none);
+
+
+        // Assert
+        report.HitThresholds.Should()
+            .Contain("Mean threshold hit for 'Demo.Benchmarks.ArrayProcessorBenchmarks.Method' (rule: Demo.Benchmarks.ArrayProcessorBenchmarks.Method)");
+    }
+
+    [Fact]
+    public void When_No_Threshold_Configured_Should_Not_Register_Hits()
+    {
+        // Arrange
+        var report = new ComparerReport();
+        report.Add(new Comparison
+        {
+            Type = "T",
+            Name = "Method",
+            FullName = "Demo.Benchmarks.ArrayProcessorBenchmarks.Method",
+            Mean = MetricComparison.CalculateExecutionTime(1, 1000)
+        });
+
+
+        // Act
+        _validator.EvaluateThresholds(report, _none, _none);
+
+
+        // Assert
+        report.HitThresholds.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void When_A_Comparison_Matches_No_Configured_Rule_Should_Skip_It_Without_Registering_Hit()
+    {
+        // Arrange
+        // Only a scoped rule for StringProcessorBenchmarks is configured (no catch-all '*' rule), so the
+        // ArrayProcessorBenchmarks comparison matches nothing and must be skipped rather than evaluated.
+        var report = new ComparerReport();
+        report.Add(new Comparison
+        {
+            Type = "T",
+            Name = "Method",
+            FullName = "Demo.Benchmarks.ArrayProcessorBenchmarks.Method",
+            Mean = MetricComparison.CalculateExecutionTime(1, 1000)
+        });
+
+        var rules = _rules(("Demo.Benchmarks.StringProcessorBenchmarks.*", "1ns"));
+
+
+        // Act
+        _validator.EvaluateThresholds(report, rules, _none);
 
 
         // Assert

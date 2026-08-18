@@ -757,7 +757,7 @@ public sealed class CompareHandlerTests
     {
         // Arrange
         _validator
-            .When(v => v.EvaluateThresholds(Arg.Any<ComparerReport>(), Arg.Any<string?>(), Arg.Any<string?>()))
+            .When(v => v.EvaluateThresholds(Arg.Any<ComparerReport>(), Arg.Any<IReadOnlyList<KeyValuePair<string, string>>>(), Arg.Any<IReadOnlyList<KeyValuePair<string, string>>>()))
             .Do(ci => ci.ArgAt<ComparerReport>(0).HitThresholds.Add("Mean threshold hit for 'test hit'"));
 
 
@@ -778,12 +778,52 @@ public sealed class CompareHandlerTests
         act.Should().Be(Constants.ExitCodes.SUCCESS);
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    public void When_Baseline_Is_Missing_Should_Throw_DomainException(string? baseline)
+    {
+        // Arrange & Act
+        Action act = () => _handler.Execute(new()
+        {
+            Baseline = baseline,
+            Target = "target",
+            Formats = ["xpto"]
+        });
+
+
+        // Assert
+        act.Should().Throw<DomainException>()
+            .WithMessage("*baseline*required*");
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    public void When_Target_Is_Missing_Should_Throw_DomainException(string? target)
+    {
+        // Arrange & Act
+        Action act = () => _handler.Execute(new()
+        {
+            Baseline = "baseline",
+            Target = target,
+            Formats = ["xpto"]
+        });
+
+
+        // Assert
+        act.Should().Throw<DomainException>()
+            .WithMessage("*target*required*");
+    }
+
     [Fact]
     public void When_Comparison_Generate_Threshold_Hit_And_FailOnThresholdHit_Is_True_Should_Return_ThresholdHit_ExitCode()
     {
         // Arrange
         _validator
-            .When(v => v.EvaluateThresholds(Arg.Any<ComparerReport>(), Arg.Any<string?>(), Arg.Any<string?>()))
+            .When(v => v.EvaluateThresholds(Arg.Any<ComparerReport>(), Arg.Any<IReadOnlyList<KeyValuePair<string, string>>>(), Arg.Any<IReadOnlyList<KeyValuePair<string, string>>>()))
             .Do(ci => ci.ArgAt<ComparerReport>(0).HitThresholds.Add("Mean threshold hit for 'test hit'"));
 
 

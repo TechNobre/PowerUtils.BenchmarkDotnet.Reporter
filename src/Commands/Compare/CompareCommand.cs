@@ -1,5 +1,6 @@
 using System.CommandLine;
 using PowerUtils.BenchmarkDotnet.Reporter.Common;
+using PowerUtils.BenchmarkDotnet.Reporter.Common.Configuration;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare;
 
@@ -11,6 +12,7 @@ public sealed class CompareCommand(CompareHandler handler) : ICommandModule
             "compare",
             "Compare two BenchmarkDotNet reports and produce a diff report.")
         {
+            GlobalOptions.ConfigOption,
             CompareOptions.BaselineOption,
             CompareOptions.TargetOption,
             CompareOptions.MeanThresholdOption,
@@ -21,8 +23,12 @@ public sealed class CompareCommand(CompareHandler handler) : ICommandModule
             CompareOptions.FailOnThresholdHitOption
         };
 
-        compareCommand.SetAction(parser =>
-            handler.Execute(CompareOptions.Parse(parser)));
+        compareCommand.SetAction(GlobalExceptionHandler.Wrap(parser =>
+        {
+            var configFilePath = parser.GetValue(GlobalOptions.ConfigOption);
+            var configuration = ConfigurationLoader.Load(configFilePath);
+            return handler.Execute(CompareOptions.Parse(parser, configuration.Compare));
+        }));
 
         return compareCommand;
     }

@@ -1,7 +1,7 @@
 using System.IO;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Exporters;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models;
-using static PowerUtils.BenchmarkDotnet.Reporter.Common.IOHelpers;
+using static PowerUtils.BenchmarkDotnet.Reporter.Common.IOUtils;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Commands.Compare.Exporters;
 

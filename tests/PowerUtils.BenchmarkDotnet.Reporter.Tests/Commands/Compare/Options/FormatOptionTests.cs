@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models;
+using static PowerUtils.BenchmarkDotnet.Reporter.Common.Configuration.PbReporterConfiguration;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Commands.Compare.Options;
 
@@ -31,7 +32,7 @@ public sealed class FormatOptionTests
         option.ValueType.Should().Be(typeof(string[]));
         option.Aliases.Count.Should().Be(1);
         option.Aliases.Should().Contain("-f");
-        option.Description.Should().Be("Output format for the report.");
+        option.Description.Should().Be("Output format for the report. Can also be set via the PBREPORTER_COMPARE__FORMATS environment variable or the 'formats' key in the YAML config file (scalar or list).");
         (option.GetDefaultValue() as string[]).Should().Equal("console");
     }
 
@@ -96,5 +97,60 @@ public sealed class FormatOptionTests
         // Assert
         firstOptionResult?.Errors.Count().Should().Be(1);
         firstOptionResult?.Errors.Should().Contain(e => e.Message == "Required argument missing for option: '--format'.");
+    }
+
+    [Fact]
+    public void Parse_WithConfigurationFormatOnly_ShouldUse_ConfigurationFormat()
+    {
+        // Arrange
+        var parseResult = _command.Parse(string.Empty);
+        var configuration = new CompareConfigurationSection { Formats = ["markdown"] };
+
+        // Act
+        var options = CompareOptions.Parse(parseResult, configuration);
+
+        // Assert
+        options.Formats.Should().Equal("markdown");
+    }
+
+    [Fact]
+    public void Parse_WithCliAndConfigurationFormat_ShouldPrefer_CliFormat()
+    {
+        // Arrange
+        var parseResult = _command.Parse("--format json");
+        var configuration = new CompareConfigurationSection { Formats = ["markdown"] };
+
+        // Act
+        var options = CompareOptions.Parse(parseResult, configuration);
+
+        // Assert
+        options.Formats.Should().Equal("json");
+    }
+
+    [Fact]
+    public void Parse_WithNoCliOrConfigurationFormat_ShouldUseDefault_Console()
+    {
+        // Arrange
+        var parseResult = _command.Parse(string.Empty);
+
+        // Act
+        var options = CompareOptions.Parse(parseResult);
+
+        // Assert
+        options.Formats.Should().Equal("console");
+    }
+
+    [Fact]
+    public void Parse_WithConfigurationMultipleFormats_ShouldUse_AllConfigurationFormats()
+    {
+        // Arrange
+        var parseResult = _command.Parse(string.Empty);
+        var configuration = new CompareConfigurationSection { Formats = ["json", "markdown"] };
+
+        // Act
+        var options = CompareOptions.Parse(parseResult, configuration);
+
+        // Assert
+        options.Formats.Should().Equal("json", "markdown");
     }
 }

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models;
+using PowerUtils.BenchmarkDotnet.Reporter.Common;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare;
 
@@ -41,11 +42,11 @@ public static class CompareHelpers
             try
             {
                 reports[i] = JsonSerializer.Deserialize<JsonBenchmarkReports>(content)
-                    ?? throw new InvalidOperationException($"Failed to deserialize the {paths[i]} file");
+                    ?? throw new DomainException($"Failed to deserialize the {paths[i]} file");
             }
             catch (JsonException jsonException)
             {
-                throw new InvalidOperationException(
+                throw new DomainException(
                     $"Failed to deserialize the file '{paths[i]}'. {jsonException.Message}",
                     jsonException);
             }
@@ -72,7 +73,7 @@ public static class CompareHelpers
     {
         if(string.IsNullOrWhiteSpace(path))
         {
-            throw new FileNotFoundException("The provided path is null or empty");
+            throw new DomainException("The provided path is null or empty");
         }
 
         if(Directory.Exists(path))
@@ -84,7 +85,7 @@ public static class CompareHelpers
 
             if(files.Length == 0)
             {
-                throw new FileNotFoundException($"No {REPORT_FILE_ENDS} files found in the provided directory", path);
+                throw new DomainException($"No {REPORT_FILE_ENDS} files found in the provided directory '{path}'");
             }
 
             return files;
@@ -95,6 +96,6 @@ public static class CompareHelpers
             return [path];
         }
 
-        throw new FileNotFoundException($"The provided path '{path}' doesn't exist or is not a {REPORT_FILE_ENDS} file", path);
+        throw new DomainException($"The provided path '{path}' doesn't exist or is not a {REPORT_FILE_ENDS} file");
     }
 }

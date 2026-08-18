@@ -2,7 +2,7 @@ using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models;
-using static PowerUtils.BenchmarkDotnet.Reporter.Common.IOHelpers;
+using static PowerUtils.BenchmarkDotnet.Reporter.Common.IOUtils;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Exporters;
 

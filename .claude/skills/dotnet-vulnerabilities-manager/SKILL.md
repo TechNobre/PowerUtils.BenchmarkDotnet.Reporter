@@ -61,8 +61,8 @@ Parse the output and build a triage table:
 | System.Net.Http | 4.3.0 | CVE-2017-0248 | Critical | transitive |
 
 **Type classification rules**:
-- `direct` — appears under the project's own `<PackageReference>` entries.
-- `transitive` — flagged in the `--include-transitive` output but NOT present in the project's own references; it is pulled in by a dependency.
+- `direct` - appears under the project's own `<PackageReference>` entries.
+- `transitive` - flagged in the `--include-transitive` output but NOT present in the project's own references; it is pulled in by a dependency.
 
 If the user provides a GitHub Dependabot URL (e.g., `https://github.com/owner/repo/security/dependabot`) or mentions a GHSA/CVE ID, also read [advisory-sources.md](references/advisory-sources.md) to enrich the finding with the full advisory before remediating.
 
@@ -105,7 +105,7 @@ For each vulnerability, determine the remediation path before acting:
 
 ## Phase 3: Remediation
 
-### 3a — Direct vulnerability
+### 3a - Direct vulnerability
 
 The vulnerable package is a direct reference in the project:
 
@@ -120,7 +120,7 @@ dotnet list <project.csproj> package --vulnerable --include-transitive
 
 For direct vulnerabilities, no security-fix comment is required. This is a standard direct dependency upgrade.
 
-### 3b — Transitive vulnerability
+### 3b - Transitive vulnerability
 
 The vulnerable package is NOT a direct reference; it is pulled in by another package:
 
@@ -154,7 +154,7 @@ When `Directory.Packages.props` is present:
 - Transitive overrides: add `<PackageVersion Include="<Name>" Version="<safe>" />` to `Directory.Packages.props`. Place the security-fix comment immediately above this entry.
 - Do NOT add a `Version` attribute to the `<PackageReference>` in `.csproj` when CPM is active.
 
-### 3c — Stale override cleanup
+### 3c - Stale override cleanup
 
 After upstream dependencies have been updated, a transitive override added for a past CVE may no longer be needed.
 
@@ -170,7 +170,7 @@ After upstream dependencies have been updated, a transitive override added for a
 4. If vulnerability no longer appears after removal → the override is stale. Keep it removed.
 5. If the vulnerability reappears → restore the reference (`dotnet add package` again) and keep it.
 
-### 3d — Unresolvable vulnerabilities
+### 3d - Unresolvable vulnerabilities
 
 When no safe version is available yet (the advisory is open with no patch):
 
@@ -193,7 +193,7 @@ dotnet restore <solution>
 dotnet build <solution> --no-incremental
 ```
 
-If `dotnet build` fails after a package update, investigate compatibility before proceeding — do not leave the project in a broken state.
+If `dotnet build` fails after a package update, investigate compatibility before proceeding - do not leave the project in a broken state.
 
 ---
 
@@ -217,7 +217,7 @@ Read [comment-spec.md](references/comment-spec.md) for:
 
 ## Worked Examples
 
-### Example 1 — Direct vulnerability fix
+### Example 1 - Direct vulnerability fix
 
 **User**: "Newtonsoft.Json is flagged for CVE-2024-21907 in my project."
 
@@ -229,7 +229,7 @@ Read [comment-spec.md](references/comment-spec.md) for:
 5. `dotnet list src/Api/Api.csproj package --vulnerable --include-transitive` → clean.
 6. No security-fix comment is added because this is a direct package upgrade.
 
-### Example 2 — Transitive vulnerability fix
+### Example 2 - Transitive vulnerability fix
 
 **User**: "My build flags System.Net.Http for CVE-2017-0248 as a transitive dependency."
 
@@ -241,7 +241,7 @@ Read [comment-spec.md](references/comment-spec.md) for:
 5. `dotnet restore && dotnet list ... --vulnerable` → clean.
 6. Add `security-fix: transitive` comment explaining the forced reference.
 
-### Example 3 — Stale override removal
+### Example 3 - Stale override removal
 
 **User**: "Check if the System.Formats.Asn1 override we added six months ago is still needed."
 

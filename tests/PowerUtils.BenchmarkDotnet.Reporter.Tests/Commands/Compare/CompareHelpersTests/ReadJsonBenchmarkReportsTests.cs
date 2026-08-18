@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare;
-using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models;
+using PowerUtils.BenchmarkDotnet.Reporter.Common;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Commands.Compare.CompareHelpersTests;
 
@@ -62,7 +62,7 @@ public sealed class ReadJsonBenchmarkReportsTests : IDisposable
     }
 
     [Fact]
-    public void When_File_With_Invalid_PropertyType_Should_Throw_InvalidOperationException_With_InnerException_JsonException()
+    public void When_File_With_Invalid_PropertyType_Should_Throw_DomainException_With_InnerException_JsonException()
     {
         // Arrange
         var filePath = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{CompareHelpers.REPORT_FILE_ENDS}");
@@ -84,7 +84,7 @@ public sealed class ReadJsonBenchmarkReportsTests : IDisposable
 
 
         // Assert
-        act.Should().Throw<InvalidOperationException>()
+        act.Should().Throw<DomainException>()
             .Which.Message.Should().StartWith($"Failed to deserialize the file '{filePath}'. ");
     }
 

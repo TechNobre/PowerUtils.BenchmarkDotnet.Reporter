@@ -2,7 +2,7 @@
 
 Use these sources to enrich a vulnerability finding with advisory details (severity, affected versions, patched version, CVE/GHSA IDs, description) before deciding on a remediation target version.
 
-**Priority order**: Project-local scanner output (`dotnet list --vulnerable`) first. Use external sources to fill in missing advisory context — patched version, full CVE/GHSA ID, severity, and description.
+**Priority order**: Project-local scanner output (`dotnet list --vulnerable`) first. Use external sources to fill in missing advisory context - patched version, full CVE/GHSA ID, severity, and description.
 
 ---
 
@@ -39,7 +39,7 @@ Each alert card shows:
 - GHSA advisory ID and link.
 - Auto-dismiss/close status.
 
-### GitHub REST API — list Dependabot alerts
+### GitHub REST API - list Dependabot alerts
 
 ```powershell
 # Requires a GitHub token with security_events scope
@@ -50,15 +50,15 @@ Invoke-RestMethod `
 ```
 
 Key response fields:
-- `security_advisory.ghsa_id` — GHSA identifier.
-- `security_advisory.cve_id` — CVE identifier (may be null for some advisories).
-- `security_advisory.severity` — `low`, `medium`, `high`, or `critical`.
-- `security_advisory.description` — Full advisory description.
-- `security_vulnerability.vulnerable_version_range` — Affected version range (e.g., `< 13.0.3`).
-- `security_vulnerability.first_patched_version.identifier` — The earliest safe version.
-- `dependency.package.name` — Package name.
+- `security_advisory.ghsa_id` - GHSA identifier.
+- `security_advisory.cve_id` - CVE identifier (may be null for some advisories).
+- `security_advisory.severity` - `low`, `medium`, `high`, or `critical`.
+- `security_advisory.description` - Full advisory description.
+- `security_vulnerability.vulnerable_version_range` - Affected version range (e.g., `< 13.0.3`).
+- `security_vulnerability.first_patched_version.identifier` - The earliest safe version.
+- `dependency.package.name` - Package name.
 
-### GitHub REST API — single alert
+### GitHub REST API - single alert
 
 ```powershell
 Invoke-RestMethod `
@@ -128,7 +128,7 @@ https://www.nuget.org/packages/<PackageName>/<Version>
 
 Navigate to the "Vulnerabilities" tab to see all advisories affecting a specific version and which version resolves each.
 
-### NuGet Registration API — advisory metadata
+### NuGet Registration API - advisory metadata
 
 ```powershell
 # Retrieve the registration index for a package

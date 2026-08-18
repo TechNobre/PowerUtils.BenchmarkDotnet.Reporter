@@ -38,18 +38,23 @@ Compares two BenchmarkDotNet JSON reports between a baseline and a target, compu
 <tool> compare -b <baseline.json> -t <target.json>
 ```
 
-**Options** are defined in the compare command slice and wired into `CompareCommand` via `CompareOptions`.
+**Options** are defined in the compare command slice and wired into `CompareCommand` via `CompareOptions`. Full option reference (descriptions, defaults, threshold/scoped-threshold syntax): see [`docs/commands/compare.md`](docs/commands/compare.md).
 
-| Option | Alias | Required | Default | Description |
-|--------|-------|----------|---------|-------------|
-| `--baseline` | `-b` | Yes | — | Path to a file or folder with the baseline report(s) |
-| `--target` | `-t` | Yes | — | Path to a file or folder with the target report(s) |
-| `--threshold-mean` | `-tm` | No | — | Fail/flag when the mean diff exceeds this (e.g. `5%`, `10ms`, `10us`, `100ns`, `1s`) |
-| `--threshold-allocation` | `-ta` | No | — | Fail/flag when the allocation diff exceeds this (e.g. `5%`, `10b`, `10kb`, `100mb`, `1gb`) |
-| `--format` | `-f` | No | `console` | One or more of `console`, `markdown`, `json`, `hit-txt` |
-| `--output` | `-o` | No | `./BenchmarkReporter` | Output directory for exported report files |
-| `--fail-on-warnings` | `-fw` | No | `false` | Exit with a non-zero code when warnings are generated |
-| `--fail-on-threshold-hit` | `-ft` | No | `false` | Exit with a non-zero code when any threshold is hit |
+| Option | Alias | Required |
+|--------|-------|----------|
+| `--baseline` | `-b` | No\* |
+| `--target` | `-t` | No\* |
+| `--threshold-mean` | `-tm` | No |
+| `--threshold-allocation` | `-ta` | No |
+| `--format` | `-f` | No |
+| `--output` | `-o` | No |
+| `--fail-on-warnings` | `-fw` | No |
+| `--fail-on-threshold-hit` | `-ft` | No |
+| `--config` | `-c` | No |
+
+\* Not `Required` at the `System.CommandLine` level, but one of CLI/env var/config file must supply a value, `CompareHelpers.GetJsonReport` throws `FileNotFoundException("The provided path is null or empty")` if none does.
+
+**Configuration Conventions**: every option above can be set via CLI, environment variable, or the YAML config file, precedence **CLI > environment variables > config file**. Before adding a new option or command, read the [`configuration-conventions`](.claude/skills/configuration-conventions/SKILL.md) skill (the authoritative naming/precedence reference for implementers) and [`docs/configuration.md`](docs/configuration.md) (the user-facing explanation). `PbReporterConfiguration.cs` is the schema future commands extend with their own top-level section, via the same `ConfigurationLoader` precedence.
 
 **Exporters** are registered as keyed transient services and resolved by the `--format` value:
 
@@ -155,21 +160,27 @@ src/
         ComparisonStatus.cs                    - Enum: Better | Worse | Equal | New | Removed
         TimeThreshold.cs                       - Parses `-tm` values (e.g. "5%", "10ms")
         MemoryThreshold.cs                     - Parses `-ta` values (e.g. "5%", "10kb")
-      CompareCommand.cs                        - Builds the `compare` command and binds its options
+      CompareCommand.cs                        - Builds the `compare` command, binds its options, and loads configuration
       CompareHandler.cs                        - Reads reports, matches benchmarks, evaluates thresholds, and invokes exporters
       CompareHelpers.cs                        - Benchmark report loading and JSON parsing helpers
-      CompareOptions.cs                        - Option parsing and validation
+      CompareOptions.cs                        - Option parsing/validation and config+CLI threshold merging
       CompareServiceCollectionExtensions.cs    - Registers command services and dependencies
-      CompareValidator.cs                      - Validates reports and host-environment differences
+      CompareValidator.cs                      - Validates reports, host-environment differences, and scoped thresholds
   Common/
+    Configuration/
+      PbReporterConfiguration.cs               - Root config schema (per-command sections, e.g. `Compare`)
+      ConfigurationLoader.cs                   - Loads/merges config file + environment variables (see Configuration Conventions below)
+      YamlDocumentParser.cs                    - Minimal block-style YAML subset parser (no external dependency)
+    GlobalOptions.cs                           - Shared options any command can add to its own options (currently `--config`/`-c`)
     ICommandModule.cs                          - Interface every command module implements
     CommonServiceCollectionExtensions.cs       - Shared DI helper registrations
     Constants.cs                               - Shared constants (exit codes, validation values, etc.)
-    IOHelpers.cs                               - File and directory utilities, including report and output writing
+    IOUtils.cs                                 - File and directory utilities, including output writing
+    NamespacesUtils.cs                         - Namespace and type name helpers
     BeautifyExtensions.cs                      - Formats time, memory, and percentage values for display
     ComparableExtensions.cs                    - `EquivalentTo()` helper for case-insensitive `FullName` matching
     TableBuilder.cs                            - Shared table builder used by console output
-    ValidationException.cs                     - Exception thrown for invalid input or reports
+    DomainException.cs                         - Exception thrown for invalid input or reports
 
 tests/
   PowerUtils.BenchmarkDotnet.Reporter.Tests/ - Unit tests
@@ -178,6 +189,26 @@ tests/
 ```
 
 - **test-data** in `tests/test-data/` contains sample benchmark reports used by unit and integration tests. The repository also includes `docs/test-data.md`, which documents the scenario coverage and expected behavior for each dataset. These files are versioned and should be updated whenever new scenarios are added.
+
+
+## Documentation Structure
+
+User-facing documentation is split by audience/depth, not duplicated across files:
+
+| Location | Audience | Content |
+|----------|----------|---------|
+| `README.md` | End users, first read | High-level only: install, prerequisites, a minimal example per command, and links out. Never grows a full option/config reference inline - that always lives under `docs/`. |
+| `docs/commands/<command>.md` | End users | One file per CLI command: full option table, examples, output format, exit codes. Today: `docs/commands/compare.md`. |
+| `docs/configuration.md` | End users | The cross-cutting env var / YAML config file mechanism (naming convention, precedence) shared by every command - not duplicated per-command. |
+| `docs/github-actions-setup.md`, `docs/test-data.md` | End users / contributors | Existing standalone guides; unchanged by this structure. |
+| `.claude/skills/*/SKILL.md` | AI agents (this file's audience) | Implementation recipes - *how* to build a feature consistently (e.g. `configuration-conventions` for wiring a new option's CLI/env/YAML shapes), not *how to use* the finished feature. Skills and `docs/` intentionally don't duplicate each other: skills are for implementers, `docs/` is for users. |
+| `AGENTS.md` (this file) | AI agents | Architecture, conventions, and pointers into the above - not a copy of their content. Keep option tables here terse (names/aliases only); link to `docs/commands/*.md` for descriptions. |
+
+When adding a new command or option: update the relevant `docs/commands/*.md` (or create one),
+`docs/configuration.md` if it gains a new config-relevant field, this file's pointers if the
+architecture changed, and add a one-line link from `README.md`'s Documentation list - never inline
+the full detail back into `README.md`.
+
 
 ## CI/CD
 

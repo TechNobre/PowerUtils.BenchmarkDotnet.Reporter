@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -12,7 +13,13 @@ public static class ProcessRunner
 
     private static readonly string _toolDllPath = ResolveToolDllPath();
 
-    public static async Task<Result> RunAsync(params string[] args)
+    public static Task<Result> RunAsync(params string[] args)
+        => RunAsync(args, environmentVariables: null, workingDirectory: null);
+
+    public static async Task<Result> RunAsync(
+        string[] args,
+        IReadOnlyDictionary<string, string?>? environmentVariables = null,
+        string? workingDirectory = null)
     {
         var startInfo = new ProcessStartInfo
         {
@@ -22,6 +29,16 @@ public static class ProcessRunner
             UseShellExecute = false,
             CreateNoWindow = true
         };
+
+        if(workingDirectory is not null)
+        {
+            startInfo.WorkingDirectory = workingDirectory;
+        }
+
+        foreach(var (key, value) in environmentVariables ?? new Dictionary<string, string?>())
+        {
+            startInfo.Environment[key] = value;
+        }
 
         startInfo.ArgumentList.Add(_toolDllPath);
         foreach(var arg in args)

@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare;
+using PowerUtils.BenchmarkDotnet.Reporter.Common;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Commands.Compare.CompareHelpersTests;
 
@@ -51,12 +52,12 @@ public sealed class GetJsonReportTests : IDisposable
 
 
         // Assert
-        act.Should().Throw<FileNotFoundException>()
+        act.Should().Throw<DomainException>()
             .Which.Message.Should().Contain("The provided path is null or empty");
     }
 
     [Fact]
-    public void When_File_Doesnt_Exist_Should_Throw_FileNotFoundException()
+    public void When_File_Doesnt_Exist_Should_Throw_DomainException()
     {
         // Arrange
         var filePath = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{CompareHelpers.REPORT_FILE_ENDS}");
@@ -67,24 +68,24 @@ public sealed class GetJsonReportTests : IDisposable
 
 
         // Assert
-        act.Should().Throw<FileNotFoundException>()
+        act.Should().Throw<DomainException>()
             .Which.Message.Should().Contain($"The provided path '{filePath}' doesn't exist or is not a {CompareHelpers.REPORT_FILE_ENDS} file");
     }
 
     [Fact]
-    public void When_Directory_Doesnt_Exist_Should_Throw_FileNotFoundException()
+    public void When_Directory_Doesnt_Exist_Should_Throw_DomainException()
     {
         // Arrange & Act
         Action act = () => CompareHelpers.GetJsonReport(_tempDirectory);
 
 
         // Assert
-        act.Should().Throw<FileNotFoundException>()
+        act.Should().Throw<DomainException>()
             .Which.Message.Should().Contain($"No {CompareHelpers.REPORT_FILE_ENDS} files found in the provided directory");
     }
 
     [Fact]
-    public void When_File_Is_Invalid_Should_Throw_FileNotFoundException()
+    public void When_File_Is_Invalid_Should_Throw_DomainException()
     {
         // Arrange
         var path = Path.Combine(_tempDirectory, "nonexistent.json");
@@ -95,7 +96,7 @@ public sealed class GetJsonReportTests : IDisposable
 
 
         // Assert
-        act.Should().Throw<FileNotFoundException>()
+        act.Should().Throw<DomainException>()
             .Which.Message.Should().Contain($"The provided path '{path}' doesn't exist or is not a {CompareHelpers.REPORT_FILE_ENDS} file");
     }
 
