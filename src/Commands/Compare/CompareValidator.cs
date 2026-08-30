@@ -108,19 +108,20 @@ public sealed class CompareValidator : ICompareValidator
             }
 
             // Parse eagerly so malformed threshold syntax fails fast, even when no comparison matches it.
+            // Pre-sort by specificity once — pattern specificity is constant across comparisons.
             var resolved = rules
                 .Select(rule =>
                 {
                     var parsed = parse(rule.Value);
                     return new ResolvedThreshold(parsed.Value, parsed.IsPercentage, rule.Key);
                 })
+                .OrderByDescending(rule => NamespacesUtils.GetSpecificity(rule.Pattern))
                 .ToList();
 
             foreach(var comparison in report.Comparisons)
             {
                 var best = resolved
                     .Where(rule => NamespacesUtils.IsMatch(rule.Pattern, comparison.FullName))
-                    .OrderByDescending(rule => NamespacesUtils.GetSpecificity(rule.Pattern))
                     .Select(rule => (ResolvedThreshold?)rule)
                     .FirstOrDefault();
 
