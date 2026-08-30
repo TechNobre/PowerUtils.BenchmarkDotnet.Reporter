@@ -1,3 +1,16 @@
+# [1.7.0](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.6.0...v1.7.0) (2026-08-30)
+
+
+### Bug Fixes
+
+* enhance mutation report format for SonarQube integration ([510884b](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/commit/510884b0508ff3eed5c6d29072ce7c98d4a3f04e))
+* **thresholds:** fix parsing of decimal values for percentage ([2348fbd](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/commit/2348fbd4e0aee98cb30e875e9f7bcd12e2f02aba))
+
+
+### Features
+
+* improve and extend the options ([0c0fb7d](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/commit/0c0fb7d3c3026d8379656649603af83b39656591))
+
 # [1.6.0](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.5.1...v1.6.0) (2026-08-16)
 
 
