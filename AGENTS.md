@@ -52,7 +52,7 @@ Compares two BenchmarkDotNet JSON reports between a baseline and a target, compu
 | `--fail-on-threshold-hit` | `-ft` | No |
 | `--config` | `-c` | No |
 
-\* Not `Required` at the `System.CommandLine` level, but one of CLI/env var/config file must supply a value, `CompareHelpers.GetJsonReport` throws `FileNotFoundException("The provided path is null or empty")` if none does.
+\* Not `Required` at the `System.CommandLine` level, but one of CLI/env var/config file must supply a value; missing baseline/target is surfaced as a `DomainException` at runtime if none does.
 
 **Configuration Conventions**: every option above can be set via CLI, environment variable, or the YAML config file, precedence **CLI > environment variables > config file**. Before adding a new option or command, read the [`configuration-conventions`](.claude/skills/configuration-conventions/SKILL.md) skill (the authoritative naming/precedence reference for implementers) and [`docs/configuration.md`](docs/configuration.md) (the user-facing explanation). `PbReporterConfiguration.cs` is the schema future commands extend with their own top-level section, via the same `ConfigurationLoader` precedence.
 
