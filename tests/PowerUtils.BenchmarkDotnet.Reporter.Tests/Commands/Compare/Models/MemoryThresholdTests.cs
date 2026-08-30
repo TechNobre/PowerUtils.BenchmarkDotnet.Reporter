@@ -16,6 +16,11 @@ public sealed class MemoryThresholdTests
     [InlineData("1234GB", 1234000000000, false)]
     [InlineData("15%", 15, true)]
     [InlineData("100%", 100, true)]
+    [InlineData("5.5%", 5.5, true)]
+    [InlineData("0.5B", 0.5, false)]
+    [InlineData("1.5KB", 1500, false)]
+    [InlineData("1.5MB", 1500000, false)]
+    [InlineData("1.5GB", 1500000000, false)]
     public void From_Text_To_MemoryThreshold(string value, decimal expectedValue, bool expectedIsPercentage)
     {
         // Arrange & Act
@@ -53,6 +58,9 @@ public sealed class MemoryThresholdTests
     [InlineData("1kg")]
     [InlineData("1tb")]
     [InlineData("123")]
+    [InlineData("5.5.5%")]
+    [InlineData("5,5%")]
+    [InlineData("1,5KB")]
     public void Invalid_Text_Should_Not_Parse(string? value)
     {
         // Act

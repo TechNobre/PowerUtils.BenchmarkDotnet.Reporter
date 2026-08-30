@@ -19,6 +19,11 @@ public sealed class TimeThresholdTests
     [InlineData("1234s", 1234000000000, false)]
     [InlineData("15%", 15, true)]
     [InlineData("100%", 100, true)]
+    [InlineData("5.5%", 5.5, true)]
+    [InlineData("0.5ns", 0.5, false)]
+    [InlineData("1.5us", 1500, false)]
+    [InlineData("1.5ms", 1500000, false)]
+    [InlineData("1.5s", 1500000000, false)]
     public void From_Text_To_TimeThreshold(string value, decimal expectedValue, bool expectedIsPercentage)
     {
         // Arrange & Act
@@ -56,6 +61,9 @@ public sealed class TimeThresholdTests
     [InlineData("1xx")]
     [InlineData("1kg")]
     [InlineData("123")]
+    [InlineData("5.5.5%")]
+    [InlineData("5,5%")]
+    [InlineData("1,5ms")]
     public void Invalid_Text_Should_Not_Parse(string? value)
     {
         // Act
