@@ -25,6 +25,112 @@ The four files that implement it:
 
 **Read this before touching any of them.** The goal is that a new option or command looks like it was written by the same person who wrote `compare`'s thresholds - not a one-off pattern.
 
+## System.CommandLine option patterns
+
+All `Option<T>` fields and the parse logic live together in the command's own `XxxOptions.cs` record. [`CompareOptions.cs`](../../../src/Commands/Compare/CompareOptions.cs) is the canonical implementation for static option fields, validators, defaults, and config/CLI merge; [`CompareCommand.cs`](../../../src/Commands/Compare/CompareCommand.cs) is the canonical command wiring for `GlobalOptions.ConfigOption`, `ConfigurationLoader.Load(...)`, and `Options.Parse(...)`. Keep user-facing syntax consistent with [`docs/configuration.md`](../../../docs/configuration.md).
+
+### 1. CLI-only required string option
+
+Use `Required = true` only for CLI-only values. If the value can also come from environment variables or YAML config, leave it optional at the `System.CommandLine` level and let the merged result be validated when it is consumed.
+
+```csharp
+public static readonly Option<string> InputOption
+  = new("--input", "-i")
+  {
+    Description = "Path to the input file.",
+    Required = true
+  };
+```
+
+### 2. Optional option with a default value
+
+```csharp
+public static readonly Option<string> OutputOption =
+  new("--output", "-o")
+  {
+    Description = "Output directory to export the diff report. Default is current directory.",
+    DefaultValueFactory = _ => "./BenchmarkReporter"
+  };
+```
+
+### 3. Multi-value option with custom validation
+
+Build it via a private static factory method when the option needs a `Validators.Add(...)` callback:
+
+```csharp
+public static readonly Option<string[]> FormatsOption = _createFormats();
+private static Option<string[]> _createFormats()
+{
+  var option = new Option<string[]>("--format", "-f")
+  {
+    Description = "Output format for the report.",
+    DefaultValueFactory = _ => [ExporterFormats.CONSOLE]
+  };
+
+  option.Validators.Add(static result =>
+  {
+    var values = result.Tokens
+      .Select(token => token.Value)
+      .Where(value => !ExporterFormats.All.Contains(value));
+
+    foreach (var value in values)
+    {
+      result.AddError($"Invalid format '{value}'. Allowed values: {string.Join(", ", ExporterFormats.All)}");
+    }
+  });
+
+  return option;
+}
+```
+
+### 4. Boolean flag with a default
+
+```csharp
+public static readonly Option<bool> FailOnWarningsOption =
+  new("--fail-on-warnings", "-fw")
+  {
+    Description = "Exit with error code when the comparison generates any warnings.",
+    Required = false,
+    DefaultValueFactory = _ => false
+  };
+```
+
+### The `Parse` factory
+
+Every option field is mapped to a record property in one static method, called from `XxxCommand.Build()`. If the option participates in CLI/env/YAML configuration, `Parse` also accepts the command's configuration section and merges it with CLI values using this skill's precedence rules.
+
+```csharp
+public static CompareOptions Parse(ParseResult parser, CompareConfigurationSection? configuration = null)
+  => new()
+  {
+    Baseline = parser.GetValue(BaselineOption) ?? configuration?.Baseline,
+    Target = parser.GetValue(TargetOption) ?? configuration?.Target,
+    MeanThreshold = NamespacesUtils.Merge(
+      _rulesFromConfig(configuration, configuration?.ThresholdMean, entry => entry.ThresholdMean),
+      _parseThresholdTokens(parser.GetValue(MeanThresholdOption)!)),
+    AllocationThreshold = NamespacesUtils.Merge(
+      _rulesFromConfig(configuration, configuration?.ThresholdAllocation, entry => entry.ThresholdAllocation),
+      _parseThresholdTokens(parser.GetValue(AllocationThresholdOption)!)),
+    Formats = parser.GetResult(FormatsOption)?.Tokens.Count > 0
+      ? parser.GetValue(FormatsOption)!
+      : configuration?.Formats is { Count: > 0 } configFormats
+        ? configFormats.ToArray()
+        : [ExporterFormats.CONSOLE],
+    Output = parser.GetValue(OutputOption)!,
+    FailOnWarnings = parser.GetValue(FailOnWarningsOption),
+    FailOnThresholdHit = parser.GetValue(FailOnThresholdHitOption)
+  };
+```
+
+### Where does validation go?
+
+| Check | Where |
+|---|---|
+| Shape/format of a single option's raw tokens (e.g. "is this one of the allowed format strings") | `option.Validators.Add(...)` inside `XxxOptions.cs` |
+| Cross-field or business rules (e.g. "do these two reports' environments match", "does this diff exceed a threshold") | `XxxValidator.cs` |
+
+For scoped-option token validation, add a `Validators.Add(...)` callback in `XxxOptions.cs` that accepts either a bare global value or `pattern=value`, validates pattern syntax with `NamespacesUtils.IsValidPattern`, validates the value through the relevant value object parser, and reports invalid tokens with `result.AddError(...)`.
+
 ## Naming convention for a plain (non-scoped) option
 
 Most options are a single value with no "apply to a subset" behavior - e.g. `compare`'s `-b`/`--baseline`:
