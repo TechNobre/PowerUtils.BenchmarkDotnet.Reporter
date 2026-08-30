@@ -3,7 +3,7 @@ compare:
   target: ../tests/test-data/report-01/Benchmark-report-full.json
   formats: [json, markdown, console]
   thresholds:
-    - thresholdMean: 5%
+    - thresholdMean: 1.5%
     - pattern: "DemoApi.*"
       thresholdMean: 10ms
     - thresholdAllocation: 10kb

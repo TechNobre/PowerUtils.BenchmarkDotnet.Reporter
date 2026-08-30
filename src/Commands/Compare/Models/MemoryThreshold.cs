@@ -1,3 +1,4 @@
+using System.Globalization;
 using PowerUtils.BenchmarkDotnet.Reporter.Common;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models;
@@ -23,15 +24,17 @@ public readonly struct MemoryThreshold
             return false;
         }
 
-        // Find the position where the numeric part ends
+        // Find the position where the numeric part ends (digits and at most one '.')
         var i = 0;
-        while(i < value.Length && char.IsDigit(value[i]))
+        var hasDecimalPoint = false;
+        while(i < value.Length && (char.IsDigit(value[i]) || (value[i] == '.' && !hasDecimalPoint)))
         {
+            if(value[i] == '.') hasDecimalPoint = true;
             i++;
         }
 
-        // Extract the value part
-        if(!decimal.TryParse(value[..i], out var numericValue))
+        // Extract the value part; always use InvariantCulture so '.' is the decimal separator
+        if(!decimal.TryParse(value[..i], NumberStyles.Number, CultureInfo.InvariantCulture, out var numericValue))
         {
             return false;
         }
