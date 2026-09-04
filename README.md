@@ -30,6 +30,7 @@
   - [Run the tool](#run-the-tool)
   - [Commands](#commands)
     - [`compare`](#compare)
+    - [`gate`](#gate)
 - [Configuration](#configuration)
 - [Documentation](#documentation)
 - [GitHub Actions Setup](#github-actions-setup)
@@ -191,6 +192,18 @@ pbreporter compare -b baseline-full.json -t target-full.json
 For the full option reference, threshold syntax, usage examples, output metrics, and exit codes,
 see the [`compare` Command Reference](docs/commands/compare.md).
 
+#### `gate`
+
+Checks a BenchmarkDotNet report against absolute performance thresholds and fails the run when any is exceeded.
+
+**Example:**
+```bash
+pbreporter gate -i benchmark-report.json -tm 500ms -ta 10kb
+```
+
+For the full option reference, threshold syntax, usage examples, output metrics, and exit codes,
+see the [`gate` Command Reference](docs/commands/gate.md).
+
 
 
 ## Configuration
@@ -202,7 +215,10 @@ See [Configuration](docs/configuration.md) for the full naming convention, prece
 
 ## Documentation
 
-- [`compare` Command Reference](docs/commands/compare.md) - full options, threshold syntax, usage examples, output metrics, exit codes
+- [`compare` Command](docs/commands/compare.md) - full options, threshold syntax, usage examples, output metrics, exit codes
+- [`gate` Command](docs/commands/gate.md) - full options, threshold syntax, usage examples, output metrics, exit codes
+- [Threshold Units](docs/threshold-units.md) - supported time, memory, and percentage threshold units
+- [Exit Codes](docs/exit-codes.md) - CLI exit-code meanings
 - [Configuration](docs/configuration.md) - environment variables and YAML config file
 - [GitHub Actions Setup Guide](docs/github-actions-setup.md) - CI/CD integration
 - [Test Data Documentation](docs/test-data.md) - sample benchmark reports for contributors

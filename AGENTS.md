@@ -25,7 +25,7 @@ This file provides guidance to AI coding assistants (Claude Code, GitHub Copilot
 
 ### Features
 
-Actually, right now, it just has one command, but was designed to be extensible in the future.
+The tool currently has two commands, `compare` and `gate`, and was designed to be extensible with more in the future.
 
 #### Commands
 
@@ -69,6 +69,41 @@ Compares two BenchmarkDotNet JSON reports between a baseline and a target, compu
 
 **Benchmark matching**: Reports are matched by `FullName` (namespace + type + method) using case-insensitive comparison via `EquivalentTo()`. Unmatched baselines are `Removed`; unmatched targets are `New`.
 
+##### `gate`
+
+Checks a single BenchmarkDotNet JSON report (no baseline/target pair) against absolute performance thresholds, exporting results in the same formats as `compare` (console, markdown, JSON, hit-txt).
+
+```bash
+<tool> gate -i <report.json> -tm 500ms -ta 10kb
+```
+
+**Options** are defined in the gate command slice and wired into `GateCommand` via `GateOptions`. Full option reference: see [`docs/commands/gate.md`](docs/commands/gate.md).
+
+| Option | Alias | Required |
+|--------|-------|----------|
+| `--input` | `-i` | No\* |
+| `--threshold-mean` | `-tm` | No |
+| `--threshold-allocation` | `-ta` | No |
+| `--format` | `-f` | No |
+| `--output` | `-o` | No |
+| `--fail-on-warnings` | `-fw` | No |
+| `--config` | `-c` | No |
+
+\* Not `Required` at the `System.CommandLine` level, but one of CLI/env var/config file must supply a value; missing input is surfaced as a `DomainException` at runtime if none does.
+
+Unlike `compare`, `gate` has **no** `--fail-on-threshold-hit` flag: checking thresholds is the command's entire purpose, so a hit always exits `THRESHOLD_HIT` (`3`). It also rejects a `%` threshold unit (parsed by its own `%`-less `Commands/Gate/Models/TimeThreshold`/`MemoryThreshold`, distinct from `compare`'s), since there's no baseline to compute a percentage against.
+
+**Exporters** are `gate`'s own keyed transient services (separate DI registrations from `compare`'s, since the two commands' report shapes differ), resolved by the same `--format` value:
+
+| Format key | Exporter | Output |
+|------------|----------|--------|
+| `console` | `ConsoleExporter` | Prints a table to stdout; no file written |
+| `markdown` | `MarkdownExporter` | `benchmark-gate-report.md` |
+| `json` | `JsonExporter` | `benchmark-gate-report.json` |
+| `hit-txt` | `HitTxtExporter` | `benchmark-gate-hits.txt` (only when thresholds are hit) |
+
+**RELEASE-mode validation**: `src/Commands/Gate/GateValidator.cs` warns per benchmark when its report wasn't built in RELEASE configuration - the single-report analogue of `compare`'s host-environment check.
+
 
 ## Commands
 
@@ -87,6 +122,9 @@ dotnet run --project src -- <command> [options]
 
 # Example: Compare two benchmark reports
 dotnet run --project src -- compare -b <baseline.json> -t <target.json>
+
+# Example: Check a report against absolute thresholds
+dotnet run --project src -- gate -i <report.json> -tm 500ms -ta 10kb
 ```
 
 ### To test
@@ -123,19 +161,21 @@ src/
   Commands/                                   - Contains CLI command implementations
     <command>/                                - Each command has its own folder
       Models/*                                - Command-specific models (input, output, DTOs, Structures, etc.)
-      Options/*                               - Command-specific System.CommandLine Option subclasses
+      Options/*                               - Command-specific System.CommandLine Option subclasses (optional)
       <command>Command.cs                     - Command setup and execution, options parsing
       <command>Handler.cs                     - Command handler business logic
-      <command>Helper.cs                      - Command-specific helpers
+      <command>Utils.cs                       - Command-specific utility methods (optional)
       <command>Options.cs                     - Command-specific options parsing and validation
       <command>ServiceCollectionExtensions.cs - Command-specific Dependency extensions for DI registration and resolution
       <command>Validator.cs                   - Command-specific validation logic (if applicable)
       *.cs                                    - Command-specific utility classes
   Common/                                     - Shared code across commands
+    Configuration/                            - Config file + environment variable loading and schema
+    Models/                                   - Models shared across commands (e.g. deserialized BenchmarkDotNet reports)
     <Common>Extensions.cs                     - Extension methods for common types (e.g. IEnumerable, string, etc.)
-    <Common>Helpers.cs                        - Common helper methods (e.g. file I/O, JSON parsing, etc.)
+    <Common>Utils.cs                          - Common utility methods (e.g. file I/O, JSON serialization, etc.)
     Constants.cs                              - Common constants used across commands
-    <Common>Exceptions.cs                     - Common exception types used across commands
+    DomainException.cs                        - Exception type for invalid input or reports
 ```
 
 ### Current Structure
@@ -146,7 +186,7 @@ src/
   Commands/
     Compare/
       Exporters/
-        IExporter.cs                           - Exporter contract
+        IExporter.cs                           - Exporter contract, bound to `ComparerReport`
         ComparisonTableBuilder.cs              - Shared row/column model for console/markdown output
         ConsoleExporter.cs                     - Prints the comparison table to stdout
         MarkdownExporter.cs                    - Writes `benchmark-comparison-report.md`
@@ -154,23 +194,45 @@ src/
         HitTxtExporter.cs                      - Writes `benchmark-comparison-hits.txt`
         ExporterFormats.cs                     - Supported format keys
       Models/
-        JsonBenchmarkReports.cs                - Deserialized BenchmarkDotNet JSON schema root
         ComparerReport.cs                      - Output model: warnings, comparisons, and hit thresholds
         MetricComparison.cs                    - Computes diff/diff percentage/status for a single metric
         ComparisonStatus.cs                    - Enum: Better | Worse | Equal | New | Removed
-        TimeThreshold.cs                       - Parses `-tm` values (e.g. "5%", "10ms")
-        MemoryThreshold.cs                     - Parses `-ta` values (e.g. "5%", "10kb")
+        TimeThreshold.cs                       - Parses `-tm` values (e.g. "5%", "10ms") with percentage support
+        MemoryThreshold.cs                     - Parses `-ta` values (e.g. "5%", "10kb") with percentage support
       CompareCommand.cs                        - Builds the `compare` command, binds its options, and loads configuration
       CompareHandler.cs                        - Reads reports, matches benchmarks, evaluates thresholds, and invokes exporters
-      CompareHelpers.cs                        - Benchmark report loading and JSON parsing helpers
       CompareOptions.cs                        - Option parsing/validation and config+CLI threshold merging
       CompareServiceCollectionExtensions.cs    - Registers command services and dependencies
-      CompareValidator.cs                      - Validates reports, host-environment differences, and scoped thresholds
+      CompareValidator.cs                      - Validates reports, host-environment differences, and scoped thresholds (via `Common/ThresholdResolver.cs`)
+    Gate/
+      Exporters/
+        IExporter.cs                           - Exporter contract, bound to `GateReport` (own DI registrations from `compare`'s, not shared)
+        GateTableBuilder.cs                    - Single-row-per-benchmark table model (no baseline/target/diff columns)
+        ConsoleExporter.cs                     - Prints the gate table to stdout
+        MarkdownExporter.cs                    - Writes `benchmark-gate-report.md`
+        JsonExporter.cs                        - Writes `benchmark-gate-report.json`
+        HitTxtExporter.cs                      - Writes `benchmark-gate-hits.txt`
+        ExporterFormats.cs                     - Supported format keys
+      Models/
+        GateReport.cs                          - Output model: warnings, per-benchmark results, and hit thresholds
+        TimeThreshold.cs                       - Parses `-tm` values (e.g. "10ms") - no `%` unit, unlike Compare's
+        MemoryThreshold.cs                     - Parses `-ta` values (e.g. "10kb") - no `%` unit, unlike Compare's
+      GateCommand.cs                           - Builds the `gate` command, binds its options, and loads configuration
+      GateHandler.cs                           - Reads the report(s), evaluates thresholds, and invokes exporters
+      GateOptions.cs                           - Option parsing/validation and config+CLI threshold merging
+      GateServiceCollectionExtensions.cs       - Registers command services and dependencies
+      GateValidator.cs                         - Evaluates thresholds (via `Common/ThresholdResolver.cs`) and the RELEASE-mode warning
   Common/
     Configuration/
-      PbReporterConfiguration.cs               - Root config schema (per-command sections, e.g. `Compare`)
+      PbReporterConfiguration.cs               - Root config schema (per-command sections: `Compare`, `Gate`)
       ConfigurationLoader.cs                   - Loads/merges config file + environment variables (see Configuration Conventions below)
       YamlDocumentParser.cs                    - Minimal block-style YAML subset parser (no external dependency)
+    Models/
+      JsonBenchmarkReports.cs                  - Deserialized BenchmarkDotNet JSON schema root, shared by Compare and Gate
+    BenchmarkReportLoader.cs                   - Resolves a file/folder path to report(s) and deserializes them, shared by Compare and Gate
+    BenchmarkReportValidator.cs                - `AddIfNotRelease()`: shared RELEASE-mode warning check used by the validators
+    NumericUnitParser.cs                       - Shared numeric+unit tokenizer used by both Compare's and Gate's threshold value objects
+    ThresholdResolver.cs                       - Specificity-sort + first-match rule resolution, shared by Compare's and Gate's validators
     GlobalOptions.cs                           - Shared options any command can add to its own options (currently `--config`/`-c`)
     ICommandModule.cs                          - Interface every command module implements
     CommonServiceCollectionExtensions.cs       - Shared DI helper registrations
@@ -181,6 +243,9 @@ src/
     ComparableExtensions.cs                    - `EquivalentTo()` helper for case-insensitive `FullName` matching
     TableBuilder.cs                            - Shared table builder used by console output
     DomainException.cs                         - Exception thrown for invalid input or reports
+    GlobalExceptionHandler.cs                  - Wraps command actions: prints `DomainException` errors plus help and returns the `ERROR` exit code
+    JsonUtils.cs                               - `ToJson()` extension (indented, relaxed escaping) used by the JSON exporters
+    MarkdownLogExtensions.cs                   - `ToTableRow()` helper for MarkdownLog table rows
 
 tests/
   PowerUtils.BenchmarkDotnet.Reporter.Tests/ - Unit tests
@@ -198,8 +263,9 @@ User-facing documentation is split by audience/depth, not duplicated across file
 | Location | Audience | Content |
 |----------|----------|---------|
 | `README.md` | End users, first read | High-level only: install, prerequisites, a minimal example per command, and links out. Never grows a full option/config reference inline - that always lives under `docs/`. |
-| `docs/commands/<command>.md` | End users | One file per CLI command: full option table, examples, output format, exit codes. Today: `docs/commands/compare.md`. |
+| `docs/commands/<command>.md` | End users | One file per CLI command: full option table, examples, output format, exit codes. Today: `docs/commands/compare.md`, `docs/commands/gate.md`. |
 | `docs/configuration.md` | End users | The cross-cutting env var / YAML config file mechanism (naming convention, precedence) shared by every command - not duplicated per-command. |
+| `docs/exit-codes.md`, `docs/threshold-units.md` | End users | Cross-cutting references for exit codes and threshold value/unit syntax shared by every command. |
 | `docs/github-actions-setup.md`, `docs/test-data.md` | End users / contributors | Existing standalone guides; unchanged by this structure. |
 | `.claude/skills/*/SKILL.md` | AI agents (this file's audience) | Implementation recipes - *how* to build a feature consistently (e.g. `configuration-conventions` for wiring a new option's CLI/env/YAML shapes), not *how to use* the finished feature. Skills and `docs/` intentionally don't duplicate each other: skills are for implementers, `docs/` is for users. |
 | `AGENTS.md` (this file) | AI agents | Architecture, conventions, and pointers into the above - not a copy of their content. Keep option tables here terse (names/aliases only); link to `docs/commands/*.md` for descriptions. |

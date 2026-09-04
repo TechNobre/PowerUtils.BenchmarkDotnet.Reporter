@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using static PowerUtils.BenchmarkDotnet.Reporter.Common.Configuration.PbReporterConfiguration;
-using static PowerUtils.BenchmarkDotnet.Reporter.Common.Configuration.PbReporterConfiguration.CompareConfigurationSection;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Common.Configuration;
 
@@ -16,6 +15,9 @@ public static class ConfigurationLoader
 
     private static readonly IReadOnlySet<string> _compareKnownKeys =
         new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "baseline", "target", "formats", "thresholds" };
+
+    private static readonly IReadOnlySet<string> _gateKnownKeys =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "input", "formats", "thresholds" };
 
     private static readonly IReadOnlySet<string> _thresholdEntryKnownKeys =
         new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "pattern", "thresholdMean", "thresholdAllocation" };
@@ -35,14 +37,16 @@ public static class ConfigurationLoader
 
         return new PbReporterConfiguration
         {
-            Compare = _mergeCompareSections(fileConfiguration.Compare, envConfiguration.Compare)
+            Compare = _mergeCompareSections(fileConfiguration.Compare, envConfiguration.Compare),
+            Gate = _mergeGateSections(fileConfiguration.Gate, envConfiguration.Gate)
         };
     }
 
     public static PbReporterConfiguration ParseEnvironmentVariables(IReadOnlyDictionary<string, string?> environmentVariables)
     {
         var configuration = new PbReporterConfiguration();
-        var scopedEntries = new SortedDictionary<int, ScopedThresholdConfig>();
+        var compareScopedEntries = new SortedDictionary<int, ScopedThresholdConfig>();
+        var gateScopedEntries = new SortedDictionary<int, ScopedThresholdConfig>();
 
         foreach(var (key, value) in environmentVariables)
         {
@@ -52,13 +56,20 @@ public static class ConfigurationLoader
             }
 
             var segments = key[ENV_VAR_PREFIX.Length..].Split(_segmentSeparator, StringSplitOptions.RemoveEmptyEntries);
-            _apply(configuration, scopedEntries, segments, value);
+            _applyCompare(configuration, compareScopedEntries, segments, value);
+            _applyGate(configuration, gateScopedEntries, segments, value);
         }
 
-        if(scopedEntries.Count > 0)
+        if(compareScopedEntries.Count > 0)
         {
             configuration.Compare ??= new CompareConfigurationSection();
-            configuration.Compare.Thresholds = scopedEntries.Values.ToList();
+            configuration.Compare.Thresholds = compareScopedEntries.Values.ToList();
+        }
+
+        if(gateScopedEntries.Count > 0)
+        {
+            configuration.Gate ??= new GateConfigurationSection();
+            configuration.Gate.Thresholds = gateScopedEntries.Values.ToList();
         }
 
         return configuration;
@@ -73,11 +84,16 @@ public static class ConfigurationLoader
             configuration.Compare = _parseCompareSection(compareMapping);
         }
 
+        if(document.TryGetValue("gate", out var gateNode) && gateNode is IReadOnlyDictionary<string, object?> gateMapping)
+        {
+            configuration.Gate = _parseGateSection(gateMapping);
+        }
+
         return configuration;
     }
 
 
-    private static void _apply(
+    private static void _applyCompare(
         PbReporterConfiguration configuration,
         SortedDictionary<int, ScopedThresholdConfig> scopedEntries,
         string[] segments,
@@ -109,6 +125,60 @@ public static class ConfigurationLoader
         else if(segments.Length == 2 && segments[1].Equals("THRESHOLD_ALLOCATION", StringComparison.OrdinalIgnoreCase))
         {
             configuration.Compare.ThresholdAllocation = value;
+        }
+        else if(segments.Length == 4
+            && segments[1].Equals("THRESHOLDS", StringComparison.OrdinalIgnoreCase)
+            && int.TryParse(segments[2], out var index))
+        {
+            if(!scopedEntries.TryGetValue(index, out var entry))
+            {
+                entry = new ScopedThresholdConfig();
+                scopedEntries[index] = entry;
+            }
+
+            if(segments[3].Equals("PATTERN", StringComparison.OrdinalIgnoreCase))
+            {
+                entry.Pattern = value;
+            }
+            else if(segments[3].Equals("THRESHOLD_MEAN", StringComparison.OrdinalIgnoreCase))
+            {
+                entry.ThresholdMean = value;
+            }
+            else if(segments[3].Equals("THRESHOLD_ALLOCATION", StringComparison.OrdinalIgnoreCase))
+            {
+                entry.ThresholdAllocation = value;
+            }
+        }
+    }
+
+    private static void _applyGate(
+        PbReporterConfiguration configuration,
+        SortedDictionary<int, ScopedThresholdConfig> scopedEntries,
+        string[] segments,
+        string value)
+    {
+        if(segments.Length < 2 || !segments[0].Equals("GATE", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        configuration.Gate ??= new GateConfigurationSection();
+
+        if(segments.Length == 2 && segments[1].Equals("INPUT", StringComparison.OrdinalIgnoreCase))
+        {
+            configuration.Gate.Input = value;
+        }
+        else if(segments.Length == 2 && segments[1].Equals("FORMATS", StringComparison.OrdinalIgnoreCase))
+        {
+            configuration.Gate.Formats = [value];
+        }
+        else if(segments.Length == 2 && segments[1].Equals("THRESHOLD_MEAN", StringComparison.OrdinalIgnoreCase))
+        {
+            configuration.Gate.ThresholdMean = value;
+        }
+        else if(segments.Length == 2 && segments[1].Equals("THRESHOLD_ALLOCATION", StringComparison.OrdinalIgnoreCase))
+        {
+            configuration.Gate.ThresholdAllocation = value;
         }
         else if(segments.Length == 4
             && segments[1].Equals("THRESHOLDS", StringComparison.OrdinalIgnoreCase)
@@ -168,6 +238,59 @@ public static class ConfigurationLoader
             foreach(var item in thresholdsList.OfType<IReadOnlyDictionary<string, object?>>())
             {
                 _assertNoUnknownKeys(item, "a 'compare.thresholds' entry", _thresholdEntryKnownKeys);
+
+                var pattern = _getString(item, "pattern");
+                var mean = _getString(item, "thresholdMean");
+                var allocation = _getString(item, "thresholdAllocation");
+
+                if(pattern is null)
+                {
+                    // A thresholds entry with no pattern is the global rule for whichever metric(s) it sets.
+                    // If more than one such entry sets the same metric, the last one in the file wins.
+                    if(mean is not null)
+                    {
+                        section.ThresholdMean = mean;
+                    }
+
+                    if(allocation is not null)
+                    {
+                        section.ThresholdAllocation = allocation;
+                    }
+
+                    continue;
+                }
+
+                scopedEntries.Add(new ScopedThresholdConfig
+                {
+                    Pattern = pattern,
+                    ThresholdMean = mean,
+                    ThresholdAllocation = allocation
+                });
+            }
+
+            section.Thresholds = scopedEntries;
+        }
+
+        return section;
+    }
+
+    private static GateConfigurationSection _parseGateSection(IReadOnlyDictionary<string, object?> mapping)
+    {
+        _assertNoUnknownKeys(mapping, "the 'gate' configuration section", _gateKnownKeys);
+
+        var section = new GateConfigurationSection
+        {
+            Input = _getString(mapping, "input"),
+            Formats = _getStringList(mapping, "formats")
+        };
+
+        if(mapping.TryGetValue("thresholds", out var thresholdsNode) && thresholdsNode is IReadOnlyList<object?> thresholdsList)
+        {
+            var scopedEntries = new List<ScopedThresholdConfig>();
+
+            foreach(var item in thresholdsList.OfType<IReadOnlyDictionary<string, object?>>())
+            {
+                _assertNoUnknownKeys(item, "a 'gate.thresholds' entry", _thresholdEntryKnownKeys);
 
                 var pattern = _getString(item, "pattern");
                 var mean = _getString(item, "thresholdMean");
@@ -290,6 +413,67 @@ public static class ConfigurationLoader
     }
 
     private static List<ScopedThresholdConfig>? _mergeThresholds(List<ScopedThresholdConfig>? lower, List<ScopedThresholdConfig>? higher)
+    {
+        if((lower is null || lower.Count == 0) && (higher is null || higher.Count == 0))
+        {
+            return null;
+        }
+
+        var merged = new Dictionary<string, ScopedThresholdConfig>(StringComparer.OrdinalIgnoreCase);
+
+        foreach(var entry in lower ?? [])
+        {
+            if(entry.Pattern is not null)
+            {
+                merged[entry.Pattern] = new ScopedThresholdConfig
+                {
+                    Pattern = entry.Pattern,
+                    ThresholdMean = entry.ThresholdMean,
+                    ThresholdAllocation = entry.ThresholdAllocation
+                };
+            }
+        }
+
+        foreach(var entry in higher ?? [])
+        {
+            if(entry.Pattern is null)
+            {
+                continue;
+            }
+
+            if(!merged.TryGetValue(entry.Pattern, out var existing))
+            {
+                existing = new ScopedThresholdConfig { Pattern = entry.Pattern };
+                merged[entry.Pattern] = existing;
+            }
+
+            existing.ThresholdMean = entry.ThresholdMean ?? existing.ThresholdMean;
+            existing.ThresholdAllocation = entry.ThresholdAllocation ?? existing.ThresholdAllocation;
+        }
+
+        return merged.Values.ToList();
+    }
+
+    private static GateConfigurationSection? _mergeGateSections(GateConfigurationSection? lower, GateConfigurationSection? higher)
+    {
+        if(lower is null && higher is null)
+        {
+            return null;
+        }
+
+        return new GateConfigurationSection
+        {
+            Input = higher?.Input ?? lower?.Input,
+            Formats = higher?.Formats ?? lower?.Formats,
+            ThresholdMean = higher?.ThresholdMean ?? lower?.ThresholdMean,
+            ThresholdAllocation = higher?.ThresholdAllocation ?? lower?.ThresholdAllocation,
+            Thresholds = _mergeGateThresholds(lower?.Thresholds, higher?.Thresholds)
+        };
+    }
+
+    private static List<ScopedThresholdConfig>? _mergeGateThresholds(
+        List<ScopedThresholdConfig>? lower,
+        List<ScopedThresholdConfig>? higher)
     {
         if((lower is null || lower.Count == 0) && (higher is null || higher.Count == 0))
         {

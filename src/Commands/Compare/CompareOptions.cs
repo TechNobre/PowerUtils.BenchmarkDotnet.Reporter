@@ -5,7 +5,6 @@ using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Exporters;
 using System.Linq;
 using PowerUtils.BenchmarkDotnet.Reporter.Common;
 using static PowerUtils.BenchmarkDotnet.Reporter.Common.Configuration.PbReporterConfiguration;
-using static PowerUtils.BenchmarkDotnet.Reporter.Common.Configuration.PbReporterConfiguration.CompareConfigurationSection;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare;
 

@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models;
-using PowerUtils.BenchmarkDotnet.Reporter.Common;
+using PowerUtils.BenchmarkDotnet.Reporter.Common.Models;
 
-namespace PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare;
+namespace PowerUtils.BenchmarkDotnet.Reporter.Common;
 
-public static class CompareHelpers
+public static class BenchmarkReportLoader
 {
     public const string REPORT_FILE_ENDS = ".json";
 

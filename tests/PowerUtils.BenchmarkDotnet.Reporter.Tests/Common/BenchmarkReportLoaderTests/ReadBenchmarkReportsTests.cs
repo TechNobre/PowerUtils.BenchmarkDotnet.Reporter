@@ -1,8 +1,8 @@
 using System;
 using System.IO;
-using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare;
+using PowerUtils.BenchmarkDotnet.Reporter.Common;
 
-namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Commands.Compare.CompareHelpersTests;
+namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Common.BenchmarkReportLoaderTests;
 
 public sealed class ReadBenchmarkReportsTests : IDisposable
 {
@@ -32,7 +32,7 @@ public sealed class ReadBenchmarkReportsTests : IDisposable
 
 
         // Act
-        var act = CompareHelpers.ReadBenchmarkReports(path);
+        var act = BenchmarkReportLoader.ReadBenchmarkReports(path);
 
 
         // Assert
@@ -49,7 +49,7 @@ public sealed class ReadBenchmarkReportsTests : IDisposable
 
 
         // Act
-        var act = CompareHelpers.ReadBenchmarkReports(path);
+        var act = BenchmarkReportLoader.ReadBenchmarkReports(path);
 
 
         // Assert
@@ -66,7 +66,7 @@ public sealed class ReadBenchmarkReportsTests : IDisposable
 
 
         // Act
-        var act = CompareHelpers.ReadBenchmarkReports(path);
+        var act = BenchmarkReportLoader.ReadBenchmarkReports(path);
 
 
         // Assert
@@ -79,7 +79,7 @@ public sealed class ReadBenchmarkReportsTests : IDisposable
     public void When_Json_Doesnt_Have_Benchmarks_Property_Should_Return_Empty_List()
     {
         // Arrange
-        var filePath = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{CompareHelpers.REPORT_FILE_ENDS}");
+        var filePath = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{BenchmarkReportLoader.REPORT_FILE_ENDS}");
         File.WriteAllText(
             filePath,
             """
@@ -90,7 +90,7 @@ public sealed class ReadBenchmarkReportsTests : IDisposable
 
 
         // Act
-        var act = CompareHelpers.ReadBenchmarkReports(filePath);
+        var act = BenchmarkReportLoader.ReadBenchmarkReports(filePath);
 
 
         // Assert

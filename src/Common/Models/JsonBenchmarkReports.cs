@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models;
+namespace PowerUtils.BenchmarkDotnet.Reporter.Common.Models;
 
 public sealed class JsonBenchmarkReports : BenchmarkHeader
 { // Generated with https://json2csharp.com/

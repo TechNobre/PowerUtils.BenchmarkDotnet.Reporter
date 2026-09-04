@@ -1,10 +1,9 @@
 using System;
 using System.IO;
 using System.Linq;
-using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare;
 using PowerUtils.BenchmarkDotnet.Reporter.Common;
 
-namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Commands.Compare.CompareHelpersTests;
+namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Common.BenchmarkReportLoaderTests;
 
 public sealed class ReadJsonBenchmarkReportsTests : IDisposable
 {
@@ -37,7 +36,7 @@ public sealed class ReadJsonBenchmarkReportsTests : IDisposable
 
 
         // Act
-        var act = CompareHelpers.ReadJsonBenchmarkReports(path);
+        var act = BenchmarkReportLoader.ReadJsonBenchmarkReports(path);
 
 
         // Assert
@@ -53,7 +52,7 @@ public sealed class ReadJsonBenchmarkReportsTests : IDisposable
 
 
         // Act
-        var act = CompareHelpers.ReadJsonBenchmarkReports(path).Single();
+        var act = BenchmarkReportLoader.ReadJsonBenchmarkReports(path).Single();
 
 
         // Assert
@@ -65,7 +64,7 @@ public sealed class ReadJsonBenchmarkReportsTests : IDisposable
     public void When_File_With_Invalid_PropertyType_Should_Throw_DomainException_With_InnerException_JsonException()
     {
         // Arrange
-        var filePath = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{CompareHelpers.REPORT_FILE_ENDS}");
+        var filePath = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{BenchmarkReportLoader.REPORT_FILE_ENDS}");
         File.WriteAllText(
             filePath,
             """
@@ -80,7 +79,7 @@ public sealed class ReadJsonBenchmarkReportsTests : IDisposable
 
 
         // Act
-        Action act = () => CompareHelpers.ReadJsonBenchmarkReports(filePath);
+        Action act = () => BenchmarkReportLoader.ReadJsonBenchmarkReports(filePath);
 
 
         // Assert
@@ -92,7 +91,7 @@ public sealed class ReadJsonBenchmarkReportsTests : IDisposable
     public void When_File_Doesnt_Have_Benchmarks_Property_Should_Not_Throw()
     {
         // Arrange
-        var filePath = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{CompareHelpers.REPORT_FILE_ENDS}");
+        var filePath = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{BenchmarkReportLoader.REPORT_FILE_ENDS}");
         File.WriteAllText(
             filePath,
             """
@@ -103,7 +102,7 @@ public sealed class ReadJsonBenchmarkReportsTests : IDisposable
 
 
         // Act
-        var act = CompareHelpers.ReadJsonBenchmarkReports(filePath).Single();
+        var act = BenchmarkReportLoader.ReadJsonBenchmarkReports(filePath).Single();
 
 
         // Assert
@@ -119,7 +118,7 @@ public sealed class ReadJsonBenchmarkReportsTests : IDisposable
 
 
         // Act
-        var act = CompareHelpers.ReadJsonBenchmarkReports(path).Single();
+        var act = BenchmarkReportLoader.ReadJsonBenchmarkReports(path).Single();
 
 
         // Assert
