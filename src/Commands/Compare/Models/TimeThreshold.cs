@@ -1,4 +1,3 @@
-using System.Globalization;
 using PowerUtils.BenchmarkDotnet.Reporter.Common;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models;
@@ -19,57 +18,15 @@ public readonly struct TimeThreshold
     {
         threshold = default;
 
-        if(string.IsNullOrWhiteSpace(value))
+        if(!NumericUnitParser.TryExtract(value, out var numericValue, out var unit))
         {
             return false;
         }
 
-        // Find the position where the numeric part ends (digits and at most one '.')
-        var i = 0;
-        var hasDecimalPoint = false;
-        while(i < value.Length && (char.IsDigit(value[i]) || (value[i] == '.' && !hasDecimalPoint)))
-        {
-            if(value[i] == '.') hasDecimalPoint = true;
-            i++;
-        }
-
-        // Extract the value part; always use InvariantCulture so '.' is the decimal separator
-        if(!decimal.TryParse(value[..i], NumberStyles.Number, CultureInfo.InvariantCulture, out var numericValue))
+        var isPercentage = unit == "%";
+        if(!isPercentage && !NumericUnitParser.TryConvertTimeToNanoseconds(numericValue, unit, out numericValue))
         {
             return false;
-        }
-
-        if(numericValue <= 0)
-        {
-            return false;
-        }
-
-        var isPercentage = false;
-
-        // Extract the unit part
-        var unit = value[i..];
-
-        // Match unit string to enum
-        switch(unit.ToLowerInvariant())
-        {
-            case "ns":
-                break;
-            case "μs":
-            case "µs":
-            case "us":
-                numericValue *= 1_000;
-                break;
-            case "ms":
-                numericValue *= 1_000 * 1_000;
-                break;
-            case "s":
-                numericValue *= 1_000 * 1_000 * 1_000;
-                break;
-            case "%":
-                isPercentage = true;
-                break;
-            default:
-                return false;
         }
 
         threshold = new TimeThreshold(numericValue, isPercentage);

@@ -1,10 +1,9 @@
 using System;
 using System.IO;
 using System.Linq;
-using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare;
 using PowerUtils.BenchmarkDotnet.Reporter.Common;
 
-namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Commands.Compare.CompareHelpersTests;
+namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Common.BenchmarkReportLoaderTests;
 
 public sealed class GetJsonReportTests : IDisposable
 {
@@ -29,12 +28,12 @@ public sealed class GetJsonReportTests : IDisposable
     public void When_File_Exits_Should_Return_Array_With_One_Full_Path()
     {
         // Arrange
-        var path = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{CompareHelpers.REPORT_FILE_ENDS}");
+        var path = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{BenchmarkReportLoader.REPORT_FILE_ENDS}");
         File.WriteAllText(path, "{}");
 
 
         // Act
-        var act = CompareHelpers.GetJsonReport(path);
+        var act = BenchmarkReportLoader.GetJsonReport(path);
 
 
         // Assert
@@ -48,7 +47,7 @@ public sealed class GetJsonReportTests : IDisposable
     public void When_Path_Isnt_Defined_Should_Throw_NotFoundException(string? path)
     {
         // Arrange & Act
-        Action act = () => CompareHelpers.GetJsonReport(path);
+        Action act = () => BenchmarkReportLoader.GetJsonReport(path);
 
 
         // Assert
@@ -60,28 +59,28 @@ public sealed class GetJsonReportTests : IDisposable
     public void When_File_Doesnt_Exist_Should_Throw_DomainException()
     {
         // Arrange
-        var filePath = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{CompareHelpers.REPORT_FILE_ENDS}");
+        var filePath = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{BenchmarkReportLoader.REPORT_FILE_ENDS}");
 
 
         // Act
-        Action act = () => CompareHelpers.GetJsonReport(filePath);
+        Action act = () => BenchmarkReportLoader.GetJsonReport(filePath);
 
 
         // Assert
         act.Should().Throw<DomainException>()
-            .Which.Message.Should().Contain($"The provided path '{filePath}' doesn't exist or is not a {CompareHelpers.REPORT_FILE_ENDS} file");
+            .Which.Message.Should().Contain($"The provided path '{filePath}' doesn't exist or is not a {BenchmarkReportLoader.REPORT_FILE_ENDS} file");
     }
 
     [Fact]
     public void When_Directory_Doesnt_Exist_Should_Throw_DomainException()
     {
         // Arrange & Act
-        Action act = () => CompareHelpers.GetJsonReport(_tempDirectory);
+        Action act = () => BenchmarkReportLoader.GetJsonReport(_tempDirectory);
 
 
         // Assert
         act.Should().Throw<DomainException>()
-            .Which.Message.Should().Contain($"No {CompareHelpers.REPORT_FILE_ENDS} files found in the provided directory");
+            .Which.Message.Should().Contain($"No {BenchmarkReportLoader.REPORT_FILE_ENDS} files found in the provided directory");
     }
 
     [Fact]
@@ -92,26 +91,26 @@ public sealed class GetJsonReportTests : IDisposable
 
 
         // Act
-        Action act = () => CompareHelpers.GetJsonReport(path);
+        Action act = () => BenchmarkReportLoader.GetJsonReport(path);
 
 
         // Assert
         act.Should().Throw<DomainException>()
-            .Which.Message.Should().Contain($"The provided path '{path}' doesn't exist or is not a {CompareHelpers.REPORT_FILE_ENDS} file");
+            .Which.Message.Should().Contain($"The provided path '{path}' doesn't exist or is not a {BenchmarkReportLoader.REPORT_FILE_ENDS} file");
     }
 
     [Fact]
     public void When_There_Are_Multiple_JsonReport_Files_Should_Return_All_Of_FullPaths_For_Them()
     {
         // Arrange
-        var filePath1 = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{CompareHelpers.REPORT_FILE_ENDS}");
-        var filePath2 = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{CompareHelpers.REPORT_FILE_ENDS}");
+        var filePath1 = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{BenchmarkReportLoader.REPORT_FILE_ENDS}");
+        var filePath2 = Path.Combine(_tempDirectory, $"{Guid.NewGuid()}{BenchmarkReportLoader.REPORT_FILE_ENDS}");
         File.WriteAllText(filePath1, "{}");
         File.WriteAllText(filePath2, "{}");
 
 
         // Act
-        var act = CompareHelpers.GetJsonReport(_tempDirectory)
+        var act = BenchmarkReportLoader.GetJsonReport(_tempDirectory)
             .OrderBy(f => f)
             .ToArray();
 
@@ -131,7 +130,7 @@ public sealed class GetJsonReportTests : IDisposable
 
 
         // Act
-        var act = CompareHelpers.GetJsonReport(path);
+        var act = BenchmarkReportLoader.GetJsonReport(path);
 
 
         // Assert

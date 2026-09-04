@@ -9,7 +9,7 @@ The CLI tool is structured into vertical slices: each command resides in a dedic
 
 Every command implements the [`ICommandModule`](../../../src/Common/ICommandModule.cs) interface. The CLI entry point in [`src/Program.cs`](../../../src/Program.cs) dynamically discovers all registered `ICommandModule` instances from the DI container, so adding a command requires only appending `.Add<Name>Command()` to the service collection chain.
 
-For a concrete, end-to-end implementation, see [`src/Commands/Compare/`](../../../src/Commands/Compare/).
+For a concrete, end-to-end implementation, see [`src/Commands/Compare/`](../../../src/Commands/Compare/) or [`src/Commands/Gate/`](../../../src/Commands/Gate/) - two independently-implemented commands following the same anatomy, useful to diff against each other when in doubt about what's "the pattern" versus incidental to one command.
 
 ## When to Use
 

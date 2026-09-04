@@ -155,6 +155,16 @@ Each test data folder typically contains the following files:
   - `Demo.Benchmarks.StringProcessorBenchmarks-report-brief-compressed.json`
 - **Purpose**: Test handling of all JSON report formats (full, brief, compressed)
 
+---
+
+### 📄 `config.yml` - YAML Configuration File Fixture
+- **File**: `config.yml`
+- **Purpose**: A `compare:` YAML config section (global and scoped `thresholds`, `formats`) pointing at `report-01`/`report-02`, used as the literal example backing [Configuration](configuration.md)'s config-file walkthrough
+
+**Best for**: Reference example when writing or testing YAML config-file support for a command
+
+> `gate`'s own tests reuse the existing single-report fixtures above (e.g. `report-01`, `report-10`) rather than adding new ones - `gate` checks one report's raw values against absolute thresholds, so any fixture with `Mean`/`Allocated` data works.
+
 
 ## Sample Comparisons
 

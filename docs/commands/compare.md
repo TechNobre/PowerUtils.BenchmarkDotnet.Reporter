@@ -10,12 +10,10 @@ pbreporter compare -b baseline-full.json -t target-full.json
 ```
 
 - [Options](#options)
-  - [Threshold Units](#threshold-units)
   - [Scoped Thresholds](#scoped-thresholds)
 - [Example of usage](#example-of-usage)
 - [Output Metrics](#output-metrics)
 - [Error Handling Options](#error-handling-options)
-  - [Exit Codes](#exit-codes)
 
 
 
@@ -34,27 +32,7 @@ pbreporter compare -b baseline-full.json -t target-full.json
 
 > Every option above (including `-b`/`-t`) can also be set via an environment variable or the YAML config file instead of a CLI argument. See [Configuration](../configuration.md) for the full naming convention and precedence order.
 
-### Threshold Units
-
-**Time (`-tm`):**
-
-| Unit | Description | Example |
-|------|-------------|---------|
-| `ns` | Nanoseconds | `100ns` |
-| `us` | Microseconds | `10us` |
-| `ms` | Milliseconds | `10ms` |
-| `s` | Seconds | `1s` |
-| `%` | Percentage relative to baseline | `5%` |
-
-**Memory (`-ta`):**
-
-| Unit | Description | Example |
-|------|-------------|---------|
-| `b` | Bytes | `10b` |
-| `kb` | Kilobytes | `10kb` |
-| `mb` | Megabytes | `10mb` |
-| `gb` | Gigabytes | `1gb` |
-| `%` | Percentage relative to baseline | `5%` |
+See [Threshold Units](../threshold-units.md#threshold-units) for supported threshold units, including percentage thresholds relative to the baseline.
 
 ### Scoped Thresholds
 
@@ -178,9 +156,4 @@ pbreporter compare -b baseline-full.json -t target-full.json -tm 5% -fw -ft
 ```
 > Note: If both conditions are met, warnings take priority and the tool exits with code 2.
 
-### Exit Codes
-
-* **0**: Success - No issues detected
-* **1**: Generic error (invalid configuration, missing files, invalid threshold values, or other user-triggered failures)
-* **2**: Warnings detected (when `--fail-on-warnings` is enabled)
-* **3**: Performance thresholds exceeded (when `--fail-on-threshold-hit` is enabled)
+See [Exit Codes](../exit-codes.md#exit-codes) for all command exit codes.

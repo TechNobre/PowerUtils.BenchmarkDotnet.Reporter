@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare;
+using PowerUtils.BenchmarkDotnet.Reporter.Commands.Gate;
 using PowerUtils.BenchmarkDotnet.Reporter.Common;
 
 // We print a lot of numbers here and we want to make it always in invariant way
@@ -11,6 +12,7 @@ Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 var serviceCollection = new ServiceCollection();
 serviceCollection
     .AddCompareCommand()
+    .AddGateCommand()
     .AddCommon();
 
 var rootCommand = new RootCommand(".NET BenchmarkDotNet Reporter Tool");

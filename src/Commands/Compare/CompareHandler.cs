@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Exporters;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models;
 using PowerUtils.BenchmarkDotnet.Reporter.Common;
+using PowerUtils.BenchmarkDotnet.Reporter.Common.Models;
 using System.Linq;
 using static PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models.ComparerReport;
 
@@ -22,12 +23,14 @@ public sealed class CompareHandler(
     public int Execute(CompareOptions options)
     {
         if(string.IsNullOrWhiteSpace(options.Baseline))
-            throw new DomainException(
-                "The baseline path is required. Set it via --baseline (-b), the PBREPORTER_COMPARE__BASELINE environment variable, or the config file.");
+        {
+            throw new DomainException("The baseline path is required. Set it via --baseline (-b), the PBREPORTER_COMPARE__BASELINE environment variable, or the config file.");
+        }
 
         if(string.IsNullOrWhiteSpace(options.Target))
-            throw new DomainException(
-                "The target path is required. Set it via --target (-t), the PBREPORTER_COMPARE__TARGET environment variable, or the config file.");
+        {
+            throw new DomainException("The target path is required. Set it via --target (-t), the PBREPORTER_COMPARE__TARGET environment variable, or the config file.");
+        }
 
         var baselineBenchmarks = _readBenchmarks(options.Baseline);
         var targetBenchmarks = _readBenchmarks(options.Target);
@@ -61,7 +64,10 @@ public sealed class CompareHandler(
             report.Add(_buildComparison(null, targetBenchmark));
         }
 
-        _validator.EvaluateThresholds(report, options.MeanThreshold, options.AllocationThreshold);
+        _validator.EvaluateThresholds(
+            report,
+            options.MeanThreshold,
+            options.AllocationThreshold);
 
         foreach(var format in options.Formats)
         {

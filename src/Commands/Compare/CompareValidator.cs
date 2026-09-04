@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models;
 using PowerUtils.BenchmarkDotnet.Reporter.Common;
+using PowerUtils.BenchmarkDotnet.Reporter.Common.Models;
 using static PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models.ComparerReport;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare;
@@ -57,15 +57,8 @@ public sealed class CompareValidator : ICompareValidator
             }
         }
 
-        if(!"RELEASE".EquivalentTo(baselineInfo?.Configuration))
-        {
-            messages.Add($"[{baseline.FullName}] The baseline report wasn't executed in RELEASE mode: '{baselineInfo?.Configuration}'");
-        }
-
-        if(!"RELEASE".EquivalentTo(targetInfo?.Configuration))
-        {
-            messages.Add($"[{target.FullName}] The target report wasn't executed in RELEASE mode: '{targetInfo?.Configuration}'");
-        }
+        messages.AddIfNotRelease(baseline);
+        messages.AddIfNotRelease(target);
 
         return messages;
 
@@ -75,9 +68,6 @@ public sealed class CompareValidator : ICompareValidator
                 ? ((string?)left).EquivalentTo((string?)right)
                 : Equals(left, right);
     }
-
-
-    private readonly record struct ResolvedThreshold(decimal Value, bool IsPercentage, string Pattern);
 
 
     public void EvaluateThresholds(ComparerReport report, IReadOnlyList<KeyValuePair<string, string>> meanThresholds, IReadOnlyList<KeyValuePair<string, string>> allocationThresholds)
@@ -107,23 +97,11 @@ public sealed class CompareValidator : ICompareValidator
                 return;
             }
 
-            // Parse eagerly so malformed threshold syntax fails fast, even when no comparison matches it.
-            // Pre-sort by specificity once — pattern specificity is constant across comparisons.
-            var resolved = rules
-                .Select(rule =>
-                {
-                    var parsed = parse(rule.Value);
-                    return new ResolvedThreshold(parsed.Value, parsed.IsPercentage, rule.Key);
-                })
-                .OrderByDescending(rule => NamespacesUtils.GetSpecificity(rule.Pattern))
-                .ToList();
+            var resolved = ThresholdResolver.Resolve(rules, parse);
 
             foreach(var comparison in report.Comparisons)
             {
-                var best = resolved
-                    .Where(rule => NamespacesUtils.IsMatch(rule.Pattern, comparison.FullName))
-                    .Select(rule => (ResolvedThreshold?)rule)
-                    .FirstOrDefault();
+                var best = ThresholdResolver.FindMatch(resolved, comparison.FullName);
 
                 if(best is null)
                 {

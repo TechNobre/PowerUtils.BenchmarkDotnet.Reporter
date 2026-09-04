@@ -5,6 +5,7 @@ namespace PowerUtils.BenchmarkDotnet.Reporter.Common.Configuration;
 public sealed class PbReporterConfiguration
 {
     public CompareConfigurationSection? Compare { get; set; }
+    public GateConfigurationSection? Gate { get; set; }
 
 
     public sealed class CompareConfigurationSection
@@ -15,13 +16,21 @@ public sealed class PbReporterConfiguration
         public string? ThresholdMean { get; set; }
         public string? ThresholdAllocation { get; set; }
         public List<ScopedThresholdConfig>? Thresholds { get; set; }
+    }
 
+    public sealed class GateConfigurationSection
+    {
+        public string? Input { get; set; }
+        public List<string>? Formats { get; set; }
+        public string? ThresholdMean { get; set; }
+        public string? ThresholdAllocation { get; set; }
+        public List<ScopedThresholdConfig>? Thresholds { get; set; }
+    }
 
-        public sealed class ScopedThresholdConfig
-        {
-            public string? Pattern { get; set; }
-            public string? ThresholdMean { get; set; }
-            public string? ThresholdAllocation { get; set; }
-        }
+    public sealed class ScopedThresholdConfig
+    {
+        public string? Pattern { get; set; }
+        public string? ThresholdMean { get; set; }
+        public string? ThresholdAllocation { get; set; }
     }
 }

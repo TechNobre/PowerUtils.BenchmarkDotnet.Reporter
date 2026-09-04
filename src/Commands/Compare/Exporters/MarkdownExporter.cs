@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using MarkdownLog;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models;
+using PowerUtils.BenchmarkDotnet.Reporter.Common;
 using static PowerUtils.BenchmarkDotnet.Reporter.Common.IOUtils;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Exporters;
@@ -61,11 +62,11 @@ public sealed class MarkdownExporter(FileWriter writer) : IExporter
             var rows = new List<TableRow>();
             foreach(var comparison in report.Comparisons)
             {
-                rows.Add(_toTableRow(ComparisonTableBuilder.BuildBaselineRow(comparison, gens)));
-                rows.Add(_toTableRow(ComparisonTableBuilder.BuildTargetRow(comparison, gens)));
+                rows.Add(ComparisonTableBuilder.BuildBaselineRow(comparison, gens).ToTableRow());
+                rows.Add(ComparisonTableBuilder.BuildTargetRow(comparison, gens).ToTableRow());
             }
 
-            var table = new MarkdownLog.Table
+            var table = new Table
             {
                 Columns = columns,
                 Rows = rows
@@ -90,11 +91,4 @@ public sealed class MarkdownExporter(FileWriter writer) : IExporter
             Path.Combine(outputDirectory, "benchmark-comparison-report.md"),
             sb.ToString());
     }
-
-
-    private static TableRow _toTableRow(List<string?> cells)
-        => new()
-        {
-            Cells = cells.Select(text => new TableCell { Text = text }).ToList()
-        };
 }

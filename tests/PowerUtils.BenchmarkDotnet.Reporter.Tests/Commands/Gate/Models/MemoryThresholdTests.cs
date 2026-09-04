@@ -1,27 +1,13 @@
-using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models;
+using PowerUtils.BenchmarkDotnet.Reporter.Commands.Gate.Models;
 using PowerUtils.BenchmarkDotnet.Reporter.Common;
 
-namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Commands.Compare.Models;
+namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Commands.Gate.Models;
 
 public sealed class MemoryThresholdTests
 {
     [Theory]
-    [InlineData("1B", 1, false)]
-    [InlineData("101B", 101, false)]
-    [InlineData("1KB", 1_000, false)]
-    [InlineData("1123KB", 1_123_000, false)]
-    [InlineData("1MB", 1_000_000, false)]
-    [InlineData("1234MB", 1234000000, false)]
-    [InlineData("1GB", 1000000000, false)]
-    [InlineData("1234GB", 1234000000000, false)]
-    [InlineData("15%", 15, true)]
-    [InlineData("100%", 100, true)]
-    [InlineData("5.5%", 5.5, true)]
-    [InlineData("0.5B", 0.5, false)]
-    [InlineData("1.5KB", 1500, false)]
-    [InlineData("1.5MB", 1500000, false)]
-    [InlineData("1.5GB", 1500000000, false)]
-    public void From_Text_To_MemoryThreshold(string value, decimal expectedValue, bool expectedIsPercentage)
+    [InlineData("1MB", 1_000_000)]
+    public void From_Text_To_MemoryThreshold(string value, decimal expectedValue)
     {
         // Arrange & Act
         var threshold = MemoryThreshold.Parse(value);
@@ -29,7 +15,6 @@ public sealed class MemoryThresholdTests
 
         // Assert
         threshold.Value.Should().Be(expectedValue);
-        threshold.IsPercentage.Should().Be(expectedIsPercentage);
     }
 
     [Fact]
@@ -52,15 +37,13 @@ public sealed class MemoryThresholdTests
     [InlineData("")]
     [InlineData("   ")]
     [InlineData("B")]
+    [InlineData("15%")]
+    [InlineData("100%")]
     [InlineData("%")]
     [InlineData("0B")]
     [InlineData("-1B")]
     [InlineData("1kg")]
     [InlineData("1tb")]
-    [InlineData("123")]
-    [InlineData("5.5.5%")]
-    [InlineData("5,5%")]
-    [InlineData("1,5KB")]
     public void Invalid_Text_Should_Not_Parse(string? value)
     {
         // Act
@@ -77,6 +60,22 @@ public sealed class MemoryThresholdTests
     {
         // Arrange
         var value = "invalid";
+
+
+        // Act
+        var act = () => { MemoryThreshold.Parse(value); };
+
+
+        // Assert
+        var exception = act.Should().Throw<DomainException>();
+        exception.Which.Message.Should().Contain(value);
+    }
+
+    [Fact]
+    public void Parse_With_Percentage_Value_Should_Throw_DomainException()
+    {
+        // Arrange
+        var value = "5%";
 
 
         // Act

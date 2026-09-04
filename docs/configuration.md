@@ -2,7 +2,7 @@
 
 [← Back to README](../README.md)
 
-Every option on every command can be set three ways: a **CLI argument**, an **environment variable**, or a **YAML config file**. This page explains the naming convention and precedence that all three follow, it applies to `compare` today and to any command added in the future.
+Every option on every command can be set three ways: a **CLI argument**, an **environment variable**, or a **YAML config file**. This page explains the naming convention and precedence that all three follow, it applies to `compare` and `gate` today and to any command added in the future.
 
 - [Precedence](#precedence)
 - [Environment Variables](#environment-variables)
@@ -24,7 +24,9 @@ The priority is environment variables → command-line convention. A value set i
 
 ## Environment Variables
 
-`compare`'s options
+The naming convention is `PBREPORTER_<SECTION>__<KEY>`, where `<SECTION>` is the command name (`COMPARE`, `GATE`) and `<KEY>` is the option name, both matched **case-insensitively**. `__` (double underscore) separates each part of the name, including the numeric index for a scoped entry.
+
+**`compare`'s options**
 
 | Environment variable | Equivalent to |
 |-----------------------|---------------|
@@ -37,8 +39,6 @@ The priority is environment variables → command-line convention. A value set i
 | `PBREPORTER_COMPARE__THRESHOLDS__<n>__THRESHOLD_MEAN` | the `<value>` half of a scoped `-tm "<pattern>=<value>"` entry, same index `<n>` |
 | `PBREPORTER_COMPARE__THRESHOLDS__<n>__THRESHOLD_ALLOCATION` | the `<value>` half of a scoped `-ta "<pattern>=<value>"` entry, same index `<n>` |
 
-The naming convention is `PBREPORTER_<SECTION>__<KEY>`, where `<SECTION>` is the command name (`COMPARE` today) and `<KEY>` is the option name, both matched **case-insensitively**. `__` (double underscore) separates each part of the name, including the numeric index for a scoped entry.
-
 ```bash
 export PBREPORTER_COMPARE__THRESHOLD_MEAN=5%
 export PBREPORTER_COMPARE__THRESHOLDS__0__PATTERN="DemoApi.Controllers.CreateController.*"
@@ -49,6 +49,27 @@ pbreporter compare -b baseline-full.json -t target-full.json -ft
 > Note: This is equivalent to running with `-tm 5% -tm "DemoApi.Controllers.CreateController.*=10ms"`. A `-tm`/`-ta` value passed on the command line for the same pattern still overrides the corresponding environment variable.
 
 See [`compare` → Scoped Thresholds](commands/compare.md#scoped-thresholds) for the `pattern=value` matching and specificity rules that apply regardless of which source supplied the rule.
+
+**`gate`'s options**
+
+| Environment variable | Equivalent to |
+|-----------------------|---------------|
+| `PBREPORTER_GATE__INPUT` | `-i <path>` |
+| `PBREPORTER_GATE__FORMATS` | `-f <format>` (single value, e.g. `json`; for multiple formats use CLI `-f` flags) |
+| `PBREPORTER_GATE__THRESHOLD_MEAN` | `-tm <value>` (global/`*` rule) |
+| `PBREPORTER_GATE__THRESHOLD_ALLOCATION` | `-ta <value>` (global/`*` rule) |
+| `PBREPORTER_GATE__THRESHOLDS__<n>__PATTERN` | the `<pattern>` half of a scoped `-tm`/`-ta` entry, index `<n>` starting at `0` |
+| `PBREPORTER_GATE__THRESHOLDS__<n>__THRESHOLD_MEAN` | the `<value>` half of a scoped `-tm "<pattern>=<value>"` entry, same index `<n>` |
+| `PBREPORTER_GATE__THRESHOLDS__<n>__THRESHOLD_ALLOCATION` | the `<value>` half of a scoped `-ta "<pattern>=<value>"` entry, same index `<n>` |
+
+```bash
+export PBREPORTER_GATE__THRESHOLD_MEAN=500ms
+export PBREPORTER_GATE__THRESHOLDS__0__PATTERN="DemoApi.Controllers.CreateController.*"
+export PBREPORTER_GATE__THRESHOLDS__0__THRESHOLD_MEAN=100ms
+
+pbreporter gate -i benchmark-report.json
+```
+> Note: This is equivalent to running with `-tm 500ms -tm "DemoApi.Controllers.CreateController.*=100ms"`. A `-tm`/`-ta` value passed on the command line for the same pattern still overrides the corresponding environment variable. Unlike `compare`, `gate` doesn't accept a `%` unit on any of these - see [Threshold Units](threshold-units.md#threshold-units).
 
 
 
@@ -91,5 +112,28 @@ pbreporter compare -ft
 pbreporter compare -b baseline-full.json -t target-full.json --config ./ci/pbreporter.yml -ft
 ```
 > Note: Explicitly pointing `--config` at a missing file is an error (the tool exits non-zero); the default lookup (no `--config` given) simply skips the file layer when neither `pbreporter.yml` nor `pbreporter.yaml` exists.
+
+`gate` reads its own top-level `gate:` section from the same file, following the identical shape (minus `%` as a valid threshold unit - see [Threshold Units](threshold-units.md#threshold-units)):
+
+```yaml
+# pbreporter.yml
+gate:
+  input: benchmark-report.json
+  formats: [json, markdown, console]
+  thresholds:
+    - thresholdMean: 500ms
+    - pattern: "DemoApi.*"
+      thresholdMean: 100ms
+    - thresholdAllocation: 10kb
+    - pattern: "DemoApi.Controllers.CreateController.Create"
+      thresholdAllocation: 5kb
+```
+
+`input` is a plain scalar, equivalent to `-i`. With the file above, `pbreporter gate` (no `-i` needed) reads `benchmark-report.json`; it can still be overridden per-run with `-i` on the command line. Both `compare:` and `gate:` sections can coexist in the same `pbreporter.yml` file.
+
+```bash
+pbreporter gate
+```
+> Note: With the file above and no other options, `-i` is read from the file (`benchmark-report.json`), and every benchmark is checked against `500ms`/`10kb`, except `DemoApi.*` methods (`100ms`) and `DemoApi.Controllers.CreateController.Create` specifically (`5kb` allocation, `100ms` mean inherited from the looser `DemoApi.*` rule).
 
 Only a narrow subset of YAML is supported: nested mappings, block sequences (items prefixed with `- `), flow-style sequences (`[a, b, c]`), and quoted/unquoted scalar values. Anchors, tags, flow-style mappings (`{a: b}`), multi-line scalars, and multi-document files are not supported.
