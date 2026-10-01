@@ -6,12 +6,9 @@ using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Commands.Compare.Exporters;
 
-[CollectionDefinition(nameof(ConsoleExporterTests), DisableParallelization = true)]
-public class ConsoleTestCollection;
-
 // Tests in this class manipulate Console.Out (shared global state) and must run sequentially
 // to prevent race conditions when running in parallel with other tests
-[Collection(nameof(ConsoleExporterTests))]
+[Collection(nameof(ConsoleTestCollection))]
 public sealed class ConsoleExporterTests : IDisposable
 {
     private readonly TextWriter _originalOutput;
