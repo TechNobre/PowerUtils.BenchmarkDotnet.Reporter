@@ -50,14 +50,11 @@ public static class NumericUnitParser
             case "μs":
             case "µs":
             case "us":
-                nanoseconds *= 1_000;
-                return true;
+                return _tryMultiply(value, 1_000, out nanoseconds);
             case "ms":
-                nanoseconds *= 1_000 * 1_000;
-                return true;
+                return _tryMultiply(value, 1_000_000, out nanoseconds);
             case "s":
-                nanoseconds *= 1_000 * 1_000 * 1_000;
-                return true;
+                return _tryMultiply(value, 1_000_000_000, out nanoseconds);
             default:
                 return false;
         }
@@ -72,16 +69,27 @@ public static class NumericUnitParser
             case "b":
                 return true;
             case "kb":
-                bytes *= 1_000;
-                return true;
+                return _tryMultiply(value, 1_000, out bytes);
             case "mb":
-                bytes *= 1_000 * 1_000;
-                return true;
+                return _tryMultiply(value, 1_000_000, out bytes);
             case "gb":
-                bytes *= 1_000 * 1_000 * 1_000;
-                return true;
+                return _tryMultiply(value, 1_000_000_000, out bytes);
             default:
                 return false;
         }
+    }
+
+    // Leaves `result` as the original value when the product would overflow decimal.
+    private static bool _tryMultiply(decimal value, int factor, out decimal result)
+    {
+        result = value;
+
+        if(value > decimal.MaxValue / factor)
+        {
+            return false;
+        }
+
+        result = value * factor;
+        return true;
     }
 }
