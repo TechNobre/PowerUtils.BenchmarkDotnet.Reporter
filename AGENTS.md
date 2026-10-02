@@ -100,7 +100,7 @@ Unlike `compare`, `gate` has **no** `--fail-on-threshold-hit` flag: checking thr
 | `console` | `ConsoleExporter` | Prints a table to stdout; no file written |
 | `markdown` | `MarkdownExporter` | `benchmark-gate-report.md` |
 | `json` | `JsonExporter` | `benchmark-gate-report.json` |
-| `hit-txt` | `HitTxtExporter` | `benchmark-gate-hits.txt` (only when thresholds are hit) |
+| `hit-txt` | `HitTxtExporter` | `benchmark-gate-hits.txt` (when thresholds are hit or warnings are present) |
 
 **RELEASE-mode validation**: `src/Commands/Gate/GateValidator.cs` warns per benchmark when its report wasn't built in RELEASE configuration - the single-report analogue of `compare`'s host-environment check.
 
