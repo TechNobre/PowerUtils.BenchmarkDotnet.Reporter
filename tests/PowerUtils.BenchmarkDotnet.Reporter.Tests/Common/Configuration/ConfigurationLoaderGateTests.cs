@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using PowerUtils.BenchmarkDotnet.Reporter.Common;
 using PowerUtils.BenchmarkDotnet.Reporter.Common.Configuration;
 
@@ -857,6 +858,285 @@ public sealed class ConfigurationLoaderGateTests
         finally
         {
             scratchDirectory.Delete(recursive: true);
+        }
+    }
+
+    [Fact]
+    public void ParseEnvironmentVariables_WithMultipleScopedRuleIndices_ShouldBuild_OrderedEntries()
+    {
+        // Arrange
+        var variables = new Dictionary<string, string?>
+        {
+            ["PBREPORTER_GATE__THRESHOLDS__10__PATTERN"] = "Third.*",
+            ["PBREPORTER_GATE__THRESHOLDS__2__PATTERN"] = "Second.*",
+            ["PBREPORTER_GATE__THRESHOLDS__1__PATTERN"] = "First.*"
+        };
+
+
+        // Act
+        var configuration = ConfigurationLoader.ParseEnvironmentVariables(variables);
+
+
+        // Assert
+        configuration.Gate!.Thresholds!.Select(rule => rule.Pattern)
+            .Should().Equal("First.*", "Second.*", "Third.*");
+    }
+
+    [Theory]
+    [InlineData("pbreporter_gate__input")]
+    [InlineData("PBREPORTER_Gate__Input")]
+    public void ParseEnvironmentVariables_GateKeyMatching_ShouldBe_CaseInsensitive(string key)
+    {
+        // Arrange
+        var variables = new Dictionary<string, string?> { [key] = "report.json" };
+
+
+        // Act
+        var configuration = ConfigurationLoader.ParseEnvironmentVariables(variables);
+
+
+        // Assert
+        configuration.Gate!.Input.Should().Be("report.json");
+    }
+
+    [Fact]
+    public void ParseEnvironmentVariables_GateFieldMatching_ShouldBe_CaseInsensitive()
+    {
+        // Arrange
+        var variables = new Dictionary<string, string?>
+        {
+            ["PBREPORTER_GATE__formats"] = "json",
+            ["PBREPORTER_GATE__Threshold_Mean"] = "10ms",
+            ["PBREPORTER_GATE__threshold_allocation"] = "5kb",
+            ["PBREPORTER_GATE__thresholds__0__pattern"] = "Demo.*",
+            ["PBREPORTER_GATE__thresholds__0__threshold_mean"] = "1ms",
+            ["PBREPORTER_GATE__thresholds__0__Threshold_Allocation"] = "2kb"
+        };
+
+
+        // Act
+        var configuration = ConfigurationLoader.ParseEnvironmentVariables(variables);
+
+
+        // Assert
+        var gate = configuration.Gate!;
+        gate.Formats.Should().Equal("json");
+        gate.ThresholdMean.Should().Be("10ms");
+        gate.ThresholdAllocation.Should().Be("5kb");
+        var rule = gate.Thresholds.Should().ContainSingle().Subject;
+        rule.Pattern.Should().Be("Demo.*");
+        rule.ThresholdMean.Should().Be("1ms");
+        rule.ThresholdAllocation.Should().Be("2kb");
+    }
+
+    [Fact]
+    public void ParseEnvironmentVariables_WithThresholdsKeyMissingFieldSegment_ShouldNotThrow()
+    {
+        // Arrange
+        var variables = new Dictionary<string, string?> { ["PBREPORTER_GATE__THRESHOLDS__0"] = "value" };
+
+
+        // Act
+        var configuration = ConfigurationLoader.ParseEnvironmentVariables(variables);
+
+
+        // Assert
+        configuration.Gate!.Thresholds.Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseYamlDocument_WithUnknownGateKey_ErrorMessage_ShouldList_SupportedKeys()
+    {
+        // Arrange
+        var document = new Dictionary<string, object?>
+        {
+            ["gate"] = new Dictionary<string, object?> { ["report"] = "report.json" }
+        };
+
+
+        // Act
+        var act = () => ConfigurationLoader.ParseYamlDocument(document);
+
+
+        // Assert
+        act.Should().Throw<DomainException>()
+            .WithMessage("*Supported keys: formats, input, thresholds.*");
+    }
+
+    [Fact]
+    public void ParseYamlDocument_WithUnknownThresholdEntryKey_ErrorMessage_ShouldList_SupportedKeys()
+    {
+        // Arrange
+        var document = new Dictionary<string, object?>
+        {
+            ["gate"] = new Dictionary<string, object?>
+            {
+                ["thresholds"] = new List<object?>
+                {
+                    new Dictionary<string, object?> { ["thresholdFoo"] = "5ms" }
+                }
+            }
+        };
+
+
+        // Act
+        var act = () => ConfigurationLoader.ParseYamlDocument(document);
+
+
+        // Assert
+        act.Should().Throw<DomainException>()
+            .WithMessage("*Supported keys: pattern, thresholdAllocation, thresholdMean.*");
+    }
+
+    [Fact]
+    public void ParseYamlDocument_WithFormats_AsScalar_ShouldSet_SingleFormat()
+    {
+        // Arrange
+        var document = new Dictionary<string, object?>
+        {
+            ["gate"] = new Dictionary<string, object?> { ["formats"] = "json" }
+        };
+
+
+        // Act
+        var configuration = ConfigurationLoader.ParseYamlDocument(document);
+
+
+        // Assert
+        configuration.Gate!.Formats.Should().Equal("json");
+    }
+
+    [Fact]
+    public void ParseYamlDocument_WithFormats_AsList_ShouldSet_MultipleFormats_IgnoringNonStrings()
+    {
+        // Arrange
+        var document = new Dictionary<string, object?>
+        {
+            ["gate"] = new Dictionary<string, object?>
+            {
+                ["formats"] = new List<object?> { "json", 5, "markdown" }
+            }
+        };
+
+
+        // Act
+        var configuration = ConfigurationLoader.ParseYamlDocument(document);
+
+
+        // Assert
+        configuration.Gate!.Formats.Should().Equal("json", "markdown");
+    }
+
+    [Fact]
+    public void ParseYamlDocument_WithoutFormats_ShouldLeave_FormatsNull()
+    {
+        // Arrange
+        var document = new Dictionary<string, object?>
+        {
+            ["gate"] = new Dictionary<string, object?> { ["input"] = "report.json" }
+        };
+
+
+        // Act
+        var configuration = ConfigurationLoader.ParseYamlDocument(document);
+
+
+        // Assert
+        configuration.Gate!.Formats.Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseYamlDocument_WithScopedAndGlobalEntries_ShouldKeep_ScopedOrder()
+    {
+        // Arrange
+        var document = new Dictionary<string, object?>
+        {
+            ["gate"] = new Dictionary<string, object?>
+            {
+                ["thresholds"] = new List<object?>
+                {
+                    new Dictionary<string, object?> { ["pattern"] = "B.*", ["thresholdMean"] = "1ms" },
+                    new Dictionary<string, object?> { ["thresholdMean"] = "9ms" },
+                    new Dictionary<string, object?> { ["pattern"] = "A.*", ["thresholdAllocation"] = "1kb" }
+                }
+            }
+        };
+
+
+        // Act
+        var configuration = ConfigurationLoader.ParseYamlDocument(document);
+
+
+        // Assert
+        configuration.Gate!.ThresholdMean.Should().Be("9ms");
+        configuration.Gate.Thresholds!.Select(rule => rule.Pattern).Should().Equal("B.*", "A.*");
+    }
+
+    [Fact]
+    public void Load_WithFileAndEnvironmentPatternsDifferingOnlyByCase_ShouldMerge_IntoOneRule()
+    {
+        // Arrange
+        var path = Path.GetTempFileName();
+        File.WriteAllText(
+            path,
+            """
+            gate:
+              thresholds:
+                - pattern: "Demo.*"
+                  thresholdMean: 10ms
+                  thresholdAllocation: 5kb
+            """);
+
+        const string patternEnvVar = "PBREPORTER_GATE__THRESHOLDS__0__PATTERN";
+        const string meanEnvVar = "PBREPORTER_GATE__THRESHOLDS__0__THRESHOLD_MEAN";
+        Environment.SetEnvironmentVariable(patternEnvVar, "demo.*");
+        Environment.SetEnvironmentVariable(meanEnvVar, "20ms");
+
+        try
+        {
+            // Act
+            var configuration = ConfigurationLoader.Load(path);
+
+
+            // Assert
+            configuration.Gate!.Thresholds.Should().ContainSingle();
+            var rule = configuration.Gate.Thresholds![0];
+            rule.ThresholdMean.Should().Be("20ms");
+            rule.ThresholdAllocation.Should().Be("5kb");
+        }
+        finally
+        {
+            File.Delete(path);
+            Environment.SetEnvironmentVariable(patternEnvVar, null);
+            Environment.SetEnvironmentVariable(meanEnvVar, null);
+        }
+    }
+
+    [Fact]
+    public void Load_WithEmptyFileThresholds_AndNoEnvironmentThresholds_ShouldLeave_ThresholdsNull()
+    {
+        // Arrange
+        var path = Path.GetTempFileName();
+        File.WriteAllText(
+            path,
+            """
+            gate:
+              input: report.json
+              thresholds: []
+            """);
+
+        try
+        {
+            // Act
+            var configuration = ConfigurationLoader.Load(path);
+
+
+            // Assert
+            configuration.Gate!.Thresholds.Should().BeNull();
+        }
+        finally
+        {
+            File.Delete(path);
         }
     }
 }

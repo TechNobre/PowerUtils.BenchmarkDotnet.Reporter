@@ -126,28 +126,9 @@ public static class ConfigurationLoader
         {
             configuration.Compare.ThresholdAllocation = value;
         }
-        else if(segments.Length == 4
-            && segments[1].Equals("THRESHOLDS", StringComparison.OrdinalIgnoreCase)
-            && int.TryParse(segments[2], out var index))
+        else if(segments.Length == 4 && segments[1].Equals("THRESHOLDS", StringComparison.OrdinalIgnoreCase))
         {
-            if(!scopedEntries.TryGetValue(index, out var entry))
-            {
-                entry = new ScopedThresholdConfig();
-                scopedEntries[index] = entry;
-            }
-
-            if(segments[3].Equals("PATTERN", StringComparison.OrdinalIgnoreCase))
-            {
-                entry.Pattern = value;
-            }
-            else if(segments[3].Equals("THRESHOLD_MEAN", StringComparison.OrdinalIgnoreCase))
-            {
-                entry.ThresholdMean = value;
-            }
-            else if(segments[3].Equals("THRESHOLD_ALLOCATION", StringComparison.OrdinalIgnoreCase))
-            {
-                entry.ThresholdAllocation = value;
-            }
+            _applyScopedThresholdField(scopedEntries, segments[2], segments[3], value);
         }
     }
 
@@ -180,28 +161,41 @@ public static class ConfigurationLoader
         {
             configuration.Gate.ThresholdAllocation = value;
         }
-        else if(segments.Length == 4
-            && segments[1].Equals("THRESHOLDS", StringComparison.OrdinalIgnoreCase)
-            && int.TryParse(segments[2], out var index))
+        else if(segments.Length == 4 && segments[1].Equals("THRESHOLDS", StringComparison.OrdinalIgnoreCase))
         {
-            if(!scopedEntries.TryGetValue(index, out var entry))
-            {
-                entry = new ScopedThresholdConfig();
-                scopedEntries[index] = entry;
-            }
+            _applyScopedThresholdField(scopedEntries, segments[2], segments[3], value);
+        }
+    }
 
-            if(segments[3].Equals("PATTERN", StringComparison.OrdinalIgnoreCase))
-            {
-                entry.Pattern = value;
-            }
-            else if(segments[3].Equals("THRESHOLD_MEAN", StringComparison.OrdinalIgnoreCase))
-            {
-                entry.ThresholdMean = value;
-            }
-            else if(segments[3].Equals("THRESHOLD_ALLOCATION", StringComparison.OrdinalIgnoreCase))
-            {
-                entry.ThresholdAllocation = value;
-            }
+    // Shared mechanics only: each command still owns its section type, keys and env-var prefix.
+    private static void _applyScopedThresholdField(
+        SortedDictionary<int, ScopedThresholdConfig> scopedEntries,
+        string indexSegment,
+        string fieldSegment,
+        string value)
+    {
+        if(!int.TryParse(indexSegment, out var index))
+        {
+            return;
+        }
+
+        if(!scopedEntries.TryGetValue(index, out var entry))
+        {
+            entry = new ScopedThresholdConfig();
+            scopedEntries[index] = entry;
+        }
+
+        if(fieldSegment.Equals("PATTERN", StringComparison.OrdinalIgnoreCase))
+        {
+            entry.Pattern = value;
+        }
+        else if(fieldSegment.Equals("THRESHOLD_MEAN", StringComparison.OrdinalIgnoreCase))
+        {
+            entry.ThresholdMean = value;
+        }
+        else if(fieldSegment.Equals("THRESHOLD_ALLOCATION", StringComparison.OrdinalIgnoreCase))
+        {
+            entry.ThresholdAllocation = value;
         }
     }
 
@@ -231,44 +225,11 @@ public static class ConfigurationLoader
             Formats = _getStringList(mapping, "formats")
         };
 
-        if(mapping.TryGetValue("thresholds", out var thresholdsNode) && thresholdsNode is IReadOnlyList<object?> thresholdsList)
+        if(_parseThresholds(mapping, "compare") is { } thresholds)
         {
-            var scopedEntries = new List<ScopedThresholdConfig>();
-
-            foreach(var item in thresholdsList.OfType<IReadOnlyDictionary<string, object?>>())
-            {
-                _assertNoUnknownKeys(item, "a 'compare.thresholds' entry", _thresholdEntryKnownKeys);
-
-                var pattern = _getString(item, "pattern");
-                var mean = _getString(item, "thresholdMean");
-                var allocation = _getString(item, "thresholdAllocation");
-
-                if(pattern is null)
-                {
-                    // A thresholds entry with no pattern is the global rule for whichever metric(s) it sets.
-                    // If more than one such entry sets the same metric, the last one in the file wins.
-                    if(mean is not null)
-                    {
-                        section.ThresholdMean = mean;
-                    }
-
-                    if(allocation is not null)
-                    {
-                        section.ThresholdAllocation = allocation;
-                    }
-
-                    continue;
-                }
-
-                scopedEntries.Add(new ScopedThresholdConfig
-                {
-                    Pattern = pattern,
-                    ThresholdMean = mean,
-                    ThresholdAllocation = allocation
-                });
-            }
-
-            section.Thresholds = scopedEntries;
+            section.ThresholdMean = thresholds.GlobalMean;
+            section.ThresholdAllocation = thresholds.GlobalAllocation;
+            section.Thresholds = thresholds.Scoped;
         }
 
         return section;
@@ -284,47 +245,56 @@ public static class ConfigurationLoader
             Formats = _getStringList(mapping, "formats")
         };
 
-        if(mapping.TryGetValue("thresholds", out var thresholdsNode) && thresholdsNode is IReadOnlyList<object?> thresholdsList)
+        if(_parseThresholds(mapping, "gate") is { } thresholds)
         {
-            var scopedEntries = new List<ScopedThresholdConfig>();
-
-            foreach(var item in thresholdsList.OfType<IReadOnlyDictionary<string, object?>>())
-            {
-                _assertNoUnknownKeys(item, "a 'gate.thresholds' entry", _thresholdEntryKnownKeys);
-
-                var pattern = _getString(item, "pattern");
-                var mean = _getString(item, "thresholdMean");
-                var allocation = _getString(item, "thresholdAllocation");
-
-                if(pattern is null)
-                {
-                    // A thresholds entry with no pattern is the global rule for whichever metric(s) it sets.
-                    // If more than one such entry sets the same metric, the last one in the file wins.
-                    if(mean is not null)
-                    {
-                        section.ThresholdMean = mean;
-                    }
-
-                    if(allocation is not null)
-                    {
-                        section.ThresholdAllocation = allocation;
-                    }
-
-                    continue;
-                }
-
-                scopedEntries.Add(new ScopedThresholdConfig
-                {
-                    Pattern = pattern,
-                    ThresholdMean = mean,
-                    ThresholdAllocation = allocation
-                });
-            }
-
-            section.Thresholds = scopedEntries;
+            section.ThresholdMean = thresholds.GlobalMean;
+            section.ThresholdAllocation = thresholds.GlobalAllocation;
+            section.Thresholds = thresholds.Scoped;
         }
 
         return section;
+    }
+
+    private sealed record ParsedThresholds(List<ScopedThresholdConfig> Scoped, string? GlobalMean, string? GlobalAllocation);
+
+    // Shared mechanics only: the caller decides which section receives the result.
+    private static ParsedThresholds? _parseThresholds(IReadOnlyDictionary<string, object?> mapping, string sectionName)
+    {
+        if(!mapping.TryGetValue("thresholds", out var thresholdsNode) || thresholdsNode is not IReadOnlyList<object?> thresholdsList)
+        {
+            return null;
+        }
+
+        var scopedEntries = new List<ScopedThresholdConfig>();
+        string? globalMean = null;
+        string? globalAllocation = null;
+
+        foreach(var item in thresholdsList.OfType<IReadOnlyDictionary<string, object?>>())
+        {
+            _assertNoUnknownKeys(item, $"a '{sectionName}.thresholds' entry", _thresholdEntryKnownKeys);
+
+            var pattern = _getString(item, "pattern");
+            var mean = _getString(item, "thresholdMean");
+            var allocation = _getString(item, "thresholdAllocation");
+
+            if(pattern is null)
+            {
+                // A thresholds entry with no pattern is the global rule for whichever metric(s) it sets.
+                // If more than one such entry sets the same metric, the last one in the file wins.
+                globalMean = mean ?? globalMean;
+                globalAllocation = allocation ?? globalAllocation;
+                continue;
+            }
+
+            scopedEntries.Add(new ScopedThresholdConfig
+            {
+                Pattern = pattern,
+                ThresholdMean = mean,
+                ThresholdAllocation = allocation
+            });
+        }
+
+        return new ParsedThresholds(scopedEntries, globalMean, globalAllocation);
     }
 
     private static string? _getString(IReadOnlyDictionary<string, object?> mapping, string key)
@@ -467,52 +437,8 @@ public static class ConfigurationLoader
             Formats = higher?.Formats ?? lower?.Formats,
             ThresholdMean = higher?.ThresholdMean ?? lower?.ThresholdMean,
             ThresholdAllocation = higher?.ThresholdAllocation ?? lower?.ThresholdAllocation,
-            Thresholds = _mergeGateThresholds(lower?.Thresholds, higher?.Thresholds)
+            Thresholds = _mergeThresholds(lower?.Thresholds, higher?.Thresholds)
         };
-    }
-
-    private static List<ScopedThresholdConfig>? _mergeGateThresholds(
-        List<ScopedThresholdConfig>? lower,
-        List<ScopedThresholdConfig>? higher)
-    {
-        if((lower is null || lower.Count == 0) && (higher is null || higher.Count == 0))
-        {
-            return null;
-        }
-
-        var merged = new Dictionary<string, ScopedThresholdConfig>(StringComparer.OrdinalIgnoreCase);
-
-        foreach(var entry in lower ?? [])
-        {
-            if(entry.Pattern is not null)
-            {
-                merged[entry.Pattern] = new ScopedThresholdConfig
-                {
-                    Pattern = entry.Pattern,
-                    ThresholdMean = entry.ThresholdMean,
-                    ThresholdAllocation = entry.ThresholdAllocation
-                };
-            }
-        }
-
-        foreach(var entry in higher ?? [])
-        {
-            if(entry.Pattern is null)
-            {
-                continue;
-            }
-
-            if(!merged.TryGetValue(entry.Pattern, out var existing))
-            {
-                existing = new ScopedThresholdConfig { Pattern = entry.Pattern };
-                merged[entry.Pattern] = existing;
-            }
-
-            existing.ThresholdMean = entry.ThresholdMean ?? existing.ThresholdMean;
-            existing.ThresholdAllocation = entry.ThresholdAllocation ?? existing.ThresholdAllocation;
-        }
-
-        return merged.Values.ToList();
     }
 
     private static IReadOnlyDictionary<string, string?> _readEnvironmentVariables()
