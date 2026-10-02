@@ -2,7 +2,7 @@
 
 [← Back to README](../README.md)
 
-Every option on every command can be set three ways: a **CLI argument**, an **environment variable**, or a **YAML config file**. This page explains the naming convention and precedence that all three follow, it applies to `compare` and `gate` today and to any command added in the future.
+Options exposed through a command's configuration section can be set three ways: a **CLI argument**, an **environment variable**, or a **YAML config file**. This page explains the naming convention and precedence shared by `compare`, `gate`, and future commands; command reference pages identify any CLI-only options.
 
 - [Precedence](#precedence)
 - [Environment Variables](#environment-variables)
