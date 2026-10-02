@@ -4,6 +4,7 @@ using System.CommandLine;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Gate;
+using PowerUtils.BenchmarkDotnet.Reporter.Common;
 using PowerUtils.BenchmarkDotnet.Reporter.Common.Models;
 using static PowerUtils.BenchmarkDotnet.Reporter.Common.Configuration.PbReporterConfiguration;
 
@@ -205,5 +206,29 @@ public sealed class ThresholdOptionTests
         // Assert
         options.MeanThreshold.Should().BeEmpty();
         options.AllocationThreshold.Should().ContainSingle(rule => rule.Key == "Demo.*" && rule.Value == "5kb");
+    }
+
+    [Theory]
+    [InlineData("Demo.*.Foo")]
+    [InlineData("*Demo")]
+    [InlineData("Demo.**")]
+    public void Parse_WhenConfigurationScopedPatternIsInvalid_ShouldThrow_DomainException(string pattern)
+    {
+        // Arrange
+        var parseResult = _command.Parse("-i report.json");
+        var configuration = new GateConfigurationSection
+        {
+            Thresholds =
+            [
+                new ScopedThresholdConfig { Pattern = pattern, ThresholdMean = "100ms", ThresholdAllocation = "5kb" }
+            ]
+        };
+
+        // Act
+        var act = () => GateOptions.Parse(parseResult, configuration);
+
+        // Assert
+        act.Should().Throw<DomainException>()
+            .WithMessage($"Invalid threshold pattern '{pattern}'. A '*' is only allowed as the last character of the pattern.");
     }
 }

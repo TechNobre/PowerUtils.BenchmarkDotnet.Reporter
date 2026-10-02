@@ -253,4 +253,79 @@ public sealed class CompareConfigFileTests
         result.ExitCode.Should().Be(Constants.ExitCodes.SUCCESS);
         result.StandardOutput.Should().Contain("StringConcat");
     }
+
+    [Fact]
+    public async Task When_ConfigFile_Has_InvalidFormat_Should_ExitWithError()
+    {
+        // Arrange
+        var baseline = TestDataPath.Resolve("report-01/Benchmark-report-full.json");
+        var target = TestDataPath.Resolve("report-02/Benchmark-report-full.json");
+        using var scratch = new TempOutputDirectory();
+        var configPath = scratch.CombinePath("pbreporter.yml");
+        await File.WriteAllTextAsync(
+            configPath,
+            """
+            compare:
+              formats: [csv]
+            """,
+            TestContext.Current.CancellationToken);
+
+
+        // Act
+        var result = await ProcessRunner.RunAsync(["compare", "-b", baseline, "-t", target, "--config", configPath]);
+
+
+        // Assert
+        result.ExitCode.Should().Be(Constants.ExitCodes.ERROR);
+        result.StandardError.Should().Contain("Invalid format 'csv'. Allowed values: console, markdown, json, hit-txt");
+    }
+
+    [Fact]
+    public async Task When_EnvironmentVariable_Has_InvalidFormat_Should_ExitWithError()
+    {
+        // Arrange
+        var baseline = TestDataPath.Resolve("report-01/Benchmark-report-full.json");
+        var target = TestDataPath.Resolve("report-02/Benchmark-report-full.json");
+        var environmentVariables = new Dictionary<string, string?>
+        {
+            ["PBREPORTER_COMPARE__FORMATS"] = "csv"
+        };
+
+
+        // Act
+        var result = await ProcessRunner.RunAsync(["compare", "-b", baseline, "-t", target], environmentVariables: environmentVariables);
+
+
+        // Assert
+        result.ExitCode.Should().Be(Constants.ExitCodes.ERROR);
+        result.StandardError.Should().Contain("Invalid format 'csv'. Allowed values: console, markdown, json, hit-txt");
+    }
+
+    [Fact]
+    public async Task When_ConfigFile_Has_InvalidScopedThresholdPattern_Should_ExitWithError()
+    {
+        // Arrange
+        var baseline = TestDataPath.Resolve("report-10");
+        var target = TestDataPath.Resolve("report-11");
+        using var scratch = new TempOutputDirectory();
+        var configPath = scratch.CombinePath("pbreporter.yml");
+        await File.WriteAllTextAsync(
+            configPath,
+            """
+            compare:
+              thresholds:
+                - pattern: "Demo.*.ArrayProcessorBenchmarks"
+                  thresholdMean: 1%
+            """,
+            TestContext.Current.CancellationToken);
+
+
+        // Act
+        var result = await ProcessRunner.RunAsync(["compare", "-b", baseline, "-t", target, "--config", configPath]);
+
+
+        // Assert
+        result.ExitCode.Should().Be(Constants.ExitCodes.ERROR);
+        result.StandardError.Should().Contain("Invalid threshold pattern 'Demo.*.ArrayProcessorBenchmarks'. A '*' is only allowed as the last character of the pattern.");
+    }
 }
