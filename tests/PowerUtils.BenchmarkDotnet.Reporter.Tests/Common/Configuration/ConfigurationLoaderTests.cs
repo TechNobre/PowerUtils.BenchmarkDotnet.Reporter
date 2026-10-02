@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using PowerUtils.BenchmarkDotnet.Reporter.Common;
 using PowerUtils.BenchmarkDotnet.Reporter.Common.Configuration;
 
@@ -1426,6 +1427,154 @@ public sealed class ConfigurationLoaderTests
             // Assert
             configuration.Compare!.Thresholds.Should().ContainSingle(rule =>
                 rule.Pattern == "Demo.*" && rule.ThresholdMean == "10ms");
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public void ParseEnvironmentVariables_CompareFieldMatching_ShouldBe_CaseInsensitive()
+    {
+        // Arrange
+        var variables = new Dictionary<string, string?>
+        {
+            ["PBREPORTER_COMPARE__Threshold_Mean"] = "10ms",
+            ["PBREPORTER_COMPARE__threshold_allocation"] = "5kb",
+            ["PBREPORTER_COMPARE__thresholds__0__pattern"] = "Demo.*",
+            ["PBREPORTER_COMPARE__thresholds__0__threshold_mean"] = "1ms",
+            ["PBREPORTER_COMPARE__thresholds__0__Threshold_Allocation"] = "2kb"
+        };
+
+
+        // Act
+        var configuration = ConfigurationLoader.ParseEnvironmentVariables(variables);
+
+
+        // Assert
+        var compare = configuration.Compare!;
+        compare.ThresholdMean.Should().Be("10ms");
+        compare.ThresholdAllocation.Should().Be("5kb");
+        var rule = compare.Thresholds.Should().ContainSingle().Subject;
+        rule.Pattern.Should().Be("Demo.*");
+        rule.ThresholdMean.Should().Be("1ms");
+        rule.ThresholdAllocation.Should().Be("2kb");
+    }
+
+    [Fact]
+    public void ParseYamlDocument_WithUnknownThresholdEntryKey_ErrorMessage_ShouldList_SupportedKeys()
+    {
+        // Arrange
+        var document = new Dictionary<string, object?>
+        {
+            ["compare"] = new Dictionary<string, object?>
+            {
+                ["thresholds"] = new List<object?>
+                {
+                    new Dictionary<string, object?> { ["thresholdFoo"] = "5ms" }
+                }
+            }
+        };
+
+
+        // Act
+        var act = () => ConfigurationLoader.ParseYamlDocument(document);
+
+
+        // Assert
+        act.Should().Throw<DomainException>()
+            .WithMessage("*compare.thresholds*Supported keys: pattern, thresholdAllocation, thresholdMean.*");
+    }
+
+    [Fact]
+    public void ParseYamlDocument_WithScopedAndGlobalEntries_ShouldKeep_ScopedOrder()
+    {
+        // Arrange
+        var document = new Dictionary<string, object?>
+        {
+            ["compare"] = new Dictionary<string, object?>
+            {
+                ["thresholds"] = new List<object?>
+                {
+                    new Dictionary<string, object?> { ["pattern"] = "B.*", ["thresholdMean"] = "1ms" },
+                    new Dictionary<string, object?> { ["thresholdMean"] = "9ms" },
+                    new Dictionary<string, object?> { ["pattern"] = "A.*", ["thresholdAllocation"] = "1kb" }
+                }
+            }
+        };
+
+
+        // Act
+        var configuration = ConfigurationLoader.ParseYamlDocument(document);
+
+
+        // Assert
+        configuration.Compare!.ThresholdMean.Should().Be("9ms");
+        configuration.Compare.Thresholds!.Select(rule => rule.Pattern).Should().Equal("B.*", "A.*");
+    }
+
+    [Fact]
+    public void Load_WithFileAndEnvironmentPatternsDifferingOnlyByCase_ShouldMerge_IntoOneRule()
+    {
+        // Arrange
+        var path = Path.GetTempFileName();
+        File.WriteAllText(
+            path,
+            """
+            compare:
+              thresholds:
+                - pattern: "Demo.*"
+                  thresholdMean: 10ms
+                  thresholdAllocation: 5kb
+            """);
+
+        const string patternEnvVar = "PBREPORTER_COMPARE__THRESHOLDS__0__PATTERN";
+        const string meanEnvVar = "PBREPORTER_COMPARE__THRESHOLDS__0__THRESHOLD_MEAN";
+        Environment.SetEnvironmentVariable(patternEnvVar, "demo.*");
+        Environment.SetEnvironmentVariable(meanEnvVar, "20ms");
+
+        try
+        {
+            // Act
+            var configuration = ConfigurationLoader.Load(path);
+
+
+            // Assert
+            configuration.Compare!.Thresholds.Should().ContainSingle();
+            var rule = configuration.Compare.Thresholds![0];
+            rule.ThresholdMean.Should().Be("20ms");
+            rule.ThresholdAllocation.Should().Be("5kb");
+        }
+        finally
+        {
+            File.Delete(path);
+            Environment.SetEnvironmentVariable(patternEnvVar, null);
+            Environment.SetEnvironmentVariable(meanEnvVar, null);
+        }
+    }
+
+    [Fact]
+    public void Load_WithEmptyFileThresholds_AndNoEnvironmentThresholds_ShouldLeave_ThresholdsNull()
+    {
+        // Arrange
+        var path = Path.GetTempFileName();
+        File.WriteAllText(
+            path,
+            """
+            compare:
+              baseline: baseline.json
+              thresholds: []
+            """);
+
+        try
+        {
+            // Act
+            var configuration = ConfigurationLoader.Load(path);
+
+
+            // Assert
+            configuration.Compare!.Thresholds.Should().BeNull();
         }
         finally
         {
