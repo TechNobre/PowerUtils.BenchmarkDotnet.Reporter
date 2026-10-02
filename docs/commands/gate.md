@@ -85,7 +85,7 @@ pbreporter gate -i benchmark-report.json \
 ```bash
 pbreporter gate -i benchmark-report.json -tm 500ms -f hit-txt
 ```
-> Note: The `hit-txt` format will only generate when at least one threshold is hit.
+> Note: The `hit-txt` format generates when at least one threshold is hit or warning is present.
 
 **With console output**
 ```bash
