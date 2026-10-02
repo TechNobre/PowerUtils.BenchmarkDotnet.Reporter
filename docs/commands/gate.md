@@ -28,7 +28,7 @@ pbreporter gate -i benchmark-report.json -tm 500ms -ta 10kb
 * (`-c`, `--config`): Path to a YAML configuration file. Works on any command (not `gate`-specific). Defaults to `pbreporter.yml` or `pbreporter.yaml` in the current directory when present. See [Configuration](../configuration.md).
 * (`-?`, `-h`, `--help`): Show help and usage information
 
-> Every option above (including `-i`) can also be set via an environment variable or the YAML config file instead of a CLI argument. See [Configuration](../configuration.md) for the full naming convention and precedence order.
+> `--input`, `--format`, and the threshold options can also be set via environment variables or the YAML config file instead of CLI arguments. `--output`, `--fail-on-warnings`, and `--config` are CLI-only. See [Configuration](../configuration.md) for the supported naming convention and precedence order.
 
 See [Threshold Units](../threshold-units.md#threshold-units) for supported threshold units. `gate` accepts absolute time and memory values only.
 
