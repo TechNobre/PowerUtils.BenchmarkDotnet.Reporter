@@ -112,6 +112,9 @@ dotnet_style_readonly_field = true:suggestion
 # Expression-level preferences
 dotnet_style_coalesce_expression = true:suggestion
 dotnet_style_collection_initializer = false # https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0028#dotnet_style_collection_initializer
+# Collection expressions for literals, but keep `.ToList()`/`.ToArray()` instead of `[.. x]` (IDE0305)
+dotnet_style_prefer_collection_expression = true:suggestion
+dotnet_diagnostic.IDE0305.severity = none
 dotnet_style_explicit_tuple_names = true:suggestion
 dotnet_style_namespace_match_folder = true # https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/formatting-rules#dotnet_style_namespace_match_folder
 dotnet_style_null_propagation = true:suggestion

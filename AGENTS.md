@@ -115,6 +115,9 @@ dotnet build
 # Pack the tool (Release only - packs to src/bin/)
 dotnet pack src/PowerUtils.BenchmarkDotnet.Reporter.csproj --configuration Release
 ```
+
+To validate a change, use the [`dotnet-code-health`](.claude/skills/dotnet-code-health/SKILL.md) skill (`/dotnet-code-health [all|error|warning|info|<code>]`): it scans build errors, warnings, and info-level style/analyzer findings, fixes them by severity, and prints a report.
+
 ### To run
 ```bash
 # Run the tool locally (from repo root after build)
