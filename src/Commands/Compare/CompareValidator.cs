@@ -57,8 +57,8 @@ public sealed class CompareValidator : ICompareValidator
             }
         }
 
-        messages.AddIfNotRelease(baseline);
-        messages.AddIfNotRelease(target);
+        messages.AddIfNotRelease(baseline, "baseline");
+        messages.AddIfNotRelease(target, "target");
 
         return messages;
 

@@ -7,7 +7,7 @@ public static class BenchmarkReportValidator
 {
     private const string RELEASE = "RELEASE";
 
-    public static void AddIfNotRelease(this List<string> messages, BenchmarkReport? report)
+    public static void AddIfNotRelease(this List<string> messages, BenchmarkReport? report, string? label = null)
     {
         if(report is null)
         {
@@ -18,7 +18,10 @@ public static class BenchmarkReportValidator
 
         if(!RELEASE.EquivalentTo(configuration))
         {
-            messages.Add($"[{report.FullName}] The report wasn't executed in RELEASE mode: '{configuration}'");
+            var subject = string.IsNullOrWhiteSpace(label) ?
+                "report" :
+                $"{label} report";
+            messages.Add($"[{report.FullName}] The {subject} wasn't executed in RELEASE mode: '{configuration}'");
         }
     }
 }

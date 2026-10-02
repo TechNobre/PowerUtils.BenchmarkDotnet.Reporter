@@ -250,7 +250,7 @@ public sealed class ValidateHostEnvironmentTests
 
         // Assert
         result.Count.Should().Be(1);
-        result[0].Should().Contain("The report wasn't executed in RELEASE mode");
+        result[0].Should().Contain("The baseline report wasn't executed in RELEASE mode");
     }
 
     [Fact]
@@ -268,7 +268,7 @@ public sealed class ValidateHostEnvironmentTests
 
         // Assert
         result.Count.Should().Be(1);
-        result[0].Should().Contain("The report wasn't executed in RELEASE mode");
+        result[0].Should().Contain("The target report wasn't executed in RELEASE mode");
     }
 
     private static BenchmarkReport _createBenchmarkReport(
