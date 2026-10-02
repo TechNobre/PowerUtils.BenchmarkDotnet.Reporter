@@ -23,7 +23,7 @@ pbreporter gate -i benchmark-report.json -tm 500ms -ta 10kb
 * (`-tm`, `--threshold-mean`) `<threshold-mean>`: Fail when a benchmark's mean execution time exceeds this absolute value. Examples: 10ms, 10us, 100ns, 1s. Repeatable. See [Scoped Thresholds](#scoped-thresholds).
 * (`-ta`, `--threshold-allocation`) `<threshold-allocation>`: Fail when a benchmark's allocated memory exceeds this absolute value. Examples: 10b, 10kb, 100mb, 1gb. Repeatable. See [Scoped Thresholds](#scoped-thresholds).
 * (`-f`, `--format`) `<console|hit-txt|json|markdown>`: Output format for the report. Repeatable. Can also be set via the `PBREPORTER_GATE__FORMATS` environment variable (single value) or the `formats` key in the YAML config file (scalar or list: `formats: [json, markdown]` or block-style `- json`). **[default: console]**
-* (`-o`, `--output`) `<output>`: Output directory to export the gate report. Default is current directory. **[default: ./BenchmarkReporter]**
+* (`-o`, `--output`) `<output>`: Output directory to export the gate report. **[default: ./BenchmarkReporter]**
 * (`-fw`, `--fail-on-warnings`): Exit with error code when any warnings are generated during the check (e.g., the report wasn't built in RELEASE mode). **[default: disabled]**
 * (`-c`, `--config`): Path to a YAML configuration file. Works on any command (not `gate`-specific). Defaults to `pbreporter.yml` or `pbreporter.yaml` in the current directory when present. See [Configuration](../configuration.md).
 * (`-?`, `-h`, `--help`): Show help and usage information
