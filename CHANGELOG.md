@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.7.0...v1.8.0) (2026-10-02)
+
+
+### Features
+
+* add `gate` command ([ef4d00a](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/commit/ef4d00ac73bf7c481734cfb4ff5834fa0e44a49a))
+
 # [1.7.0](https://github.com/TechNobre/PowerUtils.BenchmarkDotnet.Reporter/compare/v1.6.0...v1.7.0) (2026-08-30)
 
 
