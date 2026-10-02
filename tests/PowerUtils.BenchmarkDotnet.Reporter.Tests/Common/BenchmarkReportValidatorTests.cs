@@ -46,6 +46,45 @@ public sealed class BenchmarkReportValidatorTests
             .Which.Should().Be($"[Fake.Namespace.FakeBenchmark.FakeMethod] The report wasn't executed in RELEASE mode: '{configuration}'");
     }
 
+    [Theory]
+    [InlineData("baseline")]
+    [InlineData("target")]
+    public void When_Label_Is_Provided_Should_Include_Label_In_Message(string label)
+    {
+        // Arrange
+        var messages = new List<string>();
+        var report = _createBenchmarkReport("DEBUG");
+
+
+        // Act
+        messages.AddIfNotRelease(report, label);
+
+
+        // Assert
+        messages.Should().ContainSingle()
+            .Which.Should().Be($"[Fake.Namespace.FakeBenchmark.FakeMethod] The {label} report wasn't executed in RELEASE mode: 'DEBUG'");
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    public void When_Label_Is_Null_Or_Whitespace_Should_Omit_Label_In_Message(string? label)
+    {
+        // Arrange
+        var messages = new List<string>();
+        var report = _createBenchmarkReport("DEBUG");
+
+
+        // Act
+        messages.AddIfNotRelease(report, label);
+
+
+        // Assert
+        messages.Should().ContainSingle()
+            .Which.Should().Be("[Fake.Namespace.FakeBenchmark.FakeMethod] The report wasn't executed in RELEASE mode: 'DEBUG'");
+    }
+
     [Fact]
     public void When_Configuration_Is_Null_Should_Add_Message()
     {
