@@ -231,4 +231,76 @@ public sealed class GateConfigFileTests
         result.ExitCode.Should().Be(Constants.ExitCodes.SUCCESS);
         result.StandardOutput.Should().Contain("StringConcat");
     }
+
+    [Fact]
+    public async Task When_ConfigFile_Has_InvalidFormat_Should_ExitWithError()
+    {
+        // Arrange
+        var input = TestDataPath.Resolve("report-01/Benchmark-report-full.json");
+        using var scratch = new TempOutputDirectory();
+        var configPath = scratch.CombinePath("pbreporter.yml");
+        await File.WriteAllTextAsync(
+            configPath,
+            """
+            gate:
+              formats: [csv]
+            """,
+            TestContext.Current.CancellationToken);
+
+
+        // Act
+        var result = await ProcessRunner.RunAsync(["gate", "-i", input, "--config", configPath]);
+
+
+        // Assert
+        result.ExitCode.Should().Be(Constants.ExitCodes.ERROR);
+        result.StandardError.Should().Contain("Invalid format 'csv'. Allowed values: console, markdown, json, hit-txt");
+    }
+
+    [Fact]
+    public async Task When_EnvironmentVariable_Has_InvalidFormat_Should_ExitWithError()
+    {
+        // Arrange
+        var input = TestDataPath.Resolve("report-01/Benchmark-report-full.json");
+        var environmentVariables = new Dictionary<string, string?>
+        {
+            ["PBREPORTER_GATE__FORMATS"] = "csv"
+        };
+
+
+        // Act
+        var result = await ProcessRunner.RunAsync(["gate", "-i", input], environmentVariables: environmentVariables);
+
+
+        // Assert
+        result.ExitCode.Should().Be(Constants.ExitCodes.ERROR);
+        result.StandardError.Should().Contain("Invalid format 'csv'. Allowed values: console, markdown, json, hit-txt");
+    }
+
+    [Fact]
+    public async Task When_ConfigFile_Has_InvalidScopedThresholdPattern_Should_ExitWithError()
+    {
+        // Arrange
+        var input = TestDataPath.Resolve("report-10");
+        using var scratch = new TempOutputDirectory();
+        var configPath = scratch.CombinePath("pbreporter.yml");
+        await File.WriteAllTextAsync(
+            configPath,
+            """
+            gate:
+              thresholds:
+                - pattern: "Demo.*.ArrayProcessorBenchmarks"
+                  thresholdMean: 10us
+            """,
+            TestContext.Current.CancellationToken);
+
+
+        // Act
+        var result = await ProcessRunner.RunAsync(["gate", "-i", input, "--config", configPath]);
+
+
+        // Assert
+        result.ExitCode.Should().Be(Constants.ExitCodes.ERROR);
+        result.StandardError.Should().Contain("Invalid threshold pattern 'Demo.*.ArrayProcessorBenchmarks'. A '*' is only allowed as the last character of the pattern.");
+    }
 }

@@ -4,6 +4,7 @@ using System.CommandLine;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Gate;
+using PowerUtils.BenchmarkDotnet.Reporter.Common;
 using PowerUtils.BenchmarkDotnet.Reporter.Common.Models;
 using static PowerUtils.BenchmarkDotnet.Reporter.Common.Configuration.PbReporterConfiguration;
 
@@ -131,5 +132,51 @@ public sealed class FormatOptionTests
 
         // Assert
         options.Formats.Should().Equal("json", "markdown");
+    }
+
+    [Theory]
+    [InlineData("invalid-format")]
+    [InlineData("csv")]
+    [InlineData("html")]
+    public void Parse_WithInvalidConfigurationFormat_ShouldThrow_DomainException(string format)
+    {
+        // Arrange
+        var parseResult = _command.Parse(string.Empty);
+        var configuration = new GateConfigurationSection { Formats = ["json", format] };
+
+        // Act
+        var act = () => GateOptions.Parse(parseResult, configuration);
+
+        // Assert
+        act.Should().Throw<DomainException>()
+            .WithMessage($"Invalid format '{format}'. Allowed values: console, markdown, json, hit-txt");
+    }
+
+    [Fact]
+    public void Parse_WithConfigurationFormatInDifferentCase_ShouldNotThrow()
+    {
+        // Arrange
+        var parseResult = _command.Parse(string.Empty);
+        var configuration = new GateConfigurationSection { Formats = ["JSON", "Hit-Txt"] };
+
+        // Act
+        var options = GateOptions.Parse(parseResult, configuration);
+
+        // Assert
+        options.Formats.Should().Equal("JSON", "Hit-Txt");
+    }
+
+    [Fact]
+    public void Parse_WithCliFormatAndInvalidConfigurationFormat_ShouldPrefer_CliFormat_AndNotThrow()
+    {
+        // Arrange
+        var parseResult = _command.Parse("--format json");
+        var configuration = new GateConfigurationSection { Formats = ["csv"] };
+
+        // Act
+        var options = GateOptions.Parse(parseResult, configuration);
+
+        // Assert
+        options.Formats.Should().Equal("json");
     }
 }

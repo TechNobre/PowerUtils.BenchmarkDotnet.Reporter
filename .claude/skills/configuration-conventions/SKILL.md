@@ -114,7 +114,7 @@ public static CompareOptions Parse(ParseResult parser, CompareConfigurationSecti
     Formats = parser.GetResult(FormatsOption)?.Tokens.Count > 0
       ? parser.GetValue(FormatsOption)!
       : configuration?.Formats is { Count: > 0 } configFormats
-        ? configFormats.ToArray()
+        ? _validateConfigFormats(configFormats)
         : [ExporterFormats.CONSOLE],
     Output = parser.GetValue(OutputOption)!,
     FailOnWarnings = parser.GetValue(FailOnWarningsOption),
@@ -127,7 +127,10 @@ public static CompareOptions Parse(ParseResult parser, CompareConfigurationSecti
 | Check | Where |
 |---|---|
 | Shape/format of a single option's raw tokens (e.g. "is this one of the allowed format strings") | `option.Validators.Add(...)` inside `XxxOptions.cs` |
+| The same shape/format check for values that came from env vars or the YAML file | `XxxOptions.Parse` (throw `DomainException`) - option validators only see CLI tokens |
 | Cross-field or business rules (e.g. "do these two reports' environments match", "does this diff exceed a threshold") | `XxxValidator.cs` |
+
+**Config/env values bypass `option.Validators`.** Anything an option validator rejects on the CLI must also be rejected when it arrives via `Parse`'s configuration section, otherwise a typo either crashes later (an unknown `formats` entry hits `GetRequiredKeyedService`) or is silently ignored (an invalid scoped `pattern` never matches, so a threshold never applies). Throw a `DomainException` with the same message as the CLI validator; keep one private message builder per `XxxOptions.cs` (`_invalidFormatMessage`, `_invalidPatternMessage`) used by both the validator and `Parse`, rather than a shared `Common` helper, since the allowed values (e.g. `ExporterFormats.All`) are slice-owned. See `_validateConfigFormats` and `_rulesFromConfig` in `CompareOptions.cs`/`GateOptions.cs`.
 
 For scoped-option token validation, add a `Validators.Add(...)` callback in `XxxOptions.cs` that accepts either a bare global value or `pattern=value`, validates pattern syntax with `NamespacesUtils.IsValidPattern`, validates the value through the relevant value object parser, and reports invalid tokens with `result.AddError(...)`.
 
@@ -185,7 +188,7 @@ compare:
 2. **Schema**: add the matching property (or, for scoped, extend the section's `Thresholds`-style list entry class) to the section class in `PbReporterConfiguration.cs`.
 3. **Env var**: add a branch to `ConfigurationLoader._apply` for the new key under the command's section name.
 4. **YAML**: add parsing for the new key in the section's parse method (e.g. `_parseCompareSection`), plain scalar for a simple option, or fold into the `thresholds`-entry pattern-null-means-global handling if it's scoped.
-5. **Merge**: wire the config→CLI merge in the command's `Options.Parse`, unless the option is intentionally CLI-only (see "not every option needs all three sources" above).
+5. **Merge**: wire the config→CLI merge in the command's `Options.Parse`, unless the option is intentionally CLI-only (see "not every option needs all three sources" above). Validate the config-derived value there too (see "Where does validation go?").
 6. **Docs**: update the README's `Environment Variables` and `Configuration File` subsections and its option bullet list, and `AGENTS.md`'s options table.
 
 ## Recipe: adding a new command

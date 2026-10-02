@@ -20,6 +20,8 @@ config file  →  environment variables  →  CLI arguments
 
 The priority is environment variables → command-line convention. A value set in the config file can be overridden per-run by an environment variable, which can in turn be overridden by a CLI argument on that specific invocation, useful for setting an org-wide or repo-wide default that individual runs can still override.
 
+Values coming from the config file or environment variables are validated like CLI values: an unsupported `formats` entry or an invalid scoped threshold `pattern` makes the tool exit with an error instead of being ignored.
+
 
 
 ## Environment Variables

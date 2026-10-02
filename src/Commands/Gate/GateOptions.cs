@@ -58,7 +58,7 @@ public sealed record GateOptions
                 var pattern = token[..separatorIndex];
                 if(!NamespacesUtils.IsValidPattern(pattern))
                 {
-                    result.AddError($"Invalid threshold pattern '{pattern}'. A '*' is only allowed as the last character of the pattern.");
+                    result.AddError(_invalidPatternMessage(pattern));
                 }
             }
         });
@@ -83,7 +83,7 @@ public sealed record GateOptions
 
             foreach(var value in values)
             {
-                result.AddError($"Invalid format '{value}'. Allowed values: {string.Join(", ", ExporterFormats.All)}");
+                result.AddError(_invalidFormatMessage(value));
             }
         });
 
@@ -119,11 +119,31 @@ public sealed record GateOptions
             Formats = parser.GetResult(FormatsOption)?.Tokens.Count > 0
                 ? parser.GetValue(FormatsOption)!
                 : configuration?.Formats is { Count: > 0 } configFormats
-                    ? configFormats.ToArray()
+                    ? _validateConfigFormats(configFormats)
                     : [ExporterFormats.CONSOLE],
             Output = parser.GetValue(OutputOption)!,
             FailOnWarnings = parser.GetValue(FailOnWarningsOption)
         };
+
+    private static string _invalidFormatMessage(string value)
+        => $"Invalid format '{value}'. Allowed values: {string.Join(", ", ExporterFormats.All)}";
+
+    private static string _invalidPatternMessage(string pattern)
+        => $"Invalid threshold pattern '{pattern}'. A '*' is only allowed as the last character of the pattern.";
+
+    // Config/env values bypass the CLI option validators, so they are checked here.
+    private static string[] _validateConfigFormats(IEnumerable<string> formats)
+    {
+        var result = formats.ToArray();
+
+        var invalid = result.FirstOrDefault(format => !ExporterFormats.All.Contains(format));
+        if(invalid is not null)
+        {
+            throw new DomainException(_invalidFormatMessage(invalid));
+        }
+
+        return result;
+    }
 
     private static List<KeyValuePair<string, string>> _parseThresholdTokens(string[] tokens)
     {
@@ -158,6 +178,11 @@ public sealed record GateOptions
             var value = scopedValueSelector(entry);
             if(!string.IsNullOrWhiteSpace(entry.Pattern) && !string.IsNullOrWhiteSpace(value))
             {
+                if(!NamespacesUtils.IsValidPattern(entry.Pattern))
+                {
+                    throw new DomainException(_invalidPatternMessage(entry.Pattern));
+                }
+
                 rules.Add(new(entry.Pattern, value));
             }
         }
