@@ -93,7 +93,7 @@ public sealed record GateOptions
     public static readonly Option<string> OutputOption =
         new("--output", "-o")
         {
-            Description = "Output directory to export the gate report. Default is current directory.",
+            Description = "Output directory to export the gate report.",
             DefaultValueFactory = _ => "./BenchmarkReporter"
         };
 

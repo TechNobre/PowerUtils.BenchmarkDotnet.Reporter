@@ -75,7 +75,7 @@ public sealed class OptionsTests
         option.ValueType.Should().Be(typeof(string));
         option.Aliases.Count.Should().Be(1);
         option.Aliases.Should().Contain("-o");
-        option.Description.Should().Be("Output directory to export the gate report. Default is current directory.");
+        option.Description.Should().Be("Output directory to export the gate report.");
         (option.GetDefaultValue() as string).Should().Be("./BenchmarkReporter");
     }
 

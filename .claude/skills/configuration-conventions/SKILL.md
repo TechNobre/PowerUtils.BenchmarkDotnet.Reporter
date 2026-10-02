@@ -48,7 +48,7 @@ public static readonly Option<string> InputOption
 public static readonly Option<string> OutputOption =
   new("--output", "-o")
   {
-    Description = "Output directory to export the diff report. Default is current directory.",
+    Description = "Output directory to export the diff report.",
     DefaultValueFactory = _ => "./BenchmarkReporter"
   };
 ```
