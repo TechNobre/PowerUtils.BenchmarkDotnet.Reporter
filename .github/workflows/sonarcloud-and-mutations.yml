@@ -31,7 +31,7 @@ env:
   NUGET_XMLDOC_MODE: skip # Disable NuGet XML documentation generation
 
   SONAR_ORGANIZATION: 'technobre'
-  SONAR_PROJECT_KEY: 'PowerUtils.BenchmarkDotnet.Reporter'
+  SONAR_PROJECT_KEY: 'TechNobre_PowerUtils.BenchmarkDotnet.Reporter'
 
 
 permissions: {}
