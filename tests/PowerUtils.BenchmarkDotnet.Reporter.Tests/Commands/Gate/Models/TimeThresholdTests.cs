@@ -44,6 +44,8 @@ public sealed class TimeThresholdTests
     [InlineData("-1ns")]
     [InlineData("1xx")]
     [InlineData("1kg")]
+    [InlineData("79228162514264337593543950335s")]
+    [InlineData("79228162514264337593543950335ms")]
     public void Invalid_Text_Should_Not_Parse(string? value)
     {
         // Act

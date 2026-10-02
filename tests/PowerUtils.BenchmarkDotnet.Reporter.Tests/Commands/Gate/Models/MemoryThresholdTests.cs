@@ -44,6 +44,8 @@ public sealed class MemoryThresholdTests
     [InlineData("-1B")]
     [InlineData("1kg")]
     [InlineData("1tb")]
+    [InlineData("79228162514264337593543950335gb")]
+    [InlineData("79228162514264337593543950335mb")]
     public void Invalid_Text_Should_Not_Parse(string? value)
     {
         // Act

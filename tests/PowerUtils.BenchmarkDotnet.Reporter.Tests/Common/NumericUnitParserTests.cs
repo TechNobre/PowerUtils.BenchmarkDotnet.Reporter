@@ -118,6 +118,80 @@ public sealed class NumericUnitParserTests
     }
 
     [Theory]
+    [InlineData("us", 1_000)]
+    [InlineData("ms", 1_000_000)]
+    [InlineData("s", 1_000_000_000)]
+    public void When_Time_Conversion_Overflows_Should_Return_False(string unit, int factor)
+    {
+        // Arrange
+        var overflowing = (decimal.MaxValue / factor) + 1;
+
+
+        // Act
+        var result = NumericUnitParser.TryConvertTimeToNanoseconds(overflowing, unit, out _);
+
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData("kb", 1_000)]
+    [InlineData("mb", 1_000_000)]
+    [InlineData("gb", 1_000_000_000)]
+    public void When_Memory_Conversion_Overflows_Should_Return_False(string unit, int factor)
+    {
+        // Arrange
+        var overflowing = (decimal.MaxValue / factor) + 1;
+
+
+        // Act
+        var result = NumericUnitParser.TryConvertMemoryToBytes(overflowing, unit, out _);
+
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData("us", 1_000)]
+    [InlineData("ms", 1_000_000)]
+    [InlineData("s", 1_000_000_000)]
+    public void When_Time_Conversion_Fits_Exactly_Should_Convert(string unit, int factor)
+    {
+        // Arrange
+        var largest = decimal.MaxValue / factor;
+
+
+        // Act
+        var result = NumericUnitParser.TryConvertTimeToNanoseconds(largest, unit, out var nanoseconds);
+
+
+        // Assert
+        result.Should().BeTrue();
+        nanoseconds.Should().Be(largest * factor);
+    }
+
+    [Theory]
+    [InlineData("kb", 1_000)]
+    [InlineData("mb", 1_000_000)]
+    [InlineData("gb", 1_000_000_000)]
+    public void When_Memory_Conversion_Fits_Exactly_Should_Convert(string unit, int factor)
+    {
+        // Arrange
+        var largest = decimal.MaxValue / factor;
+
+
+        // Act
+        var result = NumericUnitParser.TryConvertMemoryToBytes(largest, unit, out var bytes);
+
+
+        // Assert
+        result.Should().BeTrue();
+        bytes.Should().Be(largest * factor);
+    }
+
+    [Theory]
     [InlineData("%")]
     [InlineData("kb")]
     [InlineData("")]
