@@ -17,4 +17,4 @@
 
 For `compare`, code `3` is returned only when `--fail-on-threshold-hit` is enabled. For `gate`, threshold hits always return code `3`.
 
-When both warnings and threshold hits qualify for failure, code `2` takes priority.
+When both warnings and threshold hits qualify for failure, `compare` returns code `2`, while `gate` returns code `3`.
