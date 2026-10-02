@@ -24,7 +24,7 @@ pbreporter compare -b baseline-full.json -t target-full.json
 * (`-tm`, `--threshold-mean`) `<threshold-mean>`: Throw an error when the mean threshold is met. Examples: 5%, 10ms, 10us, 100ns, 1s. Repeatable. See [Scoped Thresholds](#scoped-thresholds).
 * (`-ta`, `--threshold-allocation`) `<threshold-allocation>`: Throw an error when the allocation threshold is met. Examples: 5%, 10b, 10kb, 100mb, 1gb. Repeatable. See [Scoped Thresholds](#scoped-thresholds).
 * (`-f`, `--format`) `<console|hit-txt|json|markdown>`: Output format for the report. Repeatable. Can also be set via the `PBREPORTER_COMPARE__FORMATS` environment variable (single value) or the `formats` key in the YAML config file (scalar or list: `formats: [json, markdown]` or block-style `- json`). **[default: console]**
-* (`-o`, `--output`) `<output>`: Output directory to export the diff report. Default is current directory. **[default: ./BenchmarkReporter]**
+* (`-o`, `--output`) `<output>`: Output directory to export the diff report. **[default: ./BenchmarkReporter]**
 * (`-fw`, `--fail-on-warnings`): Exit with error code when any warnings are generated during comparison (e.g., mismatched host environments). **[default: disabled]**
 * (`-ft`, `--fail-on-threshold-hit`): Exit with error code when any threshold is hit during comparison. **[default: disabled]**
 * (`-c`, `--config`): Path to a YAML configuration file. Works on any command (not `compare`-specific). Defaults to `pbreporter.yml` or `pbreporter.yaml` in the current directory when present. See [Configuration](../configuration.md).
