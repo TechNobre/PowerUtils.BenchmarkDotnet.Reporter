@@ -22,7 +22,7 @@ Scan the solution with a fixed sequence of commands, fix the findings in a fixed
 
 ## Prerequisites
 
-- `git` repository, .NET SDK on `PATH` (honour `global.json`), PowerShell for the bundled script: `pwsh` 7+ (Windows, Linux, macOS) or `powershell` 5.1 (built into Windows). Install `pwsh` with `winget install Microsoft.PowerShell` (Windows), `brew install powershell` (macOS) or the [Microsoft package repository](https://learn.microsoft.com/powershell/scripting/install/installing-powershell-on-linux) (Linux). With neither shell, use the [fallback sequence](#fallback-without-powershell).
+- `git` repository, .NET SDK on `PATH` (a `global.json` is optional: if present, the installed SDK must satisfy it; if absent, the newest installed SDK is used), PowerShell for the bundled script: `pwsh` 7+ (Windows, Linux, macOS) or `powershell` 5.1 (built into Windows). Install `pwsh` with `winget install Microsoft.PowerShell` (Windows), `brew install powershell` (macOS) or the [Microsoft package repository](https://learn.microsoft.com/powershell/scripting/install/installing-powershell-on-linux) (Linux). With neither shell, use the [fallback sequence](#fallback-without-powershell).
 - Run every command from the repository root.
 - `<skill-dir>` below is the directory containing this `SKILL.md`.
 - `<ps>` below is `pwsh -NoProfile` on any OS, or `powershell -NoProfile -ExecutionPolicy Bypass` on Windows when `pwsh` is missing.
@@ -92,7 +92,7 @@ If `pwsh` is missing, use `powershell` on Windows (see `<ps>`); if no PowerShell
 | `baseline.tsv` | Snapshot of the first run, used by the report |
 | `build.log`, `format.log` | Raw tool output |
 
-Exit codes: `0` nothing in scope, `1` findings remain, `2` tooling or usage error (read the message; fix the environment, not the code). Format-only findings are labelled `info`; everything the build reports keeps its own severity. The criticality order is in [references/severity-order.md](references/severity-order.md).
+Exit codes: `0` nothing in scope, `1` findings remain, `2` tooling or usage error (read the message; fix the environment, not the code; for example, never edit `global.json` to get past an SDK mismatch). Format-only findings are labelled `info`; everything the build reports keeps its own severity. The criticality order is in [references/severity-order.md](references/severity-order.md).
 
 If the exit code is `0`, go straight to step 6.
 
