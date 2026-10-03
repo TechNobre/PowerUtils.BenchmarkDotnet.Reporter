@@ -441,7 +441,7 @@ public static class ConfigurationLoader
         };
     }
 
-    private static IReadOnlyDictionary<string, string?> _readEnvironmentVariables()
+    private static Dictionary<string, string?> _readEnvironmentVariables()
     {
         var result = new Dictionary<string, string?>();
 

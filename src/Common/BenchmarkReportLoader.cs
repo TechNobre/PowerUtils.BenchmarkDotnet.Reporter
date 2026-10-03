@@ -43,7 +43,7 @@ public static class BenchmarkReportLoader
                 reports[i] = JsonSerializer.Deserialize<JsonBenchmarkReports>(content)
                     ?? throw new DomainException($"Failed to deserialize the {paths[i]} file");
             }
-            catch (JsonException jsonException)
+            catch(JsonException jsonException)
             {
                 throw new DomainException(
                     $"Failed to deserialize the file '{paths[i]}'. {jsonException.Message}",

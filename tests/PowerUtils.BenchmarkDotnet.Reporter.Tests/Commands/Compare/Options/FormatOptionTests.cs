@@ -30,7 +30,7 @@ public sealed class FormatOptionTests
         var option = _command.Options.Single(o => o.Name == "--format");
 
         // Assert
-        option.ValueType.Should().Be(typeof(string[]));
+        option.ValueType.Should().Be<string[]>();
         option.Aliases.Count.Should().Be(1);
         option.Aliases.Should().Contain("-f");
         option.Description.Should().Be("Output format for the report. Can also be set via the PBREPORTER_COMPARE__FORMATS environment variable or the 'formats' key in the YAML config file (scalar or list).");

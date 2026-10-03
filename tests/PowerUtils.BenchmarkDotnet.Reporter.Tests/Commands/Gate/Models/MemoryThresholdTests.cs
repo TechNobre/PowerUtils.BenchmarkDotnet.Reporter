@@ -65,7 +65,7 @@ public sealed class MemoryThresholdTests
 
 
         // Act
-        var act = () => { MemoryThreshold.Parse(value); };
+        var act = () => MemoryThreshold.Parse(value);
 
 
         // Assert
@@ -81,7 +81,7 @@ public sealed class MemoryThresholdTests
 
 
         // Act
-        var act = () => { MemoryThreshold.Parse(value); };
+        var act = () => MemoryThreshold.Parse(value);
 
 
         // Assert

@@ -1,8 +1,8 @@
 using System;
-using System.CommandLine;
 using System.Collections.Generic;
-using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Exporters;
+using System.CommandLine;
 using System.Linq;
+using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Exporters;
 using PowerUtils.BenchmarkDotnet.Reporter.Common;
 using static PowerUtils.BenchmarkDotnet.Reporter.Common.Configuration.PbReporterConfiguration;
 
@@ -89,7 +89,7 @@ public sealed record CompareOptions
                 .Select(token => token.Value)
                 .Where(value => !ExporterFormats.All.Contains(value));
 
-            foreach (var value in values)
+            foreach(var value in values)
             {
                 result.AddError(_invalidFormatMessage(value));
             }

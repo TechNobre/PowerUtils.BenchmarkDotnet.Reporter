@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Exporters;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models;
 using PowerUtils.BenchmarkDotnet.Reporter.Common;
 using PowerUtils.BenchmarkDotnet.Reporter.Common.Models;
-using System.Linq;
 using static PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models.ComparerReport;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare;

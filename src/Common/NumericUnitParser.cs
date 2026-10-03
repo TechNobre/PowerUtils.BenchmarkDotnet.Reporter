@@ -20,7 +20,11 @@ public static class NumericUnitParser
         var hasDecimalPoint = false;
         while(i < value.Length && (char.IsDigit(value[i]) || (value[i] == '.' && !hasDecimalPoint)))
         {
-            if(value[i] == '.') hasDecimalPoint = true;
+            if(value[i] == '.')
+            {
+                hasDecimalPoint = true;
+            }
+
             i++;
         }
 
@@ -43,40 +47,28 @@ public static class NumericUnitParser
     {
         nanoseconds = value;
 
-        switch(unit.ToLowerInvariant())
+        return unit.ToLowerInvariant() switch
         {
-            case "ns":
-                return true;
-            case "μs":
-            case "µs":
-            case "us":
-                return _tryMultiply(value, 1_000, out nanoseconds);
-            case "ms":
-                return _tryMultiply(value, 1_000_000, out nanoseconds);
-            case "s":
-                return _tryMultiply(value, 1_000_000_000, out nanoseconds);
-            default:
-                return false;
-        }
+            "ns" => true,
+            "μs" or "µs" or "us" => _tryMultiply(value, 1_000, out nanoseconds),
+            "ms" => _tryMultiply(value, 1_000_000, out nanoseconds),
+            "s" => _tryMultiply(value, 1_000_000_000, out nanoseconds),
+            _ => false,
+        };
     }
 
     public static bool TryConvertMemoryToBytes(decimal value, string unit, out decimal bytes)
     {
         bytes = value;
 
-        switch(unit.ToLowerInvariant())
+        return unit.ToLowerInvariant() switch
         {
-            case "b":
-                return true;
-            case "kb":
-                return _tryMultiply(value, 1_000, out bytes);
-            case "mb":
-                return _tryMultiply(value, 1_000_000, out bytes);
-            case "gb":
-                return _tryMultiply(value, 1_000_000_000, out bytes);
-            default:
-                return false;
-        }
+            "b" => true,
+            "kb" => _tryMultiply(value, 1_000, out bytes),
+            "mb" => _tryMultiply(value, 1_000_000, out bytes),
+            "gb" => _tryMultiply(value, 1_000_000_000, out bytes),
+            _ => false,
+        };
     }
 
     // Leaves `result` as the original value when the product would overflow decimal.

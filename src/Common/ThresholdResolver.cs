@@ -16,8 +16,8 @@ public static class ThresholdResolver
         => rules
             .Select(rule =>
             {
-                var parsed = parse(rule.Value);
-                return new ResolvedThreshold(parsed.Value, parsed.IsPercentage, rule.Key);
+                var (value, isPercentage) = parse(rule.Value);
+                return new ResolvedThreshold(value, isPercentage, rule.Key);
             })
             .OrderByDescending(rule => NamespacesUtils.GetSpecificity(rule.Pattern))
             .ToList();

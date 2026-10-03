@@ -18,7 +18,7 @@ serviceCollection
 var rootCommand = new RootCommand(".NET BenchmarkDotNet Reporter Tool");
 
 using var serviceProvider = serviceCollection.BuildServiceProvider();
-foreach (var module in serviceProvider.GetServices<ICommandModule>())
+foreach(var module in serviceProvider.GetServices<ICommandModule>())
 {
     rootCommand.Subcommands.Add(module.Build());
 }

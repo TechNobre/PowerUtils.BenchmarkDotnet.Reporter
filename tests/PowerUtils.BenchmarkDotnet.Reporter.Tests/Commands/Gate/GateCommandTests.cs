@@ -22,30 +22,22 @@ public sealed class GateCommandTests
 
 
     [Fact]
-    public void CommandName_ShouldBe_Gate()
-    {
+    public void CommandName_ShouldBe_Gate() =>
         // Arrange & Act & Assert
         _command.Name.Should().Be("gate");
-    }
 
     [Fact]
-    public void Command_ShouldHave_7Options()
-    {
+    public void Command_ShouldHave_7Options() =>
         // Arrange & Act & Assert
         _command.Options.Count.Should().Be(7);
-    }
 
     [Fact]
-    public void Command_ShouldHave_Description()
-    {
+    public void Command_ShouldHave_Description() =>
         // Arrange & Act & Assert
         _command.Description.Should().Be("Check a BenchmarkDotNet report against absolute performance thresholds.");
-    }
 
     [Fact]
-    public void Command_ShouldHave_Action()
-    {
+    public void Command_ShouldHave_Action() =>
         // Arrange & Act & Assert
         _command.Action.Should().NotBeNull();
-    }
 }

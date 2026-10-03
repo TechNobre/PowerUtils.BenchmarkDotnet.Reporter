@@ -36,12 +36,12 @@ public static class YamlDocumentParser
 
     // Callers only invoke this once they've confirmed index < lines.Count and lines[index].Indent == indent
     // (that's exactly how the value to parse next is identified), so no bounds/indent guard is needed here.
-    private static object? _parseBlock(List<_Line> lines, ref int index, int indent)
+    private static object? _parseBlock(List<Line> lines, ref int index, int indent)
         => _isSequenceItem(lines[index].Content)
             ? _parseSequence(lines, ref index, indent)
             : _parseMapping(lines, ref index, indent);
 
-    private static Dictionary<string, object?> _parseMapping(List<_Line> lines, ref int index, int indent)
+    private static Dictionary<string, object?> _parseMapping(List<Line> lines, ref int index, int indent)
     {
         var mapping = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
 
@@ -70,7 +70,7 @@ public static class YamlDocumentParser
         return mapping;
     }
 
-    private static List<object?> _parseSequence(List<_Line> lines, ref int index, int indent)
+    private static List<object?> _parseSequence(List<Line> lines, ref int index, int indent)
     {
         var sequence = new List<object?>();
         var itemIndent = indent + 2;
@@ -149,9 +149,9 @@ public static class YamlDocumentParser
             ? value[1..^1]
             : value;
 
-    private static List<_Line> _tokenize(string text)
+    private static List<Line> _tokenize(string text)
     {
-        var result = new List<_Line>();
+        var result = new List<Line>();
         var rawLines = text.Split(_lineBreaks, StringSplitOptions.None);
 
         for(var i = 0; i < rawLines.Length; i++)
@@ -172,12 +172,12 @@ public static class YamlDocumentParser
                 continue;
             }
 
-            result.Add(new _Line(indent, trimmed, i + 1));
+            result.Add(new Line(indent, trimmed, i + 1));
         }
 
         return result;
     }
 
 
-    private sealed record _Line(int Indent, string Content, int LineNumber);
+    private sealed record Line(int Indent, string Content, int LineNumber);
 }

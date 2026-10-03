@@ -46,14 +46,14 @@ public sealed class CompareValidator : ICompareValidator
         var baselineInfo = baseline.Header?.HostEnvironmentInfo;
         var targetInfo = target.Header?.HostEnvironmentInfo;
 
-        foreach(var check in _hostEnvironmentChecks)
+        foreach(var (label, select) in _hostEnvironmentChecks)
         {
-            var baselineValue = check.Select(baselineInfo);
-            var targetValue = check.Select(targetInfo);
+            var baselineValue = select(baselineInfo);
+            var targetValue = select(targetInfo);
 
             if(!_valuesEquivalent(baselineValue, targetValue))
             {
-                messages.Add($"[{baseline.FullName}] {check.Label} is different: '{baselineValue}' != '{targetValue}'");
+                messages.Add($"[{baseline.FullName}] {label} is different: '{baselineValue}' != '{targetValue}'");
             }
         }
 
