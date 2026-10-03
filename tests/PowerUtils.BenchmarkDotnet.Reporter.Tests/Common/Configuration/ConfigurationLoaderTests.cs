@@ -1372,6 +1372,90 @@ public sealed class ConfigurationLoaderTests
     }
 
     [Fact]
+    public void ParseYamlDocument_WithFormats_AsEmptyList_ShouldLeave_FormatsNull()
+    {
+        // Arrange
+        var document = new Dictionary<string, object?>
+        {
+            ["compare"] = new Dictionary<string, object?>
+            {
+                ["formats"] = new List<object?>()
+            }
+        };
+
+
+        // Act
+        var configuration = ConfigurationLoader.ParseYamlDocument(document);
+
+
+        // Assert
+        configuration.Compare!.Formats.Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseYamlDocument_WithFormats_AsListWithoutStrings_ShouldLeave_FormatsNull()
+    {
+        // Arrange
+        var document = new Dictionary<string, object?>
+        {
+            ["compare"] = new Dictionary<string, object?>
+            {
+                ["formats"] = new List<object?> { 5, null }
+            }
+        };
+
+
+        // Act
+        var configuration = ConfigurationLoader.ParseYamlDocument(document);
+
+
+        // Assert
+        configuration.Compare!.Formats.Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseYamlDocument_WithFormats_AsNull_ShouldLeave_FormatsNull()
+    {
+        // Arrange
+        var document = new Dictionary<string, object?>
+        {
+            ["compare"] = new Dictionary<string, object?>
+            {
+                ["formats"] = null
+            }
+        };
+
+
+        // Act
+        var configuration = ConfigurationLoader.ParseYamlDocument(document);
+
+
+        // Assert
+        configuration.Compare!.Formats.Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseYamlDocument_WithFormats_AsMapping_ShouldLeave_FormatsNull()
+    {
+        // Arrange
+        var document = new Dictionary<string, object?>
+        {
+            ["compare"] = new Dictionary<string, object?>
+            {
+                ["formats"] = new Dictionary<string, object?> { ["a"] = "b" }
+            }
+        };
+
+
+        // Act
+        var configuration = ConfigurationLoader.ParseYamlDocument(document);
+
+
+        // Assert
+        configuration.Compare!.Formats.Should().BeNull();
+    }
+
+    [Fact]
     public void Load_WithFileFormats_AndEnvironmentFormats_ShouldPrefer_EnvironmentValue()
     {
         // Arrange
