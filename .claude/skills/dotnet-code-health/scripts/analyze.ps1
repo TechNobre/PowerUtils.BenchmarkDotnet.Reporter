@@ -17,7 +17,7 @@ changed (default) | all | error | warning | info | <diagnostic code, e.g. CA2263
 .PARAMETER Reset
 Start a new baseline (use on the first run of every invocation).
 #>
-[CmdletBinding()]
+[CmdletBinding(PositionalBinding = $false)]
 param(
     [string]$Scope = 'changed',
     [string]$Solution,
@@ -25,12 +25,16 @@ param(
     [string]$OutDir = 'artifacts/code-health',
     [int]$Top = 100,
     [string[]]$Decisions = @(),
+    [Parameter(ValueFromRemainingArguments)][string[]]$ExtraDecisions = @(),
     [switch]$Reset,
     [switch]$Report
 )
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
+
+# With -File, `-Decisions "a" "b"` binds only "a"; the rest arrive as remaining arguments.
+$Decisions = @(@($Decisions) + @($ExtraDecisions) | Where-Object { $_ })
 
 # Windows PowerShell 5.1 has no $IsWindows.
 $script:IsWin = [Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT

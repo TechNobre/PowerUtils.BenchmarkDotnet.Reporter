@@ -130,7 +130,7 @@ Record every test file you added so the report can list it.
 <ps> -File <skill-dir>/scripts/analyze.ps1 -Scope <scope>
 ```
 
-Do not pass `-Reset`. Repeat steps 3 to 5 until exit `0`, or until every remaining finding has been abandoned under rule 7 (and listed for the report).
+Do not pass `-Reset`. Repeat steps 3 to 5 until exit `0`, or until every remaining finding can only be cleared by violating the **NEVER** rules and is listed in the report's "Decisions needed" section.
 
 ### 6. Report (always the last step)
 
