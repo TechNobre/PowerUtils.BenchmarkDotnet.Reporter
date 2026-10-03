@@ -38,6 +38,7 @@ $Decisions = @(@($Decisions) + @($ExtraDecisions) | Where-Object { $_ })
 
 # Windows PowerShell 5.1 has no $IsWindows.
 $script:IsWin = [Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT
+$script:PathComparer = if ($script:IsWin) { [StringComparer]::OrdinalIgnoreCase } else { [StringComparer]::Ordinal }
 $script:Utf8NoBom = [System.Text.UTF8Encoding]::new($false)
 try { [Console]::OutputEncoding = $script:Utf8NoBom } catch { Write-Verbose 'Console encoding not changed.' }
 
@@ -135,7 +136,7 @@ function Read-Diagnostics([string]$LogPath, [string]$ForcedSeverity) {
 }
 
 function Select-Unique($Items) {
-    $seen = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    $seen = [System.Collections.Generic.HashSet[string]]::new($script:PathComparer)
     foreach ($i in $Items) {
         if ($seen.Add("$($i.File)|$($i.Line)|$($i.Col)|$($i.Code)")) { $i }
     }
@@ -219,7 +220,7 @@ function ConvertTo-JsonObject($Map) {
 }
 
 function Get-ChangedRanges([string]$MergeBase) {
-    $map = [System.Collections.Generic.Dictionary[string, System.Collections.Generic.List[int[]]]]::new([StringComparer]::OrdinalIgnoreCase)
+    $map = [System.Collections.Generic.Dictionary[string, System.Collections.Generic.List[int[]]]]::new($script:PathComparer)
     $file = $null
     $inHeader = $false
     foreach ($line in @(& git -c core.quotepath=off diff --unified=0 --no-color --no-ext-diff $MergeBase)) {
@@ -444,7 +445,7 @@ if ($buildExit -eq 0 -and $formatExit -notin 0, 2) {
 Write-Host "Build exit: $buildExit | Format exit: $formatExit"
 
 # Format-only findings are the info items the build hides; anything the build already reported keeps its severity.
-$buildKeys = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+$buildKeys = [System.Collections.Generic.HashSet[string]]::new($script:PathComparer)
 foreach ($b in $buildFindings) { [void]$buildKeys.Add("$($b.File)|$($b.Line)|$($b.Code)") }
 $formatOnly = $formatFindings | Where-Object { -not $buildKeys.Contains("$($_.File)|$($_.Line)|$($_.Code)") }
 
