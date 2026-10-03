@@ -11,7 +11,7 @@ public static class ProcessRunner
 {
     public sealed record Result(int ExitCode, string StandardOutput, string StandardError);
 
-    private static readonly string _toolDllPath = ResolveToolDllPath();
+    private static readonly string _toolDllPath = _resolveToolDllPath();
 
     public static Task<Result> RunAsync(params string[] args)
         => RunAsync(args, environmentVariables: null, workingDirectory: null);
@@ -75,7 +75,7 @@ public static class ProcessRunner
         return new Result(process.ExitCode, stdOut.ToString(), stdErr.ToString());
     }
 
-    private static string ResolveToolDllPath()
+    private static string _resolveToolDllPath()
     {
         var baseDirectory = new DirectoryInfo(AppContext.BaseDirectory);
 

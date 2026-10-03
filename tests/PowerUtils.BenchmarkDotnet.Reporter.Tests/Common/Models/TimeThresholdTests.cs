@@ -66,7 +66,7 @@ public sealed class TimeThresholdTests
 
 
         // Act
-        var act = () => { TimeThreshold.Parse(value); };
+        var act = () => TimeThreshold.Parse(value);
 
 
         // Assert

@@ -24,8 +24,8 @@ public sealed class ConfigurationLoaderTests
     public void Load_ShouldReflect_RealProcessEnvironmentVariables()
     {
         // Arrange
-        const string variableName = "PBREPORTER_COMPARE__THRESHOLD_MEAN";
-        Environment.SetEnvironmentVariable(variableName, "7%");
+        const string VARIABLE_NAME = "PBREPORTER_COMPARE__THRESHOLD_MEAN";
+        Environment.SetEnvironmentVariable(VARIABLE_NAME, "7%");
 
         try
         {
@@ -38,7 +38,7 @@ public sealed class ConfigurationLoaderTests
         }
         finally
         {
-            Environment.SetEnvironmentVariable(variableName, null);
+            Environment.SetEnvironmentVariable(VARIABLE_NAME, null);
         }
     }
 
@@ -846,10 +846,10 @@ public sealed class ConfigurationLoaderTests
                   thresholdAllocation: 10kb
             """);
 
-        const string patternEnvVar = "PBREPORTER_COMPARE__THRESHOLDS__0__PATTERN";
-        const string allocationEnvVar = "PBREPORTER_COMPARE__THRESHOLDS__0__THRESHOLD_ALLOCATION";
-        Environment.SetEnvironmentVariable(patternEnvVar, "Demo.*");
-        Environment.SetEnvironmentVariable(allocationEnvVar, "5kb");
+        const string PATTERN_ENV_VAR = "PBREPORTER_COMPARE__THRESHOLDS__0__PATTERN";
+        const string ALLOCATION_ENV_VAR = "PBREPORTER_COMPARE__THRESHOLDS__0__THRESHOLD_ALLOCATION";
+        Environment.SetEnvironmentVariable(PATTERN_ENV_VAR, "Demo.*");
+        Environment.SetEnvironmentVariable(ALLOCATION_ENV_VAR, "5kb");
 
         try
         {
@@ -867,8 +867,8 @@ public sealed class ConfigurationLoaderTests
         finally
         {
             File.Delete(path);
-            Environment.SetEnvironmentVariable(patternEnvVar, null);
-            Environment.SetEnvironmentVariable(allocationEnvVar, null);
+            Environment.SetEnvironmentVariable(PATTERN_ENV_VAR, null);
+            Environment.SetEnvironmentVariable(ALLOCATION_ENV_VAR, null);
         }
     }
 
@@ -886,10 +886,10 @@ public sealed class ConfigurationLoaderTests
                   thresholdMean: 10ms
             """);
 
-        const string patternEnvVar = "PBREPORTER_COMPARE__THRESHOLDS__0__PATTERN";
-        const string meanEnvVar = "PBREPORTER_COMPARE__THRESHOLDS__0__THRESHOLD_MEAN";
-        Environment.SetEnvironmentVariable(patternEnvVar, "Demo.Benchmarks.StringProcessorBenchmarks.*");
-        Environment.SetEnvironmentVariable(meanEnvVar, "20ms");
+        const string PATTERN_ENV_VAR = "PBREPORTER_COMPARE__THRESHOLDS__0__PATTERN";
+        const string MEAN_ENV_VAR = "PBREPORTER_COMPARE__THRESHOLDS__0__THRESHOLD_MEAN";
+        Environment.SetEnvironmentVariable(PATTERN_ENV_VAR, "Demo.Benchmarks.StringProcessorBenchmarks.*");
+        Environment.SetEnvironmentVariable(MEAN_ENV_VAR, "20ms");
 
         try
         {
@@ -907,8 +907,8 @@ public sealed class ConfigurationLoaderTests
         finally
         {
             File.Delete(path);
-            Environment.SetEnvironmentVariable(patternEnvVar, null);
-            Environment.SetEnvironmentVariable(meanEnvVar, null);
+            Environment.SetEnvironmentVariable(PATTERN_ENV_VAR, null);
+            Environment.SetEnvironmentVariable(MEAN_ENV_VAR, null);
         }
     }
 
@@ -924,8 +924,8 @@ public sealed class ConfigurationLoaderTests
               baseline: from-file.json
             """);
 
-        const string baselineEnvVar = "PBREPORTER_COMPARE__BASELINE";
-        Environment.SetEnvironmentVariable(baselineEnvVar, "from-env.json");
+        const string BASELINE_ENV_VAR = "PBREPORTER_COMPARE__BASELINE";
+        Environment.SetEnvironmentVariable(BASELINE_ENV_VAR, "from-env.json");
 
         try
         {
@@ -939,7 +939,7 @@ public sealed class ConfigurationLoaderTests
         finally
         {
             File.Delete(path);
-            Environment.SetEnvironmentVariable(baselineEnvVar, null);
+            Environment.SetEnvironmentVariable(BASELINE_ENV_VAR, null);
         }
     }
 
@@ -984,8 +984,8 @@ public sealed class ConfigurationLoaderTests
                 - thresholdMean: 50%
             """);
 
-        const string meanEnvVar = "PBREPORTER_COMPARE__THRESHOLD_MEAN";
-        Environment.SetEnvironmentVariable(meanEnvVar, "5%");
+        const string MEAN_ENV_VAR = "PBREPORTER_COMPARE__THRESHOLD_MEAN";
+        Environment.SetEnvironmentVariable(MEAN_ENV_VAR, "5%");
 
         try
         {
@@ -999,7 +999,7 @@ public sealed class ConfigurationLoaderTests
         finally
         {
             File.Delete(path);
-            Environment.SetEnvironmentVariable(meanEnvVar, null);
+            Environment.SetEnvironmentVariable(MEAN_ENV_VAR, null);
         }
     }
 
@@ -1016,8 +1016,8 @@ public sealed class ConfigurationLoaderTests
                 - thresholdAllocation: 50kb
             """);
 
-        const string allocationEnvVar = "PBREPORTER_COMPARE__THRESHOLD_ALLOCATION";
-        Environment.SetEnvironmentVariable(allocationEnvVar, "5kb");
+        const string ALLOCATION_ENV_VAR = "PBREPORTER_COMPARE__THRESHOLD_ALLOCATION";
+        Environment.SetEnvironmentVariable(ALLOCATION_ENV_VAR, "5kb");
 
         try
         {
@@ -1031,7 +1031,7 @@ public sealed class ConfigurationLoaderTests
         finally
         {
             File.Delete(path);
-            Environment.SetEnvironmentVariable(allocationEnvVar, null);
+            Environment.SetEnvironmentVariable(ALLOCATION_ENV_VAR, null);
         }
     }
 
@@ -1043,10 +1043,10 @@ public sealed class ConfigurationLoaderTests
         // that _mergeThresholds handles a null lower list without throwing.
         var scratchDirectory = Directory.CreateTempSubdirectory("pbreporter-loader-test-");
 
-        const string patternEnvVar = "PBREPORTER_COMPARE__THRESHOLDS__0__PATTERN";
-        const string meanEnvVar = "PBREPORTER_COMPARE__THRESHOLDS__0__THRESHOLD_MEAN";
-        Environment.SetEnvironmentVariable(patternEnvVar, "Demo.*");
-        Environment.SetEnvironmentVariable(meanEnvVar, "10ms");
+        const string PATTERN_ENV_VAR = "PBREPORTER_COMPARE__THRESHOLDS__0__PATTERN";
+        const string MEAN_ENV_VAR = "PBREPORTER_COMPARE__THRESHOLDS__0__THRESHOLD_MEAN";
+        Environment.SetEnvironmentVariable(PATTERN_ENV_VAR, "Demo.*");
+        Environment.SetEnvironmentVariable(MEAN_ENV_VAR, "10ms");
 
         try
         {
@@ -1061,8 +1061,8 @@ public sealed class ConfigurationLoaderTests
         finally
         {
             scratchDirectory.Delete(recursive: true);
-            Environment.SetEnvironmentVariable(patternEnvVar, null);
-            Environment.SetEnvironmentVariable(meanEnvVar, null);
+            Environment.SetEnvironmentVariable(PATTERN_ENV_VAR, null);
+            Environment.SetEnvironmentVariable(MEAN_ENV_VAR, null);
         }
     }
 
@@ -1082,10 +1082,10 @@ public sealed class ConfigurationLoaderTests
                   thresholdAllocation: 10kb
             """);
 
-        const string patternEnvVar = "PBREPORTER_COMPARE__THRESHOLDS__0__PATTERN";
-        const string meanEnvVar = "PBREPORTER_COMPARE__THRESHOLDS__0__THRESHOLD_MEAN";
-        Environment.SetEnvironmentVariable(patternEnvVar, "Demo.*");
-        Environment.SetEnvironmentVariable(meanEnvVar, "10ms");
+        const string PATTERN_ENV_VAR = "PBREPORTER_COMPARE__THRESHOLDS__0__PATTERN";
+        const string MEAN_ENV_VAR = "PBREPORTER_COMPARE__THRESHOLDS__0__THRESHOLD_MEAN";
+        Environment.SetEnvironmentVariable(PATTERN_ENV_VAR, "Demo.*");
+        Environment.SetEnvironmentVariable(MEAN_ENV_VAR, "10ms");
 
         try
         {
@@ -1102,8 +1102,8 @@ public sealed class ConfigurationLoaderTests
         finally
         {
             File.Delete(path);
-            Environment.SetEnvironmentVariable(patternEnvVar, null);
-            Environment.SetEnvironmentVariable(meanEnvVar, null);
+            Environment.SetEnvironmentVariable(PATTERN_ENV_VAR, null);
+            Environment.SetEnvironmentVariable(MEAN_ENV_VAR, null);
         }
     }
 
@@ -1123,8 +1123,8 @@ public sealed class ConfigurationLoaderTests
                   thresholdMean: 10ms
             """);
 
-        const string unknownFieldEnvVar = "PBREPORTER_COMPARE__THRESHOLDS__0__UNKNOWN_FIELD";
-        Environment.SetEnvironmentVariable(unknownFieldEnvVar, "5%");
+        const string UNKNOWN_FIELD_ENV_VAR = "PBREPORTER_COMPARE__THRESHOLDS__0__UNKNOWN_FIELD";
+        Environment.SetEnvironmentVariable(UNKNOWN_FIELD_ENV_VAR, "5%");
 
         try
         {
@@ -1139,7 +1139,7 @@ public sealed class ConfigurationLoaderTests
         finally
         {
             File.Delete(path);
-            Environment.SetEnvironmentVariable(unknownFieldEnvVar, null);
+            Environment.SetEnvironmentVariable(UNKNOWN_FIELD_ENV_VAR, null);
         }
     }
 
@@ -1158,10 +1158,10 @@ public sealed class ConfigurationLoaderTests
                   thresholdMean: 50ms
             """);
 
-        const string patternEnvVar = "PBREPORTER_COMPARE__THRESHOLDS__0__PATTERN";
-        const string meanEnvVar = "PBREPORTER_COMPARE__THRESHOLDS__0__THRESHOLD_MEAN";
-        Environment.SetEnvironmentVariable(patternEnvVar, "Demo.*");
-        Environment.SetEnvironmentVariable(meanEnvVar, "5ms");
+        const string PATTERN_ENV_VAR = "PBREPORTER_COMPARE__THRESHOLDS__0__PATTERN";
+        const string MEAN_ENV_VAR = "PBREPORTER_COMPARE__THRESHOLDS__0__THRESHOLD_MEAN";
+        Environment.SetEnvironmentVariable(PATTERN_ENV_VAR, "Demo.*");
+        Environment.SetEnvironmentVariable(MEAN_ENV_VAR, "5ms");
 
         try
         {
@@ -1176,8 +1176,8 @@ public sealed class ConfigurationLoaderTests
         finally
         {
             File.Delete(path);
-            Environment.SetEnvironmentVariable(patternEnvVar, null);
-            Environment.SetEnvironmentVariable(meanEnvVar, null);
+            Environment.SetEnvironmentVariable(PATTERN_ENV_VAR, null);
+            Environment.SetEnvironmentVariable(MEAN_ENV_VAR, null);
         }
     }
 
@@ -1383,8 +1383,8 @@ public sealed class ConfigurationLoaderTests
               formats: markdown
             """);
 
-        const string formatsEnvVar = "PBREPORTER_COMPARE__FORMATS";
-        Environment.SetEnvironmentVariable(formatsEnvVar, "json");
+        const string FORMATS_ENV_VAR = "PBREPORTER_COMPARE__FORMATS";
+        Environment.SetEnvironmentVariable(FORMATS_ENV_VAR, "json");
 
         try
         {
@@ -1398,7 +1398,7 @@ public sealed class ConfigurationLoaderTests
         finally
         {
             File.Delete(path);
-            Environment.SetEnvironmentVariable(formatsEnvVar, null);
+            Environment.SetEnvironmentVariable(FORMATS_ENV_VAR, null);
         }
     }
 
@@ -1529,10 +1529,10 @@ public sealed class ConfigurationLoaderTests
                   thresholdAllocation: 5kb
             """);
 
-        const string patternEnvVar = "PBREPORTER_COMPARE__THRESHOLDS__0__PATTERN";
-        const string meanEnvVar = "PBREPORTER_COMPARE__THRESHOLDS__0__THRESHOLD_MEAN";
-        Environment.SetEnvironmentVariable(patternEnvVar, "demo.*");
-        Environment.SetEnvironmentVariable(meanEnvVar, "20ms");
+        const string PATTERN_ENV_VAR = "PBREPORTER_COMPARE__THRESHOLDS__0__PATTERN";
+        const string MEAN_ENV_VAR = "PBREPORTER_COMPARE__THRESHOLDS__0__THRESHOLD_MEAN";
+        Environment.SetEnvironmentVariable(PATTERN_ENV_VAR, "demo.*");
+        Environment.SetEnvironmentVariable(MEAN_ENV_VAR, "20ms");
 
         try
         {
@@ -1549,8 +1549,8 @@ public sealed class ConfigurationLoaderTests
         finally
         {
             File.Delete(path);
-            Environment.SetEnvironmentVariable(patternEnvVar, null);
-            Environment.SetEnvironmentVariable(meanEnvVar, null);
+            Environment.SetEnvironmentVariable(PATTERN_ENV_VAR, null);
+            Environment.SetEnvironmentVariable(MEAN_ENV_VAR, null);
         }
     }
 

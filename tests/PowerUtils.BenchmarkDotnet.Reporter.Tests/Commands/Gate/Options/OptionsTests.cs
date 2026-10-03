@@ -29,7 +29,7 @@ public sealed class OptionsTests
 
 
         // Assert
-        option.ValueType.Should().Be(typeof(string));
+        option.ValueType.Should().Be<string>();
         option.Aliases.Count.Should().Be(1);
         option.Aliases.Should().Contain("-i");
         option.Required.Should().BeFalse();
@@ -44,7 +44,7 @@ public sealed class OptionsTests
 
 
         // Assert
-        option.ValueType.Should().Be(typeof(string[]));
+        option.ValueType.Should().Be<string[]>();
         option.Aliases.Count.Should().Be(1);
         option.Aliases.Should().Contain("-tm");
         option.Description.Should().Be("Fail when a benchmark's mean execution time exceeds this absolute value. Examples: 10ms, 10us, 100ns, 1s. Repeat with 'pattern=value' (e.g. 'MyNamespace.MyClass.*=10ms') to scope a threshold to matching benchmarks; a bare value (no 'pattern=') sets the global threshold.");
@@ -58,7 +58,7 @@ public sealed class OptionsTests
 
 
         // Assert
-        option.ValueType.Should().Be(typeof(string[]));
+        option.ValueType.Should().Be<string[]>();
         option.Aliases.Count.Should().Be(1);
         option.Aliases.Should().Contain("-ta");
         option.Description.Should().Be("Fail when a benchmark's allocated memory exceeds this absolute value. Examples: 10b, 10kb, 100mb, 1gb. Repeat with 'pattern=value' (e.g. 'MyNamespace.MyClass.*=10kb') to scope a threshold to matching benchmarks; a bare value (no 'pattern=') sets the global threshold.");
@@ -72,7 +72,7 @@ public sealed class OptionsTests
 
 
         // Assert
-        option.ValueType.Should().Be(typeof(string));
+        option.ValueType.Should().Be<string>();
         option.Aliases.Count.Should().Be(1);
         option.Aliases.Should().Contain("-o");
         option.Description.Should().Be("Output directory to export the gate report.");
@@ -87,7 +87,7 @@ public sealed class OptionsTests
 
 
         // Assert
-        option.ValueType.Should().Be(typeof(bool));
+        option.ValueType.Should().Be<bool>();
         option.Aliases.Count.Should().Be(1);
         option.Aliases.Should().Contain("-fw");
         option.Required.Should().BeFalse();
@@ -96,10 +96,8 @@ public sealed class OptionsTests
     }
 
     [Fact]
-    public void GateCommand_ShouldNotHave_FailOnThresholdHitOption()
-    {
+    public void GateCommand_ShouldNotHave_FailOnThresholdHitOption() =>
         // A threshold hit always fails the run - gate has no opt-in/opt-out flag for it, unlike compare.
         // Arrange & Act & Assert
         _command.Options.Should().NotContain(o => o.Name == "--fail-on-threshold-hit");
-    }
 }

@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare;
-using PowerUtils.BenchmarkDotnet.Reporter.Common;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models;
+using PowerUtils.BenchmarkDotnet.Reporter.Common;
 using static PowerUtils.BenchmarkDotnet.Reporter.Commands.Compare.Models.ComparerReport;
 
 namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Commands.Compare.CompareValidatorTests;

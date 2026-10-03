@@ -556,8 +556,8 @@ public sealed class ConfigurationLoaderGateTests
               input: from-file.json
             """);
 
-        const string inputEnvVar = "PBREPORTER_GATE__INPUT";
-        Environment.SetEnvironmentVariable(inputEnvVar, "from-env.json");
+        const string INPUT_ENV_VAR = "PBREPORTER_GATE__INPUT";
+        Environment.SetEnvironmentVariable(INPUT_ENV_VAR, "from-env.json");
 
         try
         {
@@ -571,7 +571,7 @@ public sealed class ConfigurationLoaderGateTests
         finally
         {
             File.Delete(path);
-            Environment.SetEnvironmentVariable(inputEnvVar, null);
+            Environment.SetEnvironmentVariable(INPUT_ENV_VAR, null);
         }
     }
 
@@ -615,8 +615,8 @@ public sealed class ConfigurationLoaderGateTests
                 - thresholdMean: 500ms
             """);
 
-        const string meanEnvVar = "PBREPORTER_GATE__THRESHOLD_MEAN";
-        Environment.SetEnvironmentVariable(meanEnvVar, "5ms");
+        const string MEAN_ENV_VAR = "PBREPORTER_GATE__THRESHOLD_MEAN";
+        Environment.SetEnvironmentVariable(MEAN_ENV_VAR, "5ms");
 
         try
         {
@@ -630,7 +630,7 @@ public sealed class ConfigurationLoaderGateTests
         finally
         {
             File.Delete(path);
-            Environment.SetEnvironmentVariable(meanEnvVar, null);
+            Environment.SetEnvironmentVariable(MEAN_ENV_VAR, null);
         }
     }
 
@@ -670,10 +670,10 @@ public sealed class ConfigurationLoaderGateTests
         // _mergeGateSections/_mergeGateThresholds handling a null lower side without throwing.
         var scratchDirectory = Directory.CreateTempSubdirectory("pbreporter-loader-test-");
 
-        const string patternEnvVar = "PBREPORTER_GATE__THRESHOLDS__0__PATTERN";
-        const string meanEnvVar = "PBREPORTER_GATE__THRESHOLDS__0__THRESHOLD_MEAN";
-        Environment.SetEnvironmentVariable(patternEnvVar, "Demo.*");
-        Environment.SetEnvironmentVariable(meanEnvVar, "10ms");
+        const string PATTERN_ENV_VAR = "PBREPORTER_GATE__THRESHOLDS__0__PATTERN";
+        const string MEAN_ENV_VAR = "PBREPORTER_GATE__THRESHOLDS__0__THRESHOLD_MEAN";
+        Environment.SetEnvironmentVariable(PATTERN_ENV_VAR, "Demo.*");
+        Environment.SetEnvironmentVariable(MEAN_ENV_VAR, "10ms");
 
         try
         {
@@ -688,8 +688,8 @@ public sealed class ConfigurationLoaderGateTests
         finally
         {
             scratchDirectory.Delete(recursive: true);
-            Environment.SetEnvironmentVariable(patternEnvVar, null);
-            Environment.SetEnvironmentVariable(meanEnvVar, null);
+            Environment.SetEnvironmentVariable(PATTERN_ENV_VAR, null);
+            Environment.SetEnvironmentVariable(MEAN_ENV_VAR, null);
         }
     }
 
@@ -741,10 +741,10 @@ public sealed class ConfigurationLoaderGateTests
                   thresholdAllocation: 10kb
             """);
 
-        const string patternEnvVar = "PBREPORTER_GATE__THRESHOLDS__0__PATTERN";
-        const string meanEnvVar = "PBREPORTER_GATE__THRESHOLDS__0__THRESHOLD_MEAN";
-        Environment.SetEnvironmentVariable(patternEnvVar, "Demo.*");
-        Environment.SetEnvironmentVariable(meanEnvVar, "10ms");
+        const string PATTERN_ENV_VAR = "PBREPORTER_GATE__THRESHOLDS__0__PATTERN";
+        const string MEAN_ENV_VAR = "PBREPORTER_GATE__THRESHOLDS__0__THRESHOLD_MEAN";
+        Environment.SetEnvironmentVariable(PATTERN_ENV_VAR, "Demo.*");
+        Environment.SetEnvironmentVariable(MEAN_ENV_VAR, "10ms");
 
         try
         {
@@ -761,8 +761,8 @@ public sealed class ConfigurationLoaderGateTests
         finally
         {
             File.Delete(path);
-            Environment.SetEnvironmentVariable(patternEnvVar, null);
-            Environment.SetEnvironmentVariable(meanEnvVar, null);
+            Environment.SetEnvironmentVariable(PATTERN_ENV_VAR, null);
+            Environment.SetEnvironmentVariable(MEAN_ENV_VAR, null);
         }
     }
 
@@ -780,10 +780,10 @@ public sealed class ConfigurationLoaderGateTests
                   thresholdMean: 10ms
             """);
 
-        const string patternEnvVar = "PBREPORTER_GATE__THRESHOLDS__0__PATTERN";
-        const string meanEnvVar = "PBREPORTER_GATE__THRESHOLDS__0__THRESHOLD_MEAN";
-        Environment.SetEnvironmentVariable(patternEnvVar, "Demo.Benchmarks.StringProcessorBenchmarks.*");
-        Environment.SetEnvironmentVariable(meanEnvVar, "20ms");
+        const string PATTERN_ENV_VAR = "PBREPORTER_GATE__THRESHOLDS__0__PATTERN";
+        const string MEAN_ENV_VAR = "PBREPORTER_GATE__THRESHOLDS__0__THRESHOLD_MEAN";
+        Environment.SetEnvironmentVariable(PATTERN_ENV_VAR, "Demo.Benchmarks.StringProcessorBenchmarks.*");
+        Environment.SetEnvironmentVariable(MEAN_ENV_VAR, "20ms");
 
         try
         {
@@ -801,8 +801,8 @@ public sealed class ConfigurationLoaderGateTests
         finally
         {
             File.Delete(path);
-            Environment.SetEnvironmentVariable(patternEnvVar, null);
-            Environment.SetEnvironmentVariable(meanEnvVar, null);
+            Environment.SetEnvironmentVariable(PATTERN_ENV_VAR, null);
+            Environment.SetEnvironmentVariable(MEAN_ENV_VAR, null);
         }
     }
 
@@ -820,8 +820,8 @@ public sealed class ConfigurationLoaderGateTests
                   thresholdMean: 10ms
             """);
 
-        const string unknownFieldEnvVar = "PBREPORTER_GATE__THRESHOLDS__0__UNKNOWN_FIELD";
-        Environment.SetEnvironmentVariable(unknownFieldEnvVar, "5ms");
+        const string UNKNOWN_FIELD_ENV_VAR = "PBREPORTER_GATE__THRESHOLDS__0__UNKNOWN_FIELD";
+        Environment.SetEnvironmentVariable(UNKNOWN_FIELD_ENV_VAR, "5ms");
 
         try
         {
@@ -836,7 +836,7 @@ public sealed class ConfigurationLoaderGateTests
         finally
         {
             File.Delete(path);
-            Environment.SetEnvironmentVariable(unknownFieldEnvVar, null);
+            Environment.SetEnvironmentVariable(UNKNOWN_FIELD_ENV_VAR, null);
         }
     }
 
@@ -1087,10 +1087,10 @@ public sealed class ConfigurationLoaderGateTests
                   thresholdAllocation: 5kb
             """);
 
-        const string patternEnvVar = "PBREPORTER_GATE__THRESHOLDS__0__PATTERN";
-        const string meanEnvVar = "PBREPORTER_GATE__THRESHOLDS__0__THRESHOLD_MEAN";
-        Environment.SetEnvironmentVariable(patternEnvVar, "demo.*");
-        Environment.SetEnvironmentVariable(meanEnvVar, "20ms");
+        const string PATTERN_ENV_VAR = "PBREPORTER_GATE__THRESHOLDS__0__PATTERN";
+        const string MEAN_ENV_VAR = "PBREPORTER_GATE__THRESHOLDS__0__THRESHOLD_MEAN";
+        Environment.SetEnvironmentVariable(PATTERN_ENV_VAR, "demo.*");
+        Environment.SetEnvironmentVariable(MEAN_ENV_VAR, "20ms");
 
         try
         {
@@ -1107,8 +1107,8 @@ public sealed class ConfigurationLoaderGateTests
         finally
         {
             File.Delete(path);
-            Environment.SetEnvironmentVariable(patternEnvVar, null);
-            Environment.SetEnvironmentVariable(meanEnvVar, null);
+            Environment.SetEnvironmentVariable(PATTERN_ENV_VAR, null);
+            Environment.SetEnvironmentVariable(MEAN_ENV_VAR, null);
         }
     }
 

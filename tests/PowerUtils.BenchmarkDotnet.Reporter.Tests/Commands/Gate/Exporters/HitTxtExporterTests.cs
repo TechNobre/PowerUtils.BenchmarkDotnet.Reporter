@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Gate.Exporters;
 using PowerUtils.BenchmarkDotnet.Reporter.Commands.Gate.Models;
 using static PowerUtils.BenchmarkDotnet.Reporter.Common.IOUtils;
@@ -15,7 +16,7 @@ public sealed class HitTxtExporterTests
     public HitTxtExporterTests()
     {
         void writer(string path, string content)
-            => _output = [.. content.Split(Environment.NewLine)];
+            => _output = content.Split(Environment.NewLine).ToList();
         _exporter = new HitTxtExporter(writer);
     }
 

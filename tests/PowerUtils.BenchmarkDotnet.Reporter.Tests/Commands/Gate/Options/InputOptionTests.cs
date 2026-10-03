@@ -22,12 +22,10 @@ public sealed class InputOptionTests
     }
 
     [Fact]
-    public void GateCommand_ShouldHave_InputOption_NotRequired()
-    {
+    public void GateCommand_ShouldHave_InputOption_NotRequired() =>
         // Assert
         // Required=false at the System.CommandLine level: input can come from env vars or the YAML config file instead of the CLI.
         GateOptions.InputOption.Required.Should().BeFalse();
-    }
 
     [Fact]
     public void Parse_WithCliValueOnly_ShouldUse_CliValue()

@@ -6,10 +6,7 @@ public readonly struct MemoryThreshold
 {
     public readonly decimal Value;
 
-    private MemoryThreshold(decimal value)
-    {
-        Value = value;
-    }
+    private MemoryThreshold(decimal value) => Value = value;
 
 
     public static bool TryParse(string? value, out MemoryThreshold threshold)

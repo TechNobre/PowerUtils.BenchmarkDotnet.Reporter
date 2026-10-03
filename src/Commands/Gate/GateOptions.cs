@@ -1,8 +1,8 @@
 using System;
-using System.CommandLine;
 using System.Collections.Generic;
-using PowerUtils.BenchmarkDotnet.Reporter.Commands.Gate.Exporters;
+using System.CommandLine;
 using System.Linq;
+using PowerUtils.BenchmarkDotnet.Reporter.Commands.Gate.Exporters;
 using PowerUtils.BenchmarkDotnet.Reporter.Common;
 using static PowerUtils.BenchmarkDotnet.Reporter.Common.Configuration.PbReporterConfiguration;
 

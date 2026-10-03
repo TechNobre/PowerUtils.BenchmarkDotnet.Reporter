@@ -6,10 +6,7 @@ public readonly struct TimeThreshold
 {
     public readonly decimal Value;
 
-    private TimeThreshold(decimal value)
-    {
-        Value = value;
-    }
+    private TimeThreshold(decimal value) => Value = value;
 
 
     public static bool TryParse(string? value, out TimeThreshold threshold)

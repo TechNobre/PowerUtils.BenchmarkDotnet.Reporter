@@ -7,7 +7,7 @@ namespace PowerUtils.BenchmarkDotnet.Reporter.Tests.Common;
 
 public sealed class GlobalExceptionHandlerTests
 {
-    private static ParseResult _newParseResult() => new Command("test").Parse(Array.Empty<string>());
+    private static ParseResult _newParseResult() => new Command("test").Parse([]);
 
 
     [Theory]
@@ -17,7 +17,7 @@ public sealed class GlobalExceptionHandlerTests
     public void Wrap_WhenActionSucceeds_ShouldReturn_SameExitCode(int exitCode)
     {
         // Arrange
-        Func<ParseResult, int> action = _ => exitCode;
+        int action(ParseResult _) => exitCode;
 
 
         // Act
@@ -32,7 +32,7 @@ public sealed class GlobalExceptionHandlerTests
     public void Wrap_WhenDomainExceptionIsThrown_ShouldReturn_ErrorExitCode()
     {
         // Arrange
-        Func<ParseResult, int> action = _ => throw new DomainException("something went wrong");
+        static int action(ParseResult _) => throw new DomainException("something went wrong");
 
         var parseResult = _newParseResult();
         parseResult.InvocationConfiguration.Error = TextWriter.Null;
@@ -51,8 +51,8 @@ public sealed class GlobalExceptionHandlerTests
     public void Wrap_WhenDomainExceptionIsThrown_ShouldWrite_ErrorMessage_ToStderr()
     {
         // Arrange
-        const string message = "bad config file";
-        Func<ParseResult, int> action = _ => throw new DomainException(message);
+        const string MESSAGE = "bad config file";
+        static int action(ParseResult _) => throw new DomainException(MESSAGE);
 
         var parseResult = _newParseResult();
         using var stderrWriter = new StringWriter();
@@ -65,14 +65,14 @@ public sealed class GlobalExceptionHandlerTests
 
 
         // Assert
-        stderrWriter.ToString().Should().Contain($"Error: {message}");
+        stderrWriter.ToString().Should().Contain($"Error: {MESSAGE}");
     }
 
     [Fact]
     public void Wrap_WhenDomainExceptionIsThrown_ShouldWrite_HelpText_ToOutput()
     {
         // Arrange
-        Func<ParseResult, int> action = _ => throw new DomainException("some error");
+        static int action(ParseResult _) => throw new DomainException("some error");
 
         var parseResult = _newParseResult();
         parseResult.InvocationConfiguration.Error = TextWriter.Null;
@@ -92,7 +92,7 @@ public sealed class GlobalExceptionHandlerTests
     public void Wrap_WhenNonDomainExceptionIsThrown_ShouldRethrow()
     {
         // Arrange
-        Func<ParseResult, int> action = _ => throw new InvalidOperationException("internal bug");
+        static int action(ParseResult _) => throw new InvalidOperationException("internal bug");
 
 
         // Act

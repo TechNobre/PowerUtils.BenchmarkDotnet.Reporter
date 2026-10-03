@@ -22,30 +22,22 @@ public sealed class CompareCommandTests
 
 
     [Fact]
-    public void CommandName_ShouldBe_Compare()
-    {
+    public void CommandName_ShouldBe_Compare() =>
         // Arrange & Act & Assert
         _command.Name.Should().Be("compare");
-    }
 
     [Fact]
-    public void Command_ShouldHave_9Options()
-    {
+    public void Command_ShouldHave_9Options() =>
         // Arrange & Act & Assert
         _command.Options.Count.Should().Be(9);
-    }
 
     [Fact]
-    public void Command_ShouldHave_Description()
-    {
+    public void Command_ShouldHave_Description() =>
         // Arrange & Act & Assert
         _command.Description.Should().Be("Compare two BenchmarkDotNet reports and produce a diff report.");
-    }
 
     [Fact]
-    public void Command_ShouldHave_Action()
-    {
+    public void Command_ShouldHave_Action() =>
         // Arrange & Act & Assert
         _command.Action.Should().NotBeNull();
-    }
 }
