@@ -12,7 +12,9 @@ run and writes/prints report.md.
 Exit codes: 0 = no findings in scope, 1 = findings remain in scope, 2 = tooling/usage error.
 
 .PARAMETER Scope
-changed (default) | all | error | warning | info | <diagnostic code, e.g. CA2263>
+changed (default) | all | error | warning | info | deadcode | <diagnostic code, e.g. CA2263>
+deadcode = only the dead-code diagnostics (whole solution) plus the report-only Roslynator candidate list.
+all = every finding in the solution, plus the same report-only Roslynator candidate list.
 
 .PARAMETER Reset
 Start a new baseline (use on the first run of every invocation).
@@ -83,6 +85,11 @@ function Invoke-Logged([string]$LogPath, [string[]]$CommandLine) {
 $FindingHeader = 'Severity', 'Rank', 'Category', 'Code', 'File', 'Line', 'Col', 'Message', 'Project'
 $SeverityOrder = @{ error = 0; warning = 1; info = 2 }
 
+# Dead-code diagnostics. The IDE rules are off or hidden in most repos, so they are enabled for one extra build through
+# generated files under -OutDir (never by editing .editorconfig). The CS codes are compiler warnings the normal build reports.
+$DeadCodeIdeCodes = 'IDE0005', 'IDE0051', 'IDE0052', 'IDE0060'
+$DeadCodeCodes = $DeadCodeIdeCodes + 'CS0168', 'CS0169', 'CS0219', 'CS0414'
+
 # Criticality within a severity: lower rank is fixed first. references/severity-order.md documents this table.
 $CategoryRules = @(
     @{ Rank = 0; Name = 'build'; Pattern = '^(CS|MSB|NU)\d+$' }
@@ -90,15 +97,16 @@ $CategoryRules = @(
     @{ Rank = 2; Name = 'reliability'; Pattern = '^CA2\d{3}$' }
     @{ Rank = 3; Name = 'performance'; Pattern = '^CA18\d{2}$' }
     @{ Rank = 4; Name = 'maintainability'; Pattern = '^CA\d{4}$' }
-    @{ Rank = 5; Name = 'style'; Pattern = '^IDE\d{4}$' }
-    @{ Rank = 7; Name = 'format'; Pattern = '^(WHITESPACE|FINALNEWLINE|ENDOFLINE|CHARSET|IMPORTS)$' }
+    @{ Rank = 5; Name = 'deadcode'; Pattern = '^(IDE0005|IDE0051|IDE0052|IDE0060)$' }
+    @{ Rank = 6; Name = 'style'; Pattern = '^IDE\d{4}$' }
+    @{ Rank = 8; Name = 'format'; Pattern = '^(WHITESPACE|FINALNEWLINE|ENDOFLINE|CHARSET|IMPORTS)$' }
 )
 
 function Get-Category([string]$Code) {
     foreach ($rule in $CategoryRules) {
         if ($Code -match $rule.Pattern) { return $rule }
     }
-    return @{ Rank = 6; Name = 'other' }
+    return @{ Rank = 7; Name = 'other' }
 }
 
 $DiagnosticRegex = [regex]'^\s*(?<file>.+?)(?:\((?<line>\d+)(?:,(?<col>\d+))?(?:,\d+,\d+)?\))?: (?<sev>error|warning|info) (?<code>[A-Za-z]+\d*): (?<msg>.*?)(?: \[(?<proj>[^\]]+)\])?\s*$'
@@ -259,6 +267,53 @@ function Test-InChangedRanges($Finding, $Ranges) {
     return $false
 }
 
+# One extra build with the dead-code IDE rules enabled through generated files (EditorConfigFiles item), repo files untouched.
+function Invoke-DeadCodeBuild([string]$SolutionPath, [string]$LogPath, [string]$Dir) {
+    $configPath = [System.IO.Path]::GetFullPath((Join-Path $Dir 'deadcode.globalconfig'))
+    $targetsPath = [System.IO.Path]::GetFullPath((Join-Path $Dir 'deadcode.targets'))
+    $rules = @('is_global = true') + @($DeadCodeIdeCodes | ForEach-Object { "dotnet_diagnostic.$_.severity = warning" })
+    Write-TextFile $configPath $rules
+    Write-TextFile $targetsPath @(
+        '<Project>'
+        '  <Target Name="DeadCodeInjectRules" AfterTargets="GenerateMSBuildEditorConfigFile" BeforeTargets="CoreCompile">'
+        '    <ItemGroup>'
+        "      <EditorConfigFiles Include=`"$configPath`" />"
+        '    </ItemGroup>'
+        '  </Target>'
+        '</Project>'
+    )
+    $commandLine = @('dotnet', 'build', $SolutionPath, '--no-incremental', '-nologo', '-v:minimal',
+        '-p:EnforceCodeStyleInBuild=true', '-p:GenerateDocumentationFile=true', '-p:TreatWarningsAsErrors=false',
+        "-p:CustomAfterMicrosoftCommonTargets=$targetsPath")
+    [void](Invoke-Logged $LogPath $commandLine)
+    # Reported as info: these rules are suggestions in the repo's own configuration.
+    return @(Read-Diagnostics $LogPath 'info' | Where-Object { $DeadCodeIdeCodes -contains $_.Code })
+}
+
+# Report-only: unused internal/public symbols across the solution (Roslynator). Best effort; returns a status and the rows.
+function Invoke-DeadCodeCandidates([string]$SolutionPath, [string]$Dir) {
+    $toolDir = [System.IO.Path]::GetFullPath((Join-Path $Dir 'tools'))
+    $exe = Join-Path $toolDir $(if ($script:IsWin) { 'roslynator.exe' } else { 'roslynator' })
+    if (-not (Test-Path -LiteralPath $exe)) {
+        $installLog = Join-Path $Dir 'roslynator-install.log'
+        [void](Invoke-Logged $installLog @('dotnet', 'tool', 'install', 'roslynator.dotnet.cli', '--tool-path', $toolDir))
+        if (-not (Test-Path -LiteralPath $exe)) { return @{ Status = 'unavailable'; Rows = @() } }
+    }
+    $log = Join-Path $Dir 'roslynator.log'
+    $exit = Invoke-Logged $log @($exe, 'find-symbol', $SolutionPath, '--unused', '--visibility', 'public', 'internal', '--verbosity', 'normal')
+    if ($exit -ne 0) { return @{ Status = 'unavailable'; Rows = @() } }
+    $rows = [System.Collections.Generic.List[object]]::new()
+    foreach ($line in (Read-Lines $log)) {
+        $m = [regex]::Match($line, '^(?<kind>[a-z-]+)\s+(?<symbol>\S.*)$')
+        if (-not $m.Success -or $m.Groups['kind'].Value -notin 'class', 'struct', 'interface', 'enum', 'delegate', 'method', 'property', 'indexer', 'field', 'const', 'event', 'enum-field') { continue }
+        $symbol = $m.Groups['symbol'].Value.Trim()
+        # Test projects and constructors are noise: test classes are discovered by the runner and never referenced.
+        if ($symbol -match '(?i)\.tests?\.' -or $symbol -match '\.(\w+)\.\1\(') { continue }
+        $rows.Add([pscustomobject]@{ Kind = $m.Groups['kind'].Value; Symbol = $symbol })
+    }
+    return @{ Status = 'ok'; Rows = $rows.ToArray() }
+}
+
 function Get-FindingKey($Finding) { "$($Finding.File)|$($Finding.Code)|$($Finding.Message)" }
 
 function ConvertTo-MdTable($Items, [string[]]$Columns) {
@@ -287,14 +342,17 @@ Set-Location $script:RepoRoot
 $scopeText = $Scope.Trim()
 $mode = if ($scopeText -ieq 'changed') { 'changed' }
 elseif ($scopeText -ieq 'all') { 'all' }
+elseif ($scopeText -ieq 'deadcode') { 'deadcode' }
 elseif ($scopeText -match '^(?i:error|warning|info)$') { 'severity' }
 elseif ($scopeText -match '^[A-Za-z]+\d*$') { 'code' }
-else { Stop-Tool "invalid scope '$Scope'. Use changed, all, error, warning, info or a diagnostic code." }
+else { Stop-Tool "invalid scope '$Scope'. Use changed, all, error, warning, info, deadcode or a diagnostic code." }
 $scopeText = if ($mode -eq 'code') { $scopeText.ToUpperInvariant() } else { $scopeText.ToLowerInvariant() }
 
 New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
 $buildLog = Join-Path $OutDir 'build.log'
 $formatLog = Join-Path $OutDir 'format.log'
+$deadLog = Join-Path $OutDir 'deadcode.log'
+$candidatesPath = Join-Path $OutDir 'deadcode-candidates.tsv'
 $findingsPath = Join-Path $OutDir 'findings.tsv'
 $allPath = Join-Path $OutDir 'findings-all.tsv'
 $baselinePath = Join-Path $OutDir 'baseline.tsv'
@@ -356,6 +414,19 @@ if ($Report) {
     $stat = @(Invoke-Git diff --stat $state.mergeBase) -join "`n"
     $untrackedList = @(Invoke-Git -c core.quotepath=off ls-files --others --exclude-standard) | Where-Object { $_ }
 
+    $candidateStatus = if ($state.PSObject.Properties['deadCodeCandidates']) { "$($state.deadCodeCandidates)" } else { 'not-run' }
+    $deadCodeSection = switch ($candidateStatus) {
+        'ok' {
+            $rows = @(Read-Lines $candidatesPath | Select-Object -Skip 1 | Where-Object { $_ } | ForEach-Object {
+                    $f = $_.Split("`t")
+                    [pscustomobject]@{ Kind = $f[0]; Symbol = $f[1] }
+                })
+            'Unused public/internal symbols found by Roslynator. Never deleted automatically: reflection, DI, serialization, framework entry points and public APIs look unused but are not.' + "`n`n" + (ConvertTo-MdTable $rows 'Kind', 'Symbol')
+        }
+        'unavailable' { 'Roslynator was unavailable (offline or install failed); candidates were not collected.' }
+        default { 'Not run. Use the `deadcode` or `all` scope to collect candidates.' }
+    }
+
     $md = @(
         '# Code health report'
         ''
@@ -393,6 +464,10 @@ if ($Report) {
         '## Test files touched'
         ''
         $(if ($testFiles.Count -gt 0) { ($testFiles | ForEach-Object { "- $_" }) -join "`n" } else { 'None.' })
+        ''
+        '## Dead code candidates (report only)'
+        ''
+        $deadCodeSection
         ''
         '## Decisions needed'
         ''
@@ -449,7 +524,16 @@ $buildKeys = [System.Collections.Generic.HashSet[string]]::new($script:PathCompa
 foreach ($b in $buildFindings) { [void]$buildKeys.Add("$($b.File)|$($b.Line)|$($b.Code)") }
 $formatOnly = $formatFindings | Where-Object { -not $buildKeys.Contains("$($_.File)|$($_.Line)|$($_.Code)") }
 
-$all = @(Sort-Findings (Select-Unique (@($buildFindings) + @($formatOnly))))
+# Dead code: the IDE rules need their own build (see Invoke-DeadCodeBuild); skipped when the main build already failed.
+$deadFindings = @()
+if ($buildExit -eq 0) {
+    $deadFindings = @(Invoke-DeadCodeBuild $Solution $deadLog $OutDir | Where-Object { -not $buildKeys.Contains("$($_.File)|$($_.Line)|$($_.Code)") })
+}
+else {
+    Write-Warning 'Dead-code build skipped: the build has errors. Fix them and re-run.'
+}
+
+$all = @(Sort-Findings (Select-Unique (@($buildFindings) + @($deadFindings) + @($formatOnly))))
 
 $inScope = switch ($mode) {
     'changed' {
@@ -457,6 +541,7 @@ $inScope = switch ($mode) {
         $all | Where-Object { Test-InChangedRanges $_ $ranges }
     }
     'all' { $all }
+    'deadcode' { $all | Where-Object { $DeadCodeCodes -contains $_.Code } }
     'severity' { $all | Where-Object Severity -eq $scopeText }
     'code' { $all | Where-Object Code -eq $scopeText }
 }
@@ -467,15 +552,30 @@ Write-Tsv $inScope $findingsPath
 
 $startNew = $Reset -or -not (Test-Path -LiteralPath $baselinePath) -or -not (Test-Path -LiteralPath $statePath)
 $started = (Get-Date).ToUniversalTime().ToString('o')
+$candidatesStatus = 'not-run'
 if (-not $startNew) {
     $previous = [System.IO.File]::ReadAllText($statePath) | ConvertFrom-Json
     if ($previous.scope -ne $scopeText) {
         Stop-Tool "scope changed from '$($previous.scope)' to '$scopeText' since the baseline; re-run with -Reset."
     }
     $started = "$($previous.startedUtc)"
+    # The candidate list is report-only and computed once per invocation; re-scans keep it.
+    if ($previous.PSObject.Properties['deadCodeCandidates']) { $candidatesStatus = "$($previous.deadCodeCandidates)" }
 }
 else {
     Write-Tsv $inScope $baselinePath
+    Remove-Item -LiteralPath $candidatesPath -ErrorAction SilentlyContinue
+    if ($mode -in 'deadcode', 'all') {
+        $candidates = Invoke-DeadCodeCandidates $Solution $OutDir
+        $candidatesStatus = $candidates.Status
+        if ($candidatesStatus -eq 'ok') {
+            $lines = @("Kind`tSymbol") + @($candidates.Rows | ForEach-Object { "$($_.Kind)`t$($_.Symbol)" })
+            Write-TextFile $candidatesPath $lines
+        }
+        else {
+            Write-Warning 'Roslynator is unavailable (offline or install failed); dead-code candidates were not collected.'
+        }
+    }
 }
 $stateText = ConvertTo-JsonObject ([ordered]@{
         scope      = $scopeText
@@ -483,6 +583,7 @@ $stateText = ConvertTo-JsonObject ([ordered]@{
         mergeBase  = $mergeBase
         solution   = $Solution
         startedUtc = $started
+        deadCodeCandidates = $candidatesStatus
     })
 Write-TextFile $statePath $stateText
 

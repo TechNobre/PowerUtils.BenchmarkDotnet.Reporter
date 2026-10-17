@@ -9,9 +9,10 @@ Findings are fixed by severity first (`error`, `warning`, `info`), then by categ
 | 2 | reliability | remaining `CA2xxx` | Usage and reliability bugs (disposal, argument validation, async misuse) |
 | 3 | performance | `CA18xx` | Behaviour-preserving, but real cost |
 | 4 | maintainability | remaining `CA*` | Design, naming and maintainability rules |
-| 5 | style | `IDE*` | `.editorconfig` code-style suggestions |
-| 6 | other | any unrecognised code | Review manually |
-| 7 | format | `WHITESPACE`, `FINALNEWLINE`, `ENDOFLINE`, `CHARSET`, `IMPORTS` | Purely mechanical; fixed in a batch by `dotnet format` |
+| 5 | deadcode | `IDE0005`, `IDE0051`, `IDE0052`, `IDE0060` | Unused code; removed only after the checklist in `dead-code.md` (the `CS0168`, `CS0169`, `CS0219`, `CS0414` compiler warnings stay `build`) |
+| 6 | style | remaining `IDE*` | `.editorconfig` code-style suggestions |
+| 7 | other | any unrecognised code | Review manually |
+| 8 | format | `WHITESPACE`, `FINALNEWLINE`, `ENDOFLINE`, `CHARSET`, `IMPORTS` | Purely mechanical; fixed in a batch by `dotnet format` |
 
 ## Severity labels
 
