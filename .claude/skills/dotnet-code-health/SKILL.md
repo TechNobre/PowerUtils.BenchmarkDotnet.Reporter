@@ -1,7 +1,7 @@
 ---
 name: dotnet-code-health
-description: 'Find and fix .NET build errors, warnings, analyzer findings (CA*), code-style and code-smell suggestions (IDE*, editorconfig) that `dotnet build` alone hides, with a deterministic scan, severity-ordered fixes, and a final report. Works on-demand (only code changed vs the default branch) or as a command with arguments: /dotnet-code-health [all|error|warning|info|<code>]. Use when the user asks to build, validate the build, fix warnings, fix analyzer or style suggestions, clean code smells, improve reliability, or before declaring a change done or ready to commit.'
-argument-hint: '[all|error|warning|info|<diagnostic code, e.g. CA2263>]'
+description: 'Find and fix .NET build errors, warnings, analyzer findings (CA*), code-style and code-smell suggestions (IDE*, editorconfig) that `dotnet build` alone hides, and detect and remove dead code (unused private members, parameters, usings), with a deterministic scan, severity-ordered fixes, and a final report. Works on-demand (only code changed vs the default branch) or as a command with arguments: /dotnet-code-health [all|error|warning|info|deadcode|<code>]. Use when the user asks to build, validate the build, fix warnings, fix analyzer or style suggestions, clean code smells, remove dead or unused code, improve reliability, or before declaring a change done or ready to commit.'
+argument-hint: '[all|error|warning|info|deadcode|<diagnostic code, e.g. CA2263>]'
 license: MIT
 allowed-tools: Bash
 ---
@@ -34,10 +34,11 @@ The scope is chosen once, at the start, and is passed to the script as `-Scope`.
 | Invocation | Scope | Meaning |
 |------------|-------|---------|
 | `/dotnet-code-health` or on-demand (no slash command) | `changed` | Only findings on lines that differ from the default branch (committed, staged, unstaged and untracked changes) |
-| `/dotnet-code-health all` | `all` | Every finding in the solution |
+| `/dotnet-code-health all` | `all` | Every finding in the solution, plus the report-only list of unused public/internal symbols |
 | `/dotnet-code-health error` | `error` | Only error-severity findings (whole solution) |
 | `/dotnet-code-health warning` | `warning` | Only warning-severity findings (whole solution) |
 | `/dotnet-code-health info` | `info` | Only info-severity findings (whole solution) |
+| `/dotnet-code-health deadcode` | `deadcode` | Only dead-code diagnostics (whole solution), plus the report-only list of unused public/internal symbols |
 | `/dotnet-code-health CA2263` | `CA2263` | Only that diagnostic code (whole solution) |
 
 - Argument matching is case-insensitive. Anything else is a usage error: print the table above and stop with a non-zero exit code.
@@ -90,7 +91,8 @@ If `pwsh` is missing, use `powershell` on Windows (see `<ps>`); if no PowerShell
 | `findings.tsv` | Findings in scope, already de-duplicated and sorted: severity (error, warning, info), then criticality, then code, file and line |
 | `findings-all.tsv` | Every finding regardless of scope |
 | `baseline.tsv` | Snapshot of the first run, used by the report |
-| `build.log`, `format.log` | Raw tool output |
+| `build.log`, `format.log`, `deadcode.log` | Raw tool output |
+| `deadcode-candidates.tsv` | `all` and `deadcode` scopes only: unused public/internal symbols (Roslynator). Report only, never part of `findings.tsv` |
 
 Exit codes: `0` nothing in scope, `1` findings remain, `2` tooling or usage error (read the message; fix the environment, not the code; for example, never edit `global.json` to get past an SDK mismatch). Format-only findings are labelled `info`; everything the build reports keeps its own severity. The criticality order is in [references/severity-order.md](references/severity-order.md).
 
@@ -110,6 +112,7 @@ Work top to bottom: all errors, then all warnings, then all infos; inside each s
 
   Review the diff afterwards. If a fixer touches lines outside the scope, revert that hunk and edit by hand.
 - **Everything else:** edit the code by hand. Read the diagnostic message and the rule documentation before changing behaviour.
+- **Dead code** (`IDE0005`, `IDE0051`, `IDE0052`, `IDE0060`, `CS0168`, `CS0169`, `CS0219`, `CS0414`): delete the code, but only after the safe-removal checklist in [references/dead-code.md](references/dead-code.md) passes (private/local only, no attributes, name not used in `nameof`, strings or reflection, no override/interface/handler role). `IDE0005` is mechanical: `dotnet format style <solution> --diagnostics IDE0005 --severity info --no-restore --include <files>`. If any check fails, keep the code and list it under "Decisions needed". Deleting one member can expose another; the re-scan finds the cascade. Never delete from `deadcode-candidates.tsv`: it is for visibility only.
 - `IDE1006` (naming) has no automatic fix: rename by hand following `.editorconfig`.
 - Auto-fixers can create new findings (for example `IDE0042` producing names that violate `IDE1006`, or `IDE0305` leaving an unused `using`); the re-scan catches them.
 
@@ -120,7 +123,7 @@ Before a fix that can change behaviour (nullability, disposal, async, exception 
 1. Find the test projects (references to `Microsoft.NET.Test.Sdk`, `xunit`, `NUnit`, `MSTest` or `Microsoft.Testing.Platform`) and search them for the affected type or method.
 2. If covered, apply the fix and run the covering tests.
 3. If not covered, write a small characterization test that passes on the current code, then apply the fix and re-run it. Follow the repo's test conventions.
-4. Skip this step for mechanical findings and pure style/naming changes.
+4. Skip this step for mechanical findings and pure style/naming changes. Deleting dead code needs no characterization test (nothing references it); run the covering tests afterwards.
 
 Record every test file you added so the report can list it.
 
@@ -149,12 +152,14 @@ Run the same sequence by hand, from the repository root (shown in POSIX shell sy
 ```bash
 mkdir -p artifacts/code-health
 dotnet build <solution> --no-incremental -nologo -v:minimal > artifacts/code-health/build.log 2>&1
+dotnet format style <solution> --verify-no-changes --severity info --diagnostics IDE0005 IDE0051 IDE0052 IDE0060 --no-restore --verbosity normal > artifacts/code-health/deadcode.log 2>&1
 dotnet format <solution> --verify-no-changes --severity info --no-restore --verbosity normal > artifacts/code-health/format.log 2>&1
 git merge-base HEAD <base-branch>
 git diff --unified=0 <merge-base>
 git ls-files --others --exclude-standard
 ```
 
+- The dead-code `dotnet format` line only reports the IDE rules that are enabled in `.editorconfig`; it only reports the rules the repo already enables (for example `IDE0060`, which defaults to a suggestion), so it is a partial substitute for the script's dedicated build. Skip Roslynator candidates in this mode.
 - Diagnostics are the lines matching `<file>(<line>,<col>): error|warning <CODE>: <message> [<project>]`. Format-only findings (not present in the build log) are `info`.
 - De-duplicate by file, line, column and code. Sort by severity, then by the criticality order in [references/severity-order.md](references/severity-order.md).
 - For the `changed` scope keep only findings whose line is inside a `+` hunk of the diff, or in an untracked file.

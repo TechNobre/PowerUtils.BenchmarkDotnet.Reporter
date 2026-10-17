@@ -44,6 +44,10 @@ None.
 
 None.
 
+## Dead code candidates (report only)
+
+Not run. Use the `deadcode` or `all` scope to collect candidates.
+
 ## Decisions needed
 
 None.
