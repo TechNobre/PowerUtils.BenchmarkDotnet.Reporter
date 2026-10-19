@@ -19,7 +19,6 @@ public sealed class CompareHandlerTests
     private readonly IKeyedServiceProvider _serviceProvider;
     private readonly ICompareValidator _validator;
     private readonly IExporter _exporter;
-    private readonly ComparerReport _comparerReport;
 
     private readonly CompareHandler _handler;
 
@@ -36,8 +35,6 @@ public sealed class CompareHandlerTests
                 "target" => _targetBenchmarks,
                 _ => throw new ArgumentException()
             };
-
-        _comparerReport = new();
 
         _validator = Substitute.For<ICompareValidator>();
         _exporter = Substitute.For<IExporter>();
