@@ -304,12 +304,16 @@ function Invoke-DeadCodeBuild([string]$SolutionPath, [string]$LogPath, [string]$
         '-p:EnforceCodeStyleInBuild=true', '-p:GenerateDocumentationFile=true', '-p:TreatWarningsAsErrors=false',
         "-p:CustomAfterMicrosoftCommonTargets=$targetsPath")
     $exit = Invoke-Logged $LogPath $commandLine
-    if ($exit -ne 0) {
+    $parsed = @(Read-Diagnostics $LogPath $null)
+    # A repo can set a rule to error explicitly, which fails this build with a real finding; only an unparsable failure is a tooling error.
+    if ($exit -ne 0 -and -not ($parsed | Where-Object Severity -eq 'error')) {
         Read-Lines $LogPath | Select-Object -Last 20 | Write-Host
-        Stop-Tool "dead-code build failed (exit $exit); see $LogPath."
+        Stop-Tool "dead-code build failed (exit $exit) without a parsable diagnostic; see $LogPath."
     }
-    # Reported as info: these rules are suggestions in the repo's own configuration.
-    return @(Read-Diagnostics $LogPath 'info' | Where-Object { $DeadCodeIdeCodes -contains $_.Code })
+    # The generated rules run as warnings but are suggestions in the repo's own configuration, so they are reported as info.
+    # An error (configured by the repo) keeps its severity.
+    foreach ($d in $parsed) { if ($d.Severity -ne 'error') { $d.Severity = 'info' } }
+    return @($parsed | Where-Object { $_.Severity -eq 'error' -or $DeadCodeIdeCodes -contains $_.Code })
 }
 
 # Report-only: unused internal/public symbols across the solution (Roslynator). Best effort; returns a status and the rows.
