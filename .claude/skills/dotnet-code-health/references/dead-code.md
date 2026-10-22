@@ -19,7 +19,7 @@ Delete the code only when **all** of these hold. If one fails, keep the code and
 1. The member is `private`, a local, a parameter of a non-public method, or an unused `using`.
 2. The member has **no attributes** (attributes usually mean reflection, serialization or a framework hook, for example `[JsonInclude]`, `[Inject]`, `[Obsolete]`).
 3. Its name is not used in `nameof(...)`, a string literal, an expression tree or a reflection call (search the repo for the name).
-4. `IDE0060`: the method is not an override, interface implementation, delegate target, event handler or a method bound by name (`[MemberData]`, `[ModelBinder]`...). Update every call site when removing the parameter.
+4. `IDE0060`: the method is not an override, interface implementation, delegate target, event handler or a method bound by name (`[MemberData]`, `[ModelBinder]`...). Update every call site when removing the parameter, and check each removed argument expression has no side effects (calls, `++`, `ref`/`out`, `await`, allocations with observable effects) or order dependence, for example `M(Interlocked.Increment(ref counter))`. If it does, keep the expression as a separate statement before the call (preserving evaluation order) or keep the parameter and report it.
 5. `IDE0052`/`CS0414`: removing the field also removes its writes; check the assigned expression has no side effects, otherwise keep the expression as a statement.
 6. A test-class fixture field (xunit `IClassFixture`, `[Fact]` classes) is checked against rule 2 and 3 like any other member.
 
