@@ -16,7 +16,7 @@ Tier 1 needs no installation. The script enables the IDE rules for one extra bui
 
 Delete the code only when **all** of these hold. If one fails, keep the code and add it to "Decisions needed".
 
-1. The member is `private`, a local, a parameter of a non-public method, or an unused `using`.
+1. The member is `private`, a local, a parameter of a `private` method or local function, or an unused `using`. Parameters of `protected`, `protected internal`, `internal` (when the assembly has `InternalsVisibleTo`) or public methods are report-only, because callers and derived types may live outside the solution.
 2. The member has **no attributes** (attributes usually mean reflection, serialization or a framework hook, for example `[JsonInclude]`, `[Inject]`, `[Obsolete]`).
 3. Its name is not used in `nameof(...)`, a string literal, an expression tree or a reflection call (search the repo for the name).
 4. `IDE0060`: the method is not an override, interface implementation, delegate target, event handler or a method bound by name (`[MemberData]`, `[ModelBinder]`...). Update every call site when removing the parameter, and check each removed argument expression has no side effects (calls, `++`, `ref`/`out`, `await`, allocations with observable effects) or order dependence, for example `M(Interlocked.Increment(ref counter))`. If it does, keep the expression as a separate statement before the call (preserving evaluation order) or keep the parameter and report it.
