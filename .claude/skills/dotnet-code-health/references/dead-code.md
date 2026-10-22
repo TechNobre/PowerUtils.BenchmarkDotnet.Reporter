@@ -10,7 +10,7 @@ How the skill finds dead code, what it removes on its own, and what it only repo
 | 2 | Roslynator CLI `find-symbol --unused --visibility public internal` (`all` and `deadcode` scopes) | Unused internal and public symbols across the whole solution | **Report only**, never delete |
 | 3 | Code coverage (not run by the script) | Code never executed by tests | Corroborating evidence only, never a trigger to delete |
 
-Tier 1 needs no installation. The script enables the IDE rules for one extra build through generated files under `artifacts/code-health/` (`deadcode.globalconfig`, `deadcode.targets`), so the repo's `.editorconfig` is never edited. Tier 2 installs `roslynator.dotnet.cli` into `artifacts/code-health/tools`, outside the repo's tracked files, and is skipped with a note when it cannot be installed.
+Tier 1 needs no installation. The script enables the IDE rules for one extra build through generated files under `artifacts/code-health/` (`deadcode.globalconfig`, `deadcode.targets`), so the repo's `.editorconfig` is never edited. A generated global config has lower precedence than `.editorconfig`, so a rule the repo sets to `none` or `silent` stays off: the script lists it as "Not scanned" and a clean result never covers it. Tier 2 installs `roslynator.dotnet.cli` into `artifacts/code-health/tools`, outside the repo's tracked files, and is skipped with a note when it cannot be installed.
 
 ## Safe-removal checklist (Tier 1)
 
