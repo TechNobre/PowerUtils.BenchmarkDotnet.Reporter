@@ -267,6 +267,21 @@ function Test-InChangedRanges($Finding, $Ranges) {
     return $false
 }
 
+# A .globalconfig has lower precedence than .editorconfig, so a repo that sets one of the dead-code IDE rules to none/silent
+# keeps it off during the dead-code build. Returns those codes so the run can report them as unscanned instead of clean.
+function Get-SuppressedDeadCodeRules {
+    $files = @(Invoke-Git ls-files --cached --others --exclude-standard -- '.editorconfig' '*/.editorconfig')
+    $found = [System.Collections.Generic.HashSet[string]]::new()
+    foreach ($file in $files) {
+        if (-not $file -or -not (Test-Path -LiteralPath $file)) { continue }
+        foreach ($line in (Read-Lines (Convert-Path -LiteralPath $file))) {
+            $m = [regex]::Match($line, '^\s*dotnet_diagnostic\.(?<code>[A-Za-z]+\d+)\.severity\s*=\s*(?<sev>none|silent)\b', 'IgnoreCase')
+            if ($m.Success -and $DeadCodeIdeCodes -contains $m.Groups['code'].Value.ToUpperInvariant()) { [void]$found.Add($m.Groups['code'].Value.ToUpperInvariant()) }
+        }
+    }
+    return @($found | Sort-Object)
+}
+
 # One extra build with the dead-code IDE rules enabled through generated files (EditorConfigFiles item), repo files untouched.
 function Invoke-DeadCodeBuild([string]$SolutionPath, [string]$LogPath, [string]$Dir) {
     $configPath = [System.IO.Path]::GetFullPath((Join-Path $Dir 'deadcode.globalconfig'))
@@ -533,8 +548,13 @@ $formatOnly = $formatFindings | Where-Object { -not $buildKeys.Contains("$($_.Fi
 
 # Dead code: the IDE rules need their own build (see Invoke-DeadCodeBuild); skipped when the main build already failed.
 $deadFindings = @()
+$unscannedRules = @()
 if ($buildExit -eq 0) {
-    $deadFindings = @(Invoke-DeadCodeBuild $Solution $deadLog $OutDir | Where-Object { -not $buildKeys.Contains("$($_.File)|$($_.Line)|$($_.Code)") })
+    $unscannedRules = @(Get-SuppressedDeadCodeRules)
+    if ($unscannedRules.Count -gt 0) {
+        Write-Warning "Dead-code rules disabled in .editorconfig cannot be re-enabled by the scan and were NOT checked: $($unscannedRules -join ', ')."
+    }
+    $deadFindings =@(Invoke-DeadCodeBuild $Solution $deadLog $OutDir | Where-Object { -not $buildKeys.Contains("$($_.File)|$($_.Line)|$($_.Code)") })
 }
 else {
     Write-Warning 'Dead-code build skipped: the build has errors. Fix them and re-run.'
@@ -591,6 +611,7 @@ $stateText = ConvertTo-JsonObject ([ordered]@{
         solution   = $Solution
         startedUtc = $started
         deadCodeCandidates = $candidatesStatus
+        unscannedRules     = @($unscannedRules)
     })
 Write-TextFile $statePath $stateText
 
@@ -610,5 +631,6 @@ else {
     Write-Host 'No findings in scope.'
 }
 Write-Host ''
+if ($unscannedRules.Count -gt 0) { Write-Host "Not scanned (disabled in .editorconfig): $($unscannedRules -join ', '). A clean result does not cover these rules." }
 Write-Host "Findings: $findingsPath | All: $allPath | Baseline: $baselinePath"
 exit $(if ($inScope.Count -eq 0) { 0 } else { 1 })
