@@ -288,7 +288,11 @@ function Invoke-DeadCodeBuild([string]$SolutionPath, [string]$LogPath, [string]$
     $commandLine = @('dotnet', 'build', $SolutionPath, '--no-incremental', '-nologo', '-v:minimal',
         '-p:EnforceCodeStyleInBuild=true', '-p:GenerateDocumentationFile=true', '-p:TreatWarningsAsErrors=false',
         "-p:CustomAfterMicrosoftCommonTargets=$targetsPath")
-    [void](Invoke-Logged $LogPath $commandLine)
+    $exit = Invoke-Logged $LogPath $commandLine
+    if ($exit -ne 0) {
+        Read-Lines $LogPath | Select-Object -Last 20 | Write-Host
+        Stop-Tool "dead-code build failed (exit $exit); see $LogPath."
+    }
     # Reported as info: these rules are suggestions in the repo's own configuration.
     return @(Read-Diagnostics $LogPath 'info' | Where-Object { $DeadCodeIdeCodes -contains $_.Code })
 }
