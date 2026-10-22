@@ -273,11 +273,14 @@ function Invoke-DeadCodeBuild([string]$SolutionPath, [string]$LogPath, [string]$
     $targetsPath = [System.IO.Path]::GetFullPath((Join-Path $Dir 'deadcode.targets'))
     $rules = @('is_global = true') + @($DeadCodeIdeCodes | ForEach-Object { "dotnet_diagnostic.$_.severity = warning" })
     Write-TextFile $configPath $rules
+    # The path lands in an MSBuild item Include inside an XML attribute: escape MSBuild specials first, then XML.
+    $msbuildPath = $configPath.Replace('%', '%25').Replace(';', '%3B').Replace('$', '%24').Replace('@', '%40')
+    $xmlConfigPath = [System.Security.SecurityElement]::Escape($msbuildPath)
     Write-TextFile $targetsPath @(
         '<Project>'
         '  <Target Name="DeadCodeInjectRules" AfterTargets="GenerateMSBuildEditorConfigFile" BeforeTargets="CoreCompile">'
         '    <ItemGroup>'
-        "      <EditorConfigFiles Include=`"$configPath`" />"
+        "      <EditorConfigFiles Include=`"$xmlConfigPath`" />"
         '    </ItemGroup>'
         '  </Target>'
         '</Project>'
