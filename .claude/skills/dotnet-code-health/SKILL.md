@@ -94,7 +94,7 @@ If `pwsh` is missing, use `powershell` on Windows (see `<ps>`); if no PowerShell
 | `build.log`, `format.log`, `deadcode.log` | Raw tool output |
 | `deadcode-candidates.tsv` | `all` and `deadcode` scopes only: unused public/internal symbols (Roslynator). Report only, never part of `findings.tsv` |
 
-Exit codes: `0` nothing in scope, `1` findings remain, `2` tooling or usage error, including a `deadcode` or dead-code-rule scope whose prerequisite build has errors (read the message; fix the environment, not the code; for example, never edit `global.json` to get past an SDK mismatch). Format-only findings are labelled `info`; everything the build reports keeps its own severity. The criticality order is in [references/severity-order.md](references/severity-order.md).
+Exit codes: `0` nothing in scope, `1` findings remain, `2` tooling or usage error, including a `deadcode` or dead-code-rule scope whose main build, or dedicated dead-code build, has errors outside the dead-code rules (read the message; fix the environment, not the code; for example, never edit `global.json` to get past an SDK mismatch). Format-only findings are labelled `info`; everything the build reports keeps its own severity. The criticality order is in [references/severity-order.md](references/severity-order.md).
 
 If the exit code is `0`, go straight to step 6.
 
@@ -141,7 +141,7 @@ Do not pass `-Reset`. Repeat steps 3 to 5 until exit `0`, or until every remaini
 <ps> -File <skill-dir>/scripts/analyze.ps1 -Report -Decisions "<item 1>" "<item 2>"
 ```
 
-The script writes `artifacts/code-health/report.md` and prints its content to the CLI: summary by severity (initial, fixed, remaining, new), dead-code rules not scanned (disabled in `.editorconfig`), fixed issues, remaining issues, new issues, files changed, test files touched, and decisions needed. `-Decisions` is optional; use it for abandoned findings and the git-ignore warning.
+The script writes `artifacts/code-health/report.md` and prints its content to the CLI: summary by severity (initial, fixed, remaining, new), dead-code rules not scanned (disabled in `.editorconfig` for at least one file), fixed issues, remaining issues, new issues, files changed, test files touched, and decisions needed. `-Decisions` is optional; use it for abandoned findings and the git-ignore warning.
 
 Finish by stating the outcome (the report path and the counts of fixed and remaining findings). Generic follow-ups, such as building the project and running the tests, are the caller's next steps; do not run or require any other skill for them.
 
