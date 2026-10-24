@@ -97,6 +97,15 @@ function Test-ScopeNeedsDeadCodeBuild([string]$ScopeMode, [string]$ScopeName) {
     return $ScopeMode -eq 'deadcode' -or ($ScopeMode -eq 'code' -and $DeadCodeIdeCodes -contains $ScopeName)
 }
 
+# True when the scope filter drops compiler/build errors (warning, info, or a non-build code): analyzers need a compiling
+# solution, so with a failed build an empty result would read as "clean". changed, all, error and CS/MSB/NU codes keep the errors.
+function Test-ScopeHidesBuildErrors([string]$ScopeMode, [string]$ScopeName) {
+    if ($ScopeMode -eq 'deadcode') { return $true }
+    if ($ScopeMode -eq 'severity') { return $ScopeName -ne 'error' }
+    if ($ScopeMode -eq 'code') { return $ScopeName -notmatch '^(CS|MSB|NU)\d+$' }
+    return $false
+}
+
 # Criticality within a severity: lower rank is fixed first. references/severity-order.md documents this table.
 $CategoryRules = @(
     @{ Rank = 0; Name = 'build'; Pattern = '^(CS|MSB|NU)\d+$' }
@@ -687,8 +696,8 @@ Write-Host "Build exit: $buildExit | Format exit: $formatExit"
 
 # The dead-code IDE rules only run in the extra build, which needs a clean main build. Those scopes filter out the build errors,
 # so continuing would report "no findings" for a scan that never ran.
-if ($buildExit -ne 0 -and (Test-ScopeNeedsDeadCodeBuild $mode $scopeText)) {
-    Stop-Tool "analysis incomplete: scope '$scopeText' needs the dead-code build, which was skipped because the build has errors. Fix them and re-run; see $buildLog."
+if ($buildExit -ne 0 -and (Test-ScopeHidesBuildErrors $mode $scopeText)) {
+    Stop-Tool "analysis incomplete: the build has errors and scope '$scopeText' does not report them, so an empty result would not mean clean. Fix them and re-run; see $buildLog."
 }
 
 # Format-only findings are the info items the build hides; anything the build already reported keeps its severity.
