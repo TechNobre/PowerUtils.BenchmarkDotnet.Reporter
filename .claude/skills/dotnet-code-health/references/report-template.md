@@ -21,6 +21,10 @@ Use this layout when `scripts/analyze.ps1 -Report` is unavailable. Write it to `
 
 Open findings outside the scope: <n>
 
+## Rules not scanned
+
+None.
+
 ## Fixed issues
 
 | Severity | Code | Category | Location | Message |

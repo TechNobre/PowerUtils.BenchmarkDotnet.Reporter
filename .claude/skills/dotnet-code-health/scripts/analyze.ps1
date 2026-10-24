@@ -267,23 +267,26 @@ function Test-InChangedRanges($Finding, $Ranges) {
     return $false
 }
 
-# A .globalconfig has lower precedence than .editorconfig, so a repo that sets one of the dead-code IDE rules to none/silent
-# keeps it off during the dead-code build. Returns those codes so the run can report them as unscanned instead of clean.
-function Get-SuppressedDeadCodeRules {
+# A .globalconfig has lower precedence than .editorconfig, so the severity a repo sets for a dead-code IDE rule wins over the
+# generated one. Returns code -> severity (lowercase, last assignment wins) from the tracked .editorconfig files. Approximation:
+# section globs and nesting precedence are ignored. none/silent mean the rule stays off; warning/error must be preserved.
+function Get-RepoDeadCodeSeverities {
     $files = @(Invoke-Git ls-files --cached --others --exclude-standard -- '.editorconfig' '*/.editorconfig')
-    $found = [System.Collections.Generic.HashSet[string]]::new()
+    $found = @{}
     foreach ($file in $files) {
         if (-not $file -or -not (Test-Path -LiteralPath $file)) { continue }
         foreach ($line in (Read-Lines (Convert-Path -LiteralPath $file))) {
-            $m = [regex]::Match($line, '^\s*dotnet_diagnostic\.(?<code>[A-Za-z]+\d+)\.severity\s*=\s*(?<sev>none|silent)\b', 'IgnoreCase')
-            if ($m.Success -and $DeadCodeIdeCodes -contains $m.Groups['code'].Value.ToUpperInvariant()) { [void]$found.Add($m.Groups['code'].Value.ToUpperInvariant()) }
+            $m = [regex]::Match($line, '^\s*dotnet_diagnostic\.(?<code>[A-Za-z]+\d+)\.severity\s*=\s*(?<sev>none|silent|suggestion|warning|error)\b', 'IgnoreCase')
+            if (-not $m.Success) { continue }
+            $code = $m.Groups['code'].Value.ToUpperInvariant()
+            if ($DeadCodeIdeCodes -contains $code) { $found[$code] = $m.Groups['sev'].Value.ToLowerInvariant() }
         }
     }
-    return @($found | Sort-Object)
+    return $found
 }
 
 # One extra build with the dead-code IDE rules enabled through generated files (EditorConfigFiles item), repo files untouched.
-function Invoke-DeadCodeBuild([string]$SolutionPath, [string]$LogPath, [string]$Dir) {
+function Invoke-DeadCodeBuild([string]$SolutionPath, [string]$LogPath, [string]$Dir, [hashtable]$RepoSeverities) {
     $configPath = [System.IO.Path]::GetFullPath((Join-Path $Dir 'deadcode.globalconfig'))
     $targetsPath = [System.IO.Path]::GetFullPath((Join-Path $Dir 'deadcode.targets'))
     $rules = @('is_global = true') + @($DeadCodeIdeCodes | ForEach-Object { "dotnet_diagnostic.$_.severity = warning" })
@@ -310,9 +313,13 @@ function Invoke-DeadCodeBuild([string]$SolutionPath, [string]$LogPath, [string]$
         Read-Lines $LogPath | Select-Object -Last 20 | Write-Host
         Stop-Tool "dead-code build failed (exit $exit) without a parsable diagnostic; see $LogPath."
     }
-    # The generated rules run as warnings but are suggestions in the repo's own configuration, so they are reported as info.
-    # An error (configured by the repo) keeps its severity.
-    foreach ($d in $parsed) { if ($d.Severity -ne 'error') { $d.Severity = 'info' } }
+    # The generated rules run as warnings, which only exist to surface them in the log. Where the repo configures the rule as
+    # warning or error that severity is kept; otherwise (not configured, or suggestion) the finding is reported as info.
+    foreach ($d in $parsed) {
+        if ($d.Severity -eq 'error') { continue }
+        $repoSeverity = if ($RepoSeverities -and $RepoSeverities.ContainsKey($d.Code)) { $RepoSeverities[$d.Code] } else { $null }
+        $d.Severity = if ($repoSeverity -in 'warning', 'error') { 'warning' } else { 'info' }
+    }
     return @($parsed | Where-Object { $_.Severity -eq 'error' -or $DeadCodeIdeCodes -contains $_.Code })
 }
 
@@ -440,6 +447,9 @@ if ($Report) {
     $stat = @(Invoke-Git diff --stat $state.mergeBase) -join "`n"
     $untrackedList = @(Invoke-Git -c core.quotepath=off ls-files --others --exclude-standard) | Where-Object { $_ }
 
+    $unscanned = @(if ($state.PSObject.Properties['unscannedRules']) { $state.unscannedRules | Where-Object { $_ } })
+    $unscannedText = if ($unscanned.Count -gt 0) { "Rules disabled in .editorconfig and NOT scanned: $($unscanned -join ', '). A clean result does not cover them." } else { 'None.' }
+
     $candidateStatus = if ($state.PSObject.Properties['deadCodeCandidates']) { "$($state.deadCodeCandidates)" } else { 'not-run' }
     $deadCodeSection = switch ($candidateStatus) {
         'ok' {
@@ -467,6 +477,10 @@ if ($Report) {
         (ConvertTo-MdTable $summaryRows 'Severity', 'Initial', 'Fixed', 'Remaining', 'New')
         ''
         "Open findings outside the scope: $outside"
+        ''
+        '## Rules not scanned'
+        ''
+        $unscannedText
         ''
         '## Fixed issues'
         ''
@@ -545,6 +559,12 @@ if ($buildExit -eq 0 -and $formatExit -notin 0, 2) {
 }
 Write-Host "Build exit: $buildExit | Format exit: $formatExit"
 
+# The dead-code IDE rules only run in the extra build, which needs a clean main build. Those scopes filter out the build errors,
+# so continuing would report "no findings" for a scan that never ran.
+if ($buildExit -ne 0 -and ($mode -eq 'deadcode' -or ($mode -eq 'code' -and $DeadCodeIdeCodes -contains $scopeText))) {
+    Stop-Tool "analysis incomplete: scope '$scopeText' needs the dead-code build, which was skipped because the build has errors. Fix them and re-run; see $buildLog."
+}
+
 # Format-only findings are the info items the build hides; anything the build already reported keeps its severity.
 $buildKeys = [System.Collections.Generic.HashSet[string]]::new($script:PathComparer)
 foreach ($b in $buildFindings) { [void]$buildKeys.Add("$($b.File)|$($b.Line)|$($b.Code)") }
@@ -554,11 +574,12 @@ $formatOnly = $formatFindings | Where-Object { -not $buildKeys.Contains("$($_.Fi
 $deadFindings = @()
 $unscannedRules = @()
 if ($buildExit -eq 0) {
-    $unscannedRules = @(Get-SuppressedDeadCodeRules)
+    $repoSeverities = Get-RepoDeadCodeSeverities
+    $unscannedRules = @($repoSeverities.Keys | Where-Object { $repoSeverities[$_] -in 'none', 'silent' } | Sort-Object)
     if ($unscannedRules.Count -gt 0) {
         Write-Warning "Dead-code rules disabled in .editorconfig cannot be re-enabled by the scan and were NOT checked: $($unscannedRules -join ', ')."
     }
-    $deadFindings =@(Invoke-DeadCodeBuild $Solution $deadLog $OutDir | Where-Object { -not $buildKeys.Contains("$($_.File)|$($_.Line)|$($_.Code)") })
+    $deadFindings =@(Invoke-DeadCodeBuild $Solution $deadLog $OutDir $repoSeverities | Where-Object { -not $buildKeys.Contains("$($_.File)|$($_.Line)|$($_.Code)") })
 }
 else {
     Write-Warning 'Dead-code build skipped: the build has errors. Fix them and re-run.'
