@@ -42,6 +42,8 @@ $Decisions = @(@($Decisions) + @($ExtraDecisions) | Where-Object { $_ })
 $script:IsWin = [Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT
 $script:PathComparer = if ($script:IsWin) { [StringComparer]::OrdinalIgnoreCase } else { [StringComparer]::Ordinal }
 $script:Utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+$script:EditorConfigs = $null
+$script:DeadCodeBuildIncomplete = $false
 try { [Console]::OutputEncoding = $script:Utf8NoBom } catch { Write-Verbose 'Console encoding not changed.' }
 
 function Stop-Tool([string]$Message) {
@@ -89,6 +91,11 @@ $SeverityOrder = @{ error = 0; warning = 1; info = 2 }
 # generated files under -OutDir (never by editing .editorconfig). The CS codes are compiler warnings the normal build reports.
 $DeadCodeIdeCodes = 'IDE0005', 'IDE0051', 'IDE0052', 'IDE0060'
 $DeadCodeCodes = $DeadCodeIdeCodes + 'CS0168', 'CS0169', 'CS0219', 'CS0414'
+
+# True when the scope is answered only by the dead-code build, so a failed or skipped build must not read as "no findings".
+function Test-ScopeNeedsDeadCodeBuild([string]$ScopeMode, [string]$ScopeName) {
+    return $ScopeMode -eq 'deadcode' -or ($ScopeMode -eq 'code' -and $DeadCodeIdeCodes -contains $ScopeName)
+}
 
 # Criticality within a severity: lower rank is fixed first. references/severity-order.md documents this table.
 $CategoryRules = @(
@@ -267,26 +274,142 @@ function Test-InChangedRanges($Finding, $Ranges) {
     return $false
 }
 
-# A .globalconfig has lower precedence than .editorconfig, so the severity a repo sets for a dead-code IDE rule wins over the
-# generated one. Returns code -> severity (lowercase, last assignment wins) from the tracked .editorconfig files. Approximation:
-# section globs and nesting precedence are ignored. none/silent mean the rule stays off; warning/error must be preserved.
-function Get-RepoDeadCodeSeverities {
+# Converts an .editorconfig section glob to an anchored regex over a path relative to the config's directory.
+# Supports *, **, ?, [seq], [!seq], {a,b} (nestable), {n..m} (any integer) and \ escapes. A glob without '/' matches at any depth.
+function ConvertTo-EditorConfigRegex([string]$Glob) {
+    $body = ConvertTo-EditorConfigRegexBody ($Glob.TrimStart('/'))
+    $prefix = if ($Glob.Contains('/')) { '' } else { '(?:.*/)?' }
+    $options = if ($script:IsWin) { 'IgnoreCase' } else { 'None' }
+    return [regex]::new("^$prefix$body$", $options)
+}
+
+function ConvertTo-EditorConfigRegexBody([string]$Glob) {
+    $sb = [System.Text.StringBuilder]::new()
+    $i = 0
+    while ($i -lt $Glob.Length) {
+        $c = $Glob[$i]
+        switch ($c) {
+            '*' {
+                if ($i + 1 -lt $Glob.Length -and $Glob[$i + 1] -eq '*') { [void]$sb.Append('.*'); $i++ } else { [void]$sb.Append('[^/]*') }
+            }
+            '?' { [void]$sb.Append('[^/]') }
+            '\' {
+                if ($i + 1 -lt $Glob.Length) { $i++; [void]$sb.Append([regex]::Escape([string]$Glob[$i])) } else { [void]$sb.Append('\\') }
+            }
+            '[' {
+                $close = $Glob.IndexOf(']', $i + 1)
+                if ($close -lt 0) { [void]$sb.Append('\[') }
+                else {
+                    $set = $Glob.Substring($i + 1, $close - $i - 1)
+                    if ($set.StartsWith('!')) { $set = '^' + $set.Substring(1) }
+                    [void]$sb.Append('[' + ($set -replace '\\', '\\\\') + ']')
+                    $i = $close
+                }
+            }
+            '{' {
+                # Find the matching close brace, honouring nesting.
+                $depth = 0
+                $close = -1
+                for ($j = $i; $j -lt $Glob.Length; $j++) {
+                    if ($Glob[$j] -eq '{') { $depth++ }
+                    elseif ($Glob[$j] -eq '}') { $depth--; if ($depth -eq 0) { $close = $j; break } }
+                }
+                if ($close -lt 0) { [void]$sb.Append('\{') }
+                else {
+                    $inner = $Glob.Substring($i + 1, $close - $i - 1)
+                    if ($inner -match '^-?\d+\.\.-?\d+$') { [void]$sb.Append('-?\d+') }
+                    else {
+                        # Split on top-level commas only.
+                        $parts = [System.Collections.Generic.List[string]]::new()
+                        $depth = 0
+                        $start = 0
+                        for ($j = 0; $j -lt $inner.Length; $j++) {
+                            if ($inner[$j] -eq '{') { $depth++ }
+                            elseif ($inner[$j] -eq '}') { $depth-- }
+                            elseif ($inner[$j] -eq ',' -and $depth -eq 0) { $parts.Add($inner.Substring($start, $j - $start)); $start = $j + 1 }
+                        }
+                        $parts.Add($inner.Substring($start))
+                        if ($parts.Count -eq 1) { [void]$sb.Append('\{' + (ConvertTo-EditorConfigRegexBody $inner) + '\}') }
+                        else { [void]$sb.Append('(?:' + (($parts | ForEach-Object { ConvertTo-EditorConfigRegexBody $_ }) -join '|') + ')') }
+                    }
+                    $i = $close
+                }
+            }
+            default { [void]$sb.Append([regex]::Escape([string]$c)) }
+        }
+        $i++
+    }
+    return $sb.ToString()
+}
+
+# Tracked .editorconfig files parsed once: directory (repo-relative, '' = root) -> Root flag and ordered sections, each with
+# its glob regex and the dead-code rule severities it assigns (lowercase, last assignment in the section wins).
+function Get-EditorConfigs {
+    if ($script:EditorConfigs) { return $script:EditorConfigs }
+    $configs = @{}
     $files = @(Invoke-Git ls-files --cached --others --exclude-standard -- '.editorconfig' '*/.editorconfig')
-    $found = @{}
     foreach ($file in $files) {
         if (-not $file -or -not (Test-Path -LiteralPath $file)) { continue }
+        $dir = if ($file.Contains('/')) { $file.Substring(0, $file.LastIndexOf('/')) } else { '' }
+        $config = @{ Root = $false; Sections = [System.Collections.Generic.List[object]]::new() }
+        $section = $null
         foreach ($line in (Read-Lines (Convert-Path -LiteralPath $file))) {
+            $header = [regex]::Match($line, '^\s*\[(?<glob>.+)\]\s*(?:[#;].*)?$')
+            if ($header.Success) {
+                $section = @{ Regex = (ConvertTo-EditorConfigRegex $header.Groups['glob'].Value.Trim()); Rules = @{} }
+                $config.Sections.Add($section)
+                continue
+            }
+            if (-not $section) {
+                if ($line -match '^\s*root\s*=\s*true\b') { $config.Root = $true }
+                continue
+            }
             $m = [regex]::Match($line, '^\s*dotnet_diagnostic\.(?<code>[A-Za-z]+\d+)\.severity\s*=\s*(?<sev>none|silent|suggestion|warning|error)\b', 'IgnoreCase')
             if (-not $m.Success) { continue }
             $code = $m.Groups['code'].Value.ToUpperInvariant()
-            if ($DeadCodeIdeCodes -contains $code) { $found[$code] = $m.Groups['sev'].Value.ToLowerInvariant() }
+            if ($DeadCodeIdeCodes -contains $code) { $section.Rules[$code] = $m.Groups['sev'].Value.ToLowerInvariant() }
+        }
+        $configs[$dir] = $config
+    }
+    $script:EditorConfigs = $configs
+    return $configs
+}
+
+# A .globalconfig has lower precedence than .editorconfig, so the severity the repo sets for a dead-code IDE rule wins over the
+# generated one. Resolves it for one file like the compiler does: the closest .editorconfig wins, up to the one with root = true,
+# and inside a file the last matching section wins. Returns none/silent/suggestion/warning/error, or $null when not configured.
+function Get-EffectiveDeadCodeSeverity([string]$RelativeFile, [string]$Code) {
+    $configs = Get-EditorConfigs
+    $dir = if ($RelativeFile.Contains('/')) { $RelativeFile.Substring(0, $RelativeFile.LastIndexOf('/')) } else { '' }
+    while ($true) {
+        if ($configs.ContainsKey($dir)) {
+            $config = $configs[$dir]
+            $target = if ($dir) { $RelativeFile.Substring($dir.Length + 1) } else { $RelativeFile }
+            for ($i = $config.Sections.Count - 1; $i -ge 0; $i--) {
+                $section = $config.Sections[$i]
+                if ($section.Rules.ContainsKey($Code) -and $section.Regex.IsMatch($target)) { return $section.Rules[$Code] }
+            }
+            if ($config.Root) { return $null }
+        }
+        if (-not $dir) { return $null }
+        $dir = if ($dir.Contains('/')) { $dir.Substring(0, $dir.LastIndexOf('/')) } else { '' }
+    }
+}
+
+# Dead-code IDE rules that resolve to none/silent for at least one source file: the extra build cannot turn them back on.
+function Get-UnscannedDeadCodeRules {
+    $sources = @(Invoke-Git ls-files --cached --others --exclude-standard -- '*.cs' '*.vb')
+    $unscanned = [System.Collections.Generic.List[string]]::new()
+    foreach ($code in $DeadCodeIdeCodes) {
+        foreach ($source in $sources) {
+            if ((Get-EffectiveDeadCodeSeverity $source $code) -in 'none', 'silent') { $unscanned.Add($code); break }
         }
     }
-    return $found
+    return @($unscanned)
 }
 
 # One extra build with the dead-code IDE rules enabled through generated files (EditorConfigFiles item), repo files untouched.
-function Invoke-DeadCodeBuild([string]$SolutionPath, [string]$LogPath, [string]$Dir, [hashtable]$RepoSeverities) {
+function Invoke-DeadCodeBuild([string]$SolutionPath, [string]$LogPath, [string]$Dir) {
     $configPath = [System.IO.Path]::GetFullPath((Join-Path $Dir 'deadcode.globalconfig'))
     $targetsPath = [System.IO.Path]::GetFullPath((Join-Path $Dir 'deadcode.targets'))
     $rules = @('is_global = true') + @($DeadCodeIdeCodes | ForEach-Object { "dotnet_diagnostic.$_.severity = warning" })
@@ -313,11 +436,14 @@ function Invoke-DeadCodeBuild([string]$SolutionPath, [string]$LogPath, [string]$
         Read-Lines $LogPath | Select-Object -Last 20 | Write-Host
         Stop-Tool "dead-code build failed (exit $exit) without a parsable diagnostic; see $LogPath."
     }
+    # An error outside the dead-code rules (e.g. only hit with documentation/code-style enforcement on) means the compilation
+    # did not finish cleanly, so the dead-code diagnostics may be missing. Errors from the dead-code rules themselves are findings.
+    $script:DeadCodeBuildIncomplete = $exit -ne 0 -and [bool]($parsed | Where-Object { $_.Severity -eq 'error' -and $DeadCodeIdeCodes -notcontains $_.Code })
     # The generated rules run as warnings, which only exist to surface them in the log. Where the repo configures the rule as
-    # warning or error that severity is kept; otherwise (not configured, or suggestion) the finding is reported as info.
+    # warning or error for the finding's own file that severity is kept; otherwise (not configured, or suggestion) it is reported as info.
     foreach ($d in $parsed) {
         if ($d.Severity -eq 'error') { continue }
-        $repoSeverity = if ($RepoSeverities -and $RepoSeverities.ContainsKey($d.Code)) { $RepoSeverities[$d.Code] } else { $null }
+        $repoSeverity = Get-EffectiveDeadCodeSeverity $d.File $d.Code
         $d.Severity = if ($repoSeverity -in 'warning', 'error') { 'warning' } else { 'info' }
     }
     return @($parsed | Where-Object { $_.Severity -eq 'error' -or $DeadCodeIdeCodes -contains $_.Code })
@@ -561,7 +687,7 @@ Write-Host "Build exit: $buildExit | Format exit: $formatExit"
 
 # The dead-code IDE rules only run in the extra build, which needs a clean main build. Those scopes filter out the build errors,
 # so continuing would report "no findings" for a scan that never ran.
-if ($buildExit -ne 0 -and ($mode -eq 'deadcode' -or ($mode -eq 'code' -and $DeadCodeIdeCodes -contains $scopeText))) {
+if ($buildExit -ne 0 -and (Test-ScopeNeedsDeadCodeBuild $mode $scopeText)) {
     Stop-Tool "analysis incomplete: scope '$scopeText' needs the dead-code build, which was skipped because the build has errors. Fix them and re-run; see $buildLog."
 }
 
@@ -574,12 +700,17 @@ $formatOnly = $formatFindings | Where-Object { -not $buildKeys.Contains("$($_.Fi
 $deadFindings = @()
 $unscannedRules = @()
 if ($buildExit -eq 0) {
-    $repoSeverities = Get-RepoDeadCodeSeverities
-    $unscannedRules = @($repoSeverities.Keys | Where-Object { $repoSeverities[$_] -in 'none', 'silent' } | Sort-Object)
+    $unscannedRules = @(Get-UnscannedDeadCodeRules)
     if ($unscannedRules.Count -gt 0) {
         Write-Warning "Dead-code rules disabled in .editorconfig cannot be re-enabled by the scan and were NOT checked: $($unscannedRules -join ', ')."
     }
-    $deadFindings =@(Invoke-DeadCodeBuild $Solution $deadLog $OutDir $repoSeverities | Where-Object { -not $buildKeys.Contains("$($_.File)|$($_.Line)|$($_.Code)") })
+    $deadFindings =@(Invoke-DeadCodeBuild $Solution $deadLog $OutDir | Where-Object { -not $buildKeys.Contains("$($_.File)|$($_.Line)|$($_.Code)") })
+    if ($script:DeadCodeBuildIncomplete) {
+        if (Test-ScopeNeedsDeadCodeBuild $mode $scopeText) {
+            Stop-Tool "analysis incomplete: the dead-code build has errors outside the dead-code rules, so scope '$scopeText' may be missing findings. Fix them and re-run; see $deadLog."
+        }
+        Write-Warning "The dead-code build has errors outside the dead-code rules; dead-code findings may be incomplete. See $deadLog."
+    }
 }
 else {
     Write-Warning 'Dead-code build skipped: the build has errors. Fix them and re-run.'
