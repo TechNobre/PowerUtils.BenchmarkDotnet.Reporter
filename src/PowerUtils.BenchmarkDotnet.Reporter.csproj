@@ -9,7 +9,7 @@
     <AssemblyName>PBReporter</AssemblyName>
     <RootNamespace>PowerUtils.BenchmarkDotnet.Reporter</RootNamespace>
 
-    <Version>1.8.1</Version>
+    <Version>1.8.2</Version>
 
     <PackageOutputPath>bin\</PackageOutputPath>
 
@@ -85,7 +85,7 @@
 
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.400">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.402">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
