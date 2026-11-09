@@ -54,7 +54,7 @@ jobs:
       run: dotnet test --configuration Release --no-build --verbosity normal --results-directory ${{ github.workspace }}/${{ env.COVERAGE_REPORT_DIRECTORY }} -- --report-trx --coverage --coverage-output-format cobertura
 
     - name: "Combine Coverage Reports" # This is because one report is produced per project, and we want one result for all of them.
-      uses: danielpalme/ReportGenerator-GitHub-Action@d3ebf1f760f7d8ab92cc44d9bcfee7ad73722a31
+      uses: danielpalme/ReportGenerator-GitHub-Action@861674232075b2c6bd1405a04c4bb9b150653e81
       with:
         reports: "**/*.cobertura.xml" # REQUIRED # The coverage reports that should be parsed (separated by semicolon). Globbing is supported.
         targetdir: "${{ github.workspace }}" # REQUIRED # The directory where the generated report should be saved.
