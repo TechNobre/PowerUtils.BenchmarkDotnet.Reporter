@@ -9,7 +9,7 @@ This file provides guidance to AI coding assistants (Claude Code, GitHub Copilot
 
 ### Tech Stack
 
-- **SDK**: .NET 10 (pinned in `global.json`)
+- **SDK**: .NET 11 (pinned in `global.json`)
 - **System.CommandLine**: CLI parsing and command handling
 - **Microsoft.Extensions.DependencyInjection**: DI container
 - **MarkdownLog**: markdown table rendering for the markdown exporter
