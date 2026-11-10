@@ -19,7 +19,7 @@ public static class YamlDocumentParser
 
         if(lines.Count == 0)
         {
-            return new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
+            return [with(StringComparer.OrdinalIgnoreCase)];
         }
 
         var index = 0;
