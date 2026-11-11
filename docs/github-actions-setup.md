@@ -5,6 +5,7 @@
 This guide explains how to configure `PowerUtils.BenchmarkDotnet.Reporter` in a CI/CD pipeline using GitHub Actions to automatically analyze and compare benchmark performance between baseline and target reports.
 
 
+
 ## Overview
 
 - Runs benchmarks on pull requests

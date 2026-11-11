@@ -9,7 +9,7 @@ This file provides guidance to AI coding assistants (Claude Code, GitHub Copilot
 
 ### Tech Stack
 
-- **SDK**: .NET 10 (pinned in `global.json`)
+- **SDK**: .NET 11 (pinned in `global.json`)
 - **System.CommandLine**: CLI parsing and command handling
 - **Microsoft.Extensions.DependencyInjection**: DI container
 - **MarkdownLog**: markdown table rendering for the markdown exporter
@@ -145,7 +145,9 @@ dotnet test --filter "FullyQualifiedName~<TestClassName>"
 dotnet tool restore
 dotnet restore
 dotnet build --no-restore
-dotnet stryker -tp tests/PowerUtils.BenchmarkDotnet.Reporter.Tests/PowerUtils.BenchmarkDotnet.Reporter.Tests.csproj -p PowerUtils.BenchmarkDotnet.Reporter.csproj --test-runner mtp --reporter json --reporter cleartext --reporter html -o
+cd tests/PowerUtils.BenchmarkDotnet.Reporter.Tests
+dotnet stryker -p PowerUtils.BenchmarkDotnet.Reporter.csproj --test-runner mtp --reporter json --reporter cleartext --reporter html -o
+cd ../..
 
 # Or
 ./stryker.bat
